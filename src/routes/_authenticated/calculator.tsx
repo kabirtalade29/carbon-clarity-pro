@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { allProducts, calculate, formatKg, unitsForProduct, type Product } from "@/lib/emission-calculator";
+import { allProducts, calculate, formatKg, unitsForProduct, SCOPES, type Product, type Scope } from "@/lib/emission-calculator";
 import { saveCalculation } from "@/lib/calculations.functions";
 import { toast } from "sonner";
 import { ChevronsUpDown, Save, Download, FileText } from "lucide-react";
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/calculator")({
 });
 
 function CalculatorPage() {
-  const [scope, setScope] = useState<"Stationary Combustion" | "Mobile Combustion" | "Electricity">("Stationary Combustion");
+  const [scope, setScope] = useState<Scope>("Stationary Combustion");
   const [productName, setProductName] = useState<string>("Gas/Diesel oil");
   const [quantity, setQuantity] = useState<string>("100");
   const [unit, setUnit] = useState<string>("litre");
@@ -117,12 +117,14 @@ function CalculatorPage() {
           <div className="grid gap-5">
             <div>
               <Label>Scope</Label>
-              <Select value={scope} onValueChange={(v) => { setScope(v as typeof scope); setProductName(""); }}>
+              <Select value={scope} onValueChange={(v) => { setScope(v as Scope); setProductName(""); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Stationary Combustion">Stationary Combustion (Scope 1)</SelectItem>
-                  <SelectItem value="Mobile Combustion">Mobile Combustion (Scope 1)</SelectItem>
-                  <SelectItem value="Electricity">Purchased Electricity (Scope 2)</SelectItem>
+                  {SCOPES.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label} ({s.hint})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
