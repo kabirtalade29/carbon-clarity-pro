@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/calculator")({
 });
 
 function CalculatorPage() {
-  const [scope, setScope] = useState<"Stationary Combustion" | "Mobile Combustion" | "Electricity">("Stationary Combustion");
+  const [scope, setScope] = useState<Scope>("Stationary Combustion");
   const [productName, setProductName] = useState<string>("Gas/Diesel oil");
   const [quantity, setQuantity] = useState<string>("100");
   const [unit, setUnit] = useState<string>("litre");
