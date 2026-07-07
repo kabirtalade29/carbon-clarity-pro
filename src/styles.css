@@ -170,15 +170,15 @@
 @utility grain {
   position: relative;
   isolation: isolate;
-}
-@utility grain::after {
-  content: "";
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px);
-  background-size: 3px 3px;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  z-index: 0;
+  &::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    z-index: 0;
+  }
 }
 
 @utility card-elevated {
