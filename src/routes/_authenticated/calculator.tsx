@@ -117,12 +117,14 @@ function CalculatorPage() {
           <div className="grid gap-5">
             <div>
               <Label>Scope</Label>
-              <Select value={scope} onValueChange={(v) => { setScope(v as typeof scope); setProductName(""); }}>
+              <Select value={scope} onValueChange={(v) => { setScope(v as Scope); setProductName(""); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Stationary Combustion">Stationary Combustion (Scope 1)</SelectItem>
-                  <SelectItem value="Mobile Combustion">Mobile Combustion (Scope 1)</SelectItem>
-                  <SelectItem value="Electricity">Purchased Electricity (Scope 2)</SelectItem>
+                  {SCOPES.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label} ({s.hint})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
