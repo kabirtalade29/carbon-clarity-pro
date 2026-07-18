@@ -9,7 +9,21 @@ export type Scope =
   | "Electricity"
   | "Freight"
   | "Business Travel"
-  | "Fugitive Emissions";
+  | "Fugitive Emissions"
+  // Scope 3 standard categories
+  | "Scope 3 - Category 1: Purchased Goods & Services"
+  | "Scope 3 - Category 2: Capital Goods"
+  | "Scope 3 - Category 3: Fuel & Energy Activities"
+  | "Scope 3 - Category 5: Waste Generated in Operations"
+  | "Scope 3 - Category 7: Employee Commuting"
+  | "Scope 3 - Category 8: Upstream Leased Assets"
+  | "Scope 3 - Category 9: Downstream Transportation"
+  | "Scope 3 - Category 10: Processing of Sold Products"
+  | "Scope 3 - Category 11: Use of Sold Products"
+  | "Scope 3 - Category 12: End-of-Life of Sold Products"
+  | "Scope 3 - Category 13: Downstream Leased Assets"
+  | "Scope 3 - Category 14: Franchises"
+  | "Scope 3 - Category 15: Investments";
 
 export type StationaryFactor = {
   name: string;
@@ -61,15 +75,90 @@ export const allProducts = [
 export type Product = (typeof allProducts)[number];
 
 export const SCOPES: { value: Scope; label: string; hint: string }[] = [
+  // Scope 1
   { value: "Stationary Combustion", label: "Stationary Combustion", hint: "Scope 1" },
   { value: "Mobile Combustion", label: "Mobile Combustion", hint: "Scope 1" },
   { value: "Fugitive Emissions", label: "Fugitive — Refrigerants & Gases", hint: "Scope 1" },
+  // Scope 2
   { value: "Electricity", label: "Purchased Electricity", hint: "Scope 2" },
-  { value: "Freight", label: "Freight & Logistics", hint: "Scope 3" },
-  { value: "Business Travel", label: "Business Travel & Commuting", hint: "Scope 3" },
+  // Scope 3
+  {
+    value: "Scope 3 - Category 1: Purchased Goods & Services",
+    label: "Scope 3 - Category 1: Purchased Goods & Services",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 2: Capital Goods",
+    label: "Scope 3 - Category 2: Capital Goods",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 3: Fuel & Energy Activities",
+    label: "Scope 3 - Category 3: Fuel & Energy Activities",
+    hint: "Scope 3",
+  },
+  {
+    value: "Freight",
+    label: "Scope 3 - Category 4: Upstream Transportation (Freight)",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 5: Waste Generated in Operations",
+    label: "Scope 3 - Category 5: Waste Generated in Operations",
+    hint: "Scope 3",
+  },
+  { value: "Business Travel", label: "Scope 3 - Category 6: Business Travel", hint: "Scope 3" },
+  {
+    value: "Scope 3 - Category 7: Employee Commuting",
+    label: "Scope 3 - Category 7: Employee Commuting",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 8: Upstream Leased Assets",
+    label: "Scope 3 - Category 8: Upstream Leased Assets",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 9: Downstream Transportation",
+    label: "Scope 3 - Category 9: Downstream Transportation",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 10: Processing of Sold Products",
+    label: "Scope 3 - Category 10: Processing of Sold Products",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 11: Use of Sold Products",
+    label: "Scope 3 - Category 11: Use of Sold Products",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 12: End-of-Life of Sold Products",
+    label: "Scope 3 - Category 12: End-of-Life of Sold Products",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 13: Downstream Leased Assets",
+    label: "Scope 3 - Category 13: Downstream Leased Assets",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 14: Franchises",
+    label: "Scope 3 - Category 14: Franchises",
+    hint: "Scope 3",
+  },
+  {
+    value: "Scope 3 - Category 15: Investments",
+    label: "Scope 3 - Category 15: Investments",
+    hint: "Scope 3",
+  },
 ];
 
-export function unitsForProduct(p: Product): string[] {
+export function unitsForProduct(p: Product | null): string[] {
+  if (!p) {
+    return ["kg", "tonne", "litre", "m³", "kWh", "MWh", "USD", "INR", "km", "mile"];
+  }
   if (p.scope === "Stationary Combustion") {
     const s = p as StationaryFactor;
     const units: string[] = [];
@@ -101,10 +190,30 @@ export type EmissionResult = {
   };
 };
 
-export function calculate(product: Product, quantity: number, unit: string): EmissionResult {
+export function calculate(
+  product: Product | null,
+  quantity: number,
+  unit: string,
+  customFactor?: number,
+): EmissionResult {
+  if (!product) {
+    const co2e = Number.isFinite(quantity) && quantity > 0 ? quantity * (customFactor ?? 0) : 0;
+    return {
+      co2_kg: co2e,
+      ch4_kg: 0,
+      n2o_kg: 0,
+      co2e_kg: co2e,
+      ef_source: "Custom User Factor",
+      ef_details: { scope: "Custom", unit, factor_co2: customFactor, ef_unit: `kg CO2e/${unit}` },
+    };
+  }
+
   if (!Number.isFinite(quantity) || quantity <= 0) {
     return {
-      co2_kg: 0, ch4_kg: 0, n2o_kg: 0, co2e_kg: 0,
+      co2_kg: 0,
+      ch4_kg: 0,
+      n2o_kg: 0,
+      co2e_kg: 0,
       ef_source: product.source,
       ef_details: { scope: product.scope, unit },
     };
@@ -119,7 +228,14 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
         qty * ((s.ch4_per_kg ?? 0) / 1000),
         qty * ((s.n2o_per_kg ?? 0) / 1000),
         s.source,
-        { scope: s.scope, unit, factor_co2: s.co2_per_kg, factor_ch4: s.ch4_per_kg, factor_n2o: s.n2o_per_kg, ef_unit: "kg/tonne" },
+        {
+          scope: s.scope,
+          unit,
+          factor_co2: s.co2_per_kg,
+          factor_ch4: s.ch4_per_kg,
+          factor_n2o: s.n2o_per_kg,
+          ef_unit: "kg/tonne",
+        },
       );
     }
     if (unit === "kg") {
@@ -128,7 +244,14 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
         quantity * ((s.ch4_per_kg ?? 0) / 1000),
         quantity * ((s.n2o_per_kg ?? 0) / 1000),
         s.source,
-        { scope: s.scope, unit, factor_co2: s.co2_per_kg, factor_ch4: s.ch4_per_kg, factor_n2o: s.n2o_per_kg, ef_unit: "kg/tonne" },
+        {
+          scope: s.scope,
+          unit,
+          factor_co2: s.co2_per_kg,
+          factor_ch4: s.ch4_per_kg,
+          factor_n2o: s.n2o_per_kg,
+          ef_unit: "kg/tonne",
+        },
       );
     }
     if (unit === "litre") {
@@ -137,7 +260,14 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
         quantity * (s.ch4_per_l ?? 0),
         quantity * (s.n2o_per_l ?? 0),
         s.source,
-        { scope: s.scope, unit, factor_co2: s.co2_per_l, factor_ch4: s.ch4_per_l, factor_n2o: s.n2o_per_l, ef_unit: "kg/L" },
+        {
+          scope: s.scope,
+          unit,
+          factor_co2: s.co2_per_l,
+          factor_ch4: s.ch4_per_l,
+          factor_n2o: s.n2o_per_l,
+          ef_unit: "kg/L",
+        },
       );
     }
     if (unit === "m³") {
@@ -146,9 +276,25 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
         quantity * (s.ch4_per_m3 ?? 0),
         quantity * (s.n2o_per_m3 ?? 0),
         s.source,
-        { scope: s.scope, unit, factor_co2: s.co2_per_m3, factor_ch4: s.ch4_per_m3, factor_n2o: s.n2o_per_m3, ef_unit: "kg/m³" },
+        {
+          scope: s.scope,
+          unit,
+          factor_co2: s.co2_per_m3,
+          factor_ch4: s.ch4_per_m3,
+          factor_n2o: s.n2o_per_m3,
+          ef_unit: "kg/m³",
+        },
       );
     }
+    // Fallback if the unit is temporarily invalid or out-of-sync
+    return finalize(0, 0, 0, s.source, {
+      scope: s.scope,
+      unit,
+      factor_co2: 0,
+      factor_ch4: 0,
+      factor_n2o: 0,
+      ef_unit: "unknown",
+    });
   }
 
   if (product.scope === "Electricity") {
@@ -156,7 +302,12 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
     const perKwh = e.ef_value / 1000; // kg CO2 / kWh
     const qty = unit === "MWh" ? quantity * 1000 : quantity;
     const co2 = qty * perKwh;
-    return finalize(co2, 0, 0, e.source, { scope: e.scope, unit, factor_co2: e.ef_value, ef_unit: e.ef_unit });
+    return finalize(co2, 0, 0, e.source, {
+      scope: e.scope,
+      unit,
+      factor_co2: e.ef_value,
+      ef_unit: e.ef_unit,
+    });
   }
 
   if (product.scope === "Fugitive Emissions") {
@@ -165,7 +316,10 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
     const kg = unit === "g" ? quantity / 1000 : quantity;
     const co2e = kg * gwp;
     return {
-      co2_kg: 0, ch4_kg: 0, n2o_kg: 0, co2e_kg: co2e,
+      co2_kg: 0,
+      ch4_kg: 0,
+      n2o_kg: 0,
+      co2e_kg: co2e,
       ef_source: r.source,
       ef_details: { scope: r.scope, unit, factor_co2: gwp, ef_unit: "kg CO2e/kg gas" },
     };
@@ -173,12 +327,24 @@ export function calculate(product: Product, quantity: number, unit: string): Emi
 
   // Mobile / Freight / Travel — single-gas EF applied directly to quantity
   const m = product as SimpleFactor;
-  const ef = m.ef_unit.startsWith("g/") ? m.ef_value / 1000 : m.ef_value;
+  const efUnit = m.ef_unit ?? "";
+  const ef = efUnit.startsWith("g/") ? m.ef_value / 1000 : m.ef_value;
   const co2 = quantity * ef;
-  return finalize(co2, 0, 0, m.source, { scope: m.scope, unit, factor_co2: m.ef_value, ef_unit: m.ef_unit });
+  return finalize(co2, 0, 0, m.source, {
+    scope: m.scope,
+    unit,
+    factor_co2: m.ef_value,
+    ef_unit: m.ef_unit,
+  });
 }
 
-function finalize(co2: number, ch4: number, n2o: number, source: string, details: EmissionResult["ef_details"]): EmissionResult {
+function finalize(
+  co2: number,
+  ch4: number,
+  n2o: number,
+  source: string,
+  details: EmissionResult["ef_details"],
+): EmissionResult {
   return {
     co2_kg: co2,
     ch4_kg: ch4,

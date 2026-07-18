@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/app/app-shell";
@@ -33,36 +33,49 @@ function CalculatorPage() {
   const [notes, setNotes] = useState("");
   const [open, setOpen] = useState(false);
 
+  // States for custom categories
+  const [customProductName, setCustomProductName] = useState("");
+  const [customFactor, setCustomFactor] = useState("1.0");
+
   const products = useMemo(() => allProducts.filter((p) => p.scope === scope), [scope]);
   const product = useMemo(() => products.find((p) => p.name === productName) ?? products[0], [products, productName]);
-  const units = useMemo(() => (product ? unitsForProduct(product) : []), [product]);
+  const units = useMemo(() => (product ? unitsForProduct(product) : unitsForProduct(null)), [product]);
 
   // ensure unit valid
-  useMemo(() => {
-    if (product && !units.includes(unit)) setUnit(units[0] ?? "");
+  useEffect(() => {
+    if (!units.includes(unit)) setUnit(units[0] ?? "");
   }, [product, unit, units]);
 
   const qty = Number(quantity);
-  const result = product ? calculate(product, isFinite(qty) ? qty : 0, unit) : null;
+  const customFactNum = Number(customFactor);
+  const result = calculate(
+    product || null,
+    isFinite(qty) ? qty : 0,
+    unit,
+    isFinite(customFactNum) ? customFactNum : 0
+  );
 
   const qc = useQueryClient();
   const saveFn = useServerFn(saveCalculation);
   const saveMut = useMutation({
     mutationFn: async () => {
-      if (!product || !result || !qty) throw new Error("Enter a quantity");
+      if (!result || !qty) throw new Error("Enter a quantity");
+      const prodName = product ? product.name : (customProductName || "Custom Goods/Material");
+      const prodCat = product ? product.category : scope;
+      const efSource = result.ef_source || "Custom User Input";
       return saveFn({
         data: {
           saved_name: savedName || null,
-          scope: product.scope,
-          category: product.category,
-          product_name: product.name,
+          scope,
+          category: prodCat,
+          product_name: prodName,
           quantity: qty,
           unit,
           co2_kg: result.co2_kg,
           ch4_kg: result.ch4_kg,
           n2o_kg: result.n2o_kg,
           co2e_kg: result.co2e_kg,
-          ef_source: result.ef_source,
+          ef_source: efSource,
           ef_details: result.ef_details as Record<string, unknown>,
           company: company || null,
           facility: facility || null,
@@ -78,7 +91,10 @@ function CalculatorPage() {
   });
 
   function exportPdf() {
-    if (!product || !result) return;
+    if (!result) return;
+    const prodName = product ? product.name : (customProductName || "Custom Goods/Material");
+    const prodCat = product ? product.category : scope;
+    const efSource = result.ef_source || "Custom User Input";
     downloadReport({
       id: crypto.randomUUID(),
       savedName,
@@ -86,12 +102,12 @@ function CalculatorPage() {
       facility,
       userName: null,
       reportDate: new Date().toLocaleDateString(),
-      product: product.name,
-      category: product.category,
+      product: prodName,
+      category: prodCat,
       quantity: qty,
       unit,
-      scope: product.scope,
-      efSource: result.ef_source,
+      scope,
+      efSource: efSource,
       efDetails: result.ef_details as Record<string, unknown>,
       co2: result.co2_kg,
       ch4: result.ch4_kg,
@@ -117,7 +133,20 @@ function CalculatorPage() {
           <div className="grid gap-5">
             <div>
               <Label>Scope</Label>
-              <Select value={scope} onValueChange={(v) => { setScope(v as Scope); setProductName(""); }}>
+              <Select
+                value={scope}
+                onValueChange={(v) => {
+                  const nextScope = v as Scope;
+                  const nextProducts = allProducts.filter((p) => p.scope === nextScope);
+                  const nextProduct = nextProducts[0];
+                  const nextUnits = nextProduct ? unitsForProduct(nextProduct) : unitsForProduct(null);
+                  setScope(nextScope);
+                  setProductName(nextProduct?.name ?? "");
+                  if (nextUnits.length > 0) {
+                    setUnit(nextUnits[0]);
+                  }
+                }}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {SCOPES.map((s) => (
@@ -129,44 +158,75 @@ function CalculatorPage() {
               </Select>
             </div>
 
-            <div>
-              <Label>Product / Fuel</Label>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
-                    <span className="truncate">{product?.name ?? "Choose"}</span>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search products…" />
-                    <CommandList>
-                      <CommandEmpty>No product</CommandEmpty>
-                      {groupProducts(products).map((g) => (
-                        <CommandGroup key={g.category} heading={g.category}>
-                          {g.items.map((p) => (
-                            <CommandItem
-                              key={p.name}
-                              value={p.name}
-                              onSelect={() => { setProductName(p.name); setOpen(false); }}
-                              className={cn(product?.name === p.name && "bg-accent/50")}
-                            >
-                              {p.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      ))}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              {product && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Category: <span className="text-foreground">{product.category}</span>
-                </p>
-              )}
-            </div>
+            {products.length > 0 ? (
+              <div>
+                <Label>Product / Fuel</Label>
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                      <span className="truncate">{product?.name ?? "Choose"}</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search products…" />
+                      <CommandList>
+                        <CommandEmpty>No product</CommandEmpty>
+                        {groupProducts(products).map((g) => (
+                          <CommandGroup key={g.category} heading={g.category}>
+                            {g.items.map((p) => (
+                              <CommandItem
+                                key={p.name}
+                                value={p.name}
+                                onSelect={() => {
+                                  setProductName(p.name);
+                                  const nextUnits = unitsForProduct(p);
+                                  if (nextUnits.length > 0) {
+                                    setUnit(nextUnits[0]);
+                                  }
+                                  setOpen(false);
+                                }}
+                                className={cn(product?.name === p.name && "bg-accent/50")}
+                              >
+                                {p.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        ))}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {product && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Category: <span className="text-foreground">{product.category}</span>
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label>Item / Material Description</Label>
+                  <Input
+                    placeholder="e.g. Purchased Steel, Office Paper"
+                    value={customProductName}
+                    onChange={(e) => setCustomProductName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Emission Factor (kg CO₂e per unit)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="any"
+                    placeholder="e.g. 1.25"
+                    value={customFactor}
+                    onChange={(e) => setCustomFactor(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -218,7 +278,7 @@ function CalculatorPage() {
           <ResultCard label="CO₂" value={result?.co2_kg ?? 0} />
           <ResultCard label="CH₄" value={result?.ch4_kg ?? 0} />
           <ResultCard label="N₂O" value={result?.n2o_kg ?? 0} />
-          <Card className="card-elevated rounded-2xl border-primary/40 bg-primary p-5 text-primary-foreground">
+          <Card className="rounded-2xl border-primary/40 bg-primary p-5 text-primary-foreground shadow-md">
             <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Total CO₂e</p>
             <p className="mt-2 font-display text-4xl">{formatKg(result?.co2e_kg ?? 0)}</p>
             <p className="mt-2 text-xs text-primary-foreground/70">

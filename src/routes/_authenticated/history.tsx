@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Download, Search, Trash2 } from "lucide-react";
-import { formatKg } from "@/lib/emission-calculator";
+import { formatKg, SCOPES } from "@/lib/emission-calculator";
 import { downloadReport } from "@/lib/pdf-report";
 import { toast } from "sonner";
 
@@ -70,9 +70,11 @@ function HistoryPage() {
             <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All scopes</SelectItem>
-              <SelectItem value="Stationary Combustion">Stationary Combustion</SelectItem>
-              <SelectItem value="Mobile Combustion">Mobile Combustion</SelectItem>
-              <SelectItem value="Electricity">Electricity</SelectItem>
+              {SCOPES.map((s) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
