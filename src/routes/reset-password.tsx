@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -32,7 +33,7 @@ function ResetPassword() {
       toast.success("Password updated.");
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -45,7 +46,14 @@ function ResetPassword() {
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
             <Label htmlFor="password">New password</Label>
-            <Input id="password" name="password" type="password" required minLength={6} maxLength={200} />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              minLength={6}
+              maxLength={200}
+            />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Updating…" : "Update password"}

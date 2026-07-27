@@ -7,18 +7,42 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { allProducts, calculate, formatKg, unitsForProduct, SCOPES, type Product, type Scope } from "@/lib/emission-calculator";
+import {
+  allProducts,
+  calculate,
+  formatKg,
+  unitsForProduct,
+  SCOPES,
+  type Product,
+  type Scope,
+} from "@/lib/emission-calculator";
 import { saveCalculation } from "@/lib/calculations.functions";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 import { ChevronsUpDown, Save, Download, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downloadReport } from "@/lib/pdf-report";
 
 export const Route = createFileRoute("/_authenticated/calculator")({
-  head: () => ({ meta: [{ title: "Calculator — Carbonly" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Calculator — Carbonly" }, { name: "robots", content: "noindex" }],
+  }),
   component: CalculatorPage,
 });
 
@@ -38,8 +62,14 @@ function CalculatorPage() {
   const [customFactor, setCustomFactor] = useState("1.0");
 
   const products = useMemo(() => allProducts.filter((p) => p.scope === scope), [scope]);
-  const product = useMemo(() => products.find((p) => p.name === productName) ?? products[0], [products, productName]);
-  const units = useMemo(() => (product ? unitsForProduct(product) : unitsForProduct(null)), [product]);
+  const product = useMemo(
+    () => products.find((p) => p.name === productName) ?? products[0],
+    [products, productName],
+  );
+  const units = useMemo(
+    () => (product ? unitsForProduct(product) : unitsForProduct(null)),
+    [product],
+  );
 
   // ensure unit valid
   useEffect(() => {
@@ -52,7 +82,7 @@ function CalculatorPage() {
     product || null,
     isFinite(qty) ? qty : 0,
     unit,
-    isFinite(customFactNum) ? customFactNum : 0
+    isFinite(customFactNum) ? customFactNum : 0,
   );
 
   const qc = useQueryClient();
@@ -60,7 +90,7 @@ function CalculatorPage() {
   const saveMut = useMutation({
     mutationFn: async () => {
       if (!result || !qty) throw new Error("Enter a quantity");
-      const prodName = product ? product.name : (customProductName || "Custom Goods/Material");
+      const prodName = product ? product.name : customProductName || "Custom Goods/Material";
       const prodCat = product ? product.category : scope;
       const efSource = result.ef_source || "Custom User Input";
       return saveFn({
@@ -87,12 +117,12 @@ function CalculatorPage() {
       toast.success("Calculation saved");
       qc.invalidateQueries({ queryKey: ["me"] });
     },
-    onError: (e) => toast.error((e as Error).message),
+    onError: (e) => toast.error(getErrorMessage(e)),
   });
 
   function exportPdf() {
     if (!result) return;
-    const prodName = product ? product.name : (customProductName || "Custom Goods/Material");
+    const prodName = product ? product.name : customProductName || "Custom Goods/Material";
     const prodCat = product ? product.category : scope;
     const efSource = result.ef_source || "Custom User Input";
     downloadReport({
@@ -139,7 +169,9 @@ function CalculatorPage() {
                   const nextScope = v as Scope;
                   const nextProducts = allProducts.filter((p) => p.scope === nextScope);
                   const nextProduct = nextProducts[0];
-                  const nextUnits = nextProduct ? unitsForProduct(nextProduct) : unitsForProduct(null);
+                  const nextUnits = nextProduct
+                    ? unitsForProduct(nextProduct)
+                    : unitsForProduct(null);
                   setScope(nextScope);
                   setProductName(nextProduct?.name ?? "");
                   if (nextUnits.length > 0) {
@@ -147,7 +179,9 @@ function CalculatorPage() {
                   }
                 }}
               >
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {SCOPES.map((s) => (
                     <SelectItem key={s.value} value={s.value}>
@@ -163,7 +197,11 @@ function CalculatorPage() {
                 <Label>Product / Fuel</Label>
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between font-normal"
+                    >
                       <span className="truncate">{product?.name ?? "Choose"}</span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                     </Button>
@@ -231,14 +269,27 @@ function CalculatorPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="qty">Quantity</Label>
-                <Input id="qty" type="number" min={0} step="any" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+                <Input
+                  id="qty"
+                  type="number"
+                  min={0}
+                  step="any"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
               </div>
               <div>
                 <Label>Unit</Label>
                 <Select value={unit} onValueChange={setUnit}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {units.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    {units.map((u) => (
+                      <SelectItem key={u} value={u}>
+                        {u}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -247,15 +298,28 @@ function CalculatorPage() {
             <div className="mt-2 grid gap-3 rounded-xl border bg-muted/30 p-4 md:grid-cols-3">
               <div>
                 <Label>Report name</Label>
-                <Input value={savedName} onChange={(e) => setSavedName(e.target.value)} placeholder="e.g. Q3 Boiler diesel" maxLength={120} />
+                <Input
+                  value={savedName}
+                  onChange={(e) => setSavedName(e.target.value)}
+                  placeholder="e.g. Q3 Boiler diesel"
+                  maxLength={120}
+                />
               </div>
               <div>
                 <Label>Company</Label>
-                <Input value={company} onChange={(e) => setCompany(e.target.value)} maxLength={200} />
+                <Input
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  maxLength={200}
+                />
               </div>
               <div>
                 <Label>Facility</Label>
-                <Input value={facility} onChange={(e) => setFacility(e.target.value)} maxLength={200} />
+                <Input
+                  value={facility}
+                  onChange={(e) => setFacility(e.target.value)}
+                  maxLength={200}
+                />
               </div>
               <div className="md:col-span-3">
                 <Label>Notes (optional)</Label>
@@ -279,7 +343,9 @@ function CalculatorPage() {
           <ResultCard label="CH₄" value={result?.ch4_kg ?? 0} />
           <ResultCard label="N₂O" value={result?.n2o_kg ?? 0} />
           <Card className="rounded-2xl border-primary/40 bg-primary p-5 text-primary-foreground shadow-md">
-            <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Total CO₂e</p>
+            <p className="text-xs uppercase tracking-widest text-primary-foreground/70">
+              Total CO₂e
+            </p>
             <p className="mt-2 font-display text-4xl">{formatKg(result?.co2e_kg ?? 0)}</p>
             <p className="mt-2 text-xs text-primary-foreground/70">
               GWP AR5 100-year: CO₂=1, CH₄=28, N₂O=265

@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Leaf, ArrowLeft } from "lucide-react";
+import { Leaf, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -26,10 +27,22 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("demo_user_session") === "true") {
+      navigate({ to: "/dashboard" });
+      return;
+    }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/dashboard" });
     });
   }, [navigate]);
+
+  function handleDemoSignIn() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("demo_user_session", "true");
+    }
+    toast.success("Signed in as Demo User");
+    navigate({ to: "/dashboard" });
+  }
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,7 +77,7 @@ function AuthPage() {
         setMode("signin");
       }
     } catch (err) {
-      toast.error((err as Error).message);
+      toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -83,20 +96,29 @@ function AuthPage() {
           <p className="font-display text-4xl leading-tight">
             "The reporting quality doubled overnight."
           </p>
-          <p className="mt-4 text-sm text-primary-foreground/70">Sustainability lead, mid-cap manufacturer</p>
+          <p className="mt-4 text-sm text-primary-foreground/70">
+            Sustainability lead, mid-cap manufacturer
+          </p>
         </div>
         <div className="text-xs text-primary-foreground/60">
           IPCC 2006 · GHG Protocol · EPA eGRID
         </div>
       </div>
       <div className="flex flex-col justify-center px-6 py-12 md:px-16">
-        <Link to="/" className="mb-8 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:hidden">
+        <Link
+          to="/"
+          className="mb-8 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:hidden"
+        >
           <ArrowLeft className="h-3 w-3" /> Home
         </Link>
         <Card className="mx-auto w-full max-w-md rounded-2xl border-border/60 p-8">
           <div className="mb-6">
             <h1 className="font-display text-3xl">
-              {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Reset password"}
+              {mode === "signin"
+                ? "Sign in"
+                : mode === "signup"
+                  ? "Create account"
+                  : "Reset password"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {mode === "signin"
@@ -120,21 +142,65 @@ function AuthPage() {
             {mode !== "forgot" && (
               <div>
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" name="password" type="password" required minLength={6} maxLength={200} />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  maxLength={200}
+                />
               </div>
             )}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
+              {loading
+                ? "Please wait…"
+                : mode === "signin"
+                  ? "Sign in"
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Send reset link"}
             </Button>
           </form>
+
+          <div className="relative my-4 flex items-center justify-center">
+            <span className="w-full border-t border-border" />
+            <span className="bg-card px-2 text-xs uppercase text-muted-foreground">or</span>
+            <span className="w-full border-t border-border" />
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/5"
+            onClick={handleDemoSignIn}
+          >
+            <Sparkles className="h-4 w-4" />
+            Demo / Instant Sign In
+          </Button>
           <div className="mt-6 flex items-center justify-between text-sm">
             {mode !== "signin" ? (
-              <button className="text-muted-foreground hover:text-foreground" onClick={() => setMode("signin")}>← Sign in</button>
+              <button
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => setMode("signin")}
+              >
+                ← Sign in
+              </button>
             ) : (
-              <button className="text-muted-foreground hover:text-foreground" onClick={() => setMode("signup")}>Create account</button>
+              <button
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => setMode("signup")}
+              >
+                Create account
+              </button>
             )}
             {mode === "signin" && (
-              <button className="text-muted-foreground hover:text-foreground" onClick={() => setMode("forgot")}>Forgot password?</button>
+              <button
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => setMode("forgot")}
+              >
+                Forgot password?
+              </button>
             )}
           </div>
         </Card>

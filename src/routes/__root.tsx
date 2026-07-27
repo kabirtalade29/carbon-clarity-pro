@@ -90,8 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Carbonly — Enterprise Carbon Emission Calculator" },
       {
         property: "og:description",
-        content:
-          "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports.",
+        content: "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -110,7 +109,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
         {children}
         <Scripts />

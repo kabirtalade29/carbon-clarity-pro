@@ -1,5 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Calculator, History, Shield, LogOut, Leaf, FileText, Menu, Gauge } from "lucide-react";
+import {
+  LayoutDashboard,
+  Calculator,
+  History,
+  Shield,
+  LogOut,
+  Leaf,
+  FileText,
+  Menu,
+  Gauge,
+} from "lucide-react";
 import { type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,9 +38,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   ] as const;
 
   async function signOut() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("demo_user_session");
+    }
     await qc.cancelQueries();
     qc.clear();
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // ignore offline error
+    }
     toast.success("Signed out");
     window.location.href = "/";
   }
@@ -51,7 +68,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-60 bg-sidebar text-sidebar-foreground p-0 flex flex-col">
+          <SheetContent
+            side="left"
+            className="w-60 bg-sidebar text-sidebar-foreground p-0 flex flex-col"
+          >
             <div className="flex items-center gap-2 px-5 py-5 border-b">
               <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
                 <Leaf className="h-4 w-4" />
@@ -79,7 +99,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               })}
             </nav>
             <div className="px-3 pb-5">
-              <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground" onClick={signOut}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+                onClick={signOut}
+              >
                 <LogOut className="h-4 w-4" /> Sign out
               </Button>
             </div>

@@ -55,6 +55,7 @@ import {
 import { saveCalculation } from "@/lib/calculations.functions";
 import { downloadConsolidatedReport } from "@/lib/pdf-report";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/reports")({
@@ -255,7 +256,7 @@ function ReportsPage() {
       toast.success("All calculations saved to history successfully!");
       qc.invalidateQueries({ queryKey: ["me"] });
     },
-    onError: (e) => toast.error((e as Error).message),
+    onError: (e) => toast.error(getErrorMessage(e)),
   });
 
   const exportPdf = () => {

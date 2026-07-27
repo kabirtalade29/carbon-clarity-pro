@@ -6,12 +6,19 @@ import { AppShell } from "@/components/app/app-shell";
 import { deleteCalculation, listMyCalculations, getMyProfile } from "@/lib/calculations.functions";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Download, Search, Trash2 } from "lucide-react";
 import { formatKg, SCOPES } from "@/lib/emission-calculator";
 import { downloadReport } from "@/lib/pdf-report";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/history")({
   head: () => ({ meta: [{ title: "History — Carbonly" }, { name: "robots", content: "noindex" }] }),
@@ -24,7 +31,10 @@ function HistoryPage() {
   const delFn = useServerFn(deleteCalculation);
   const qc = useQueryClient();
 
-  const { data: rows = [] } = useQuery({ queryKey: ["me", "calculations"], queryFn: () => listFn() });
+  const { data: rows = [] } = useQuery({
+    queryKey: ["me", "calculations"],
+    queryFn: () => listFn(),
+  });
   const { data: profile } = useQuery({ queryKey: ["me", "profile"], queryFn: () => profileFn() });
   const [q, setQ] = useState("");
   const [scope, setScope] = useState<string>("all");
@@ -48,7 +58,7 @@ function HistoryPage() {
       toast.success("Deleted");
       qc.invalidateQueries({ queryKey: ["me"] });
     },
-    onError: (e) => toast.error((e as Error).message),
+    onError: (e) => toast.error(getErrorMessage(e)),
   });
 
   return (
@@ -64,10 +74,17 @@ function HistoryPage() {
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-8" placeholder="Search product, category, name…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input
+              className="pl-8"
+              placeholder="Search product, category, name…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
           </div>
           <Select value={scope} onValueChange={setScope}>
-            <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-52">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All scopes</SelectItem>
               {SCOPES.map((s) => (
@@ -95,11 +112,15 @@ function HistoryPage() {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.id} className="border-b last:border-none">
-                  <td className="py-2 pr-3 text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
+                  <td className="py-2 pr-3 text-muted-foreground">
+                    {new Date(r.created_at).toLocaleDateString()}
+                  </td>
                   <td className="py-2 pr-3 font-medium">{r.saved_name || "—"}</td>
                   <td className="py-2 pr-3">{r.product_name}</td>
                   <td className="py-2 pr-3 text-muted-foreground">{r.scope}</td>
-                  <td className="py-2 pr-3">{Number(r.quantity).toLocaleString()} {r.unit}</td>
+                  <td className="py-2 pr-3">
+                    {Number(r.quantity).toLocaleString()} {r.unit}
+                  </td>
                   <td className="py-2 pr-3 font-medium">{formatKg(Number(r.co2e_kg))}</td>
                   <td className="py-2 pr-3">
                     <div className="flex justify-end gap-1">
@@ -139,7 +160,11 @@ function HistoryPage() {
                 </tr>
               ))}
               {!filtered.length && (
-                <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">No calculations match.</td></tr>
+                <tr>
+                  <td colSpan={7} className="py-10 text-center text-muted-foreground">
+                    No calculations match.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

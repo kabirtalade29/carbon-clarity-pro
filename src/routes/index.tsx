@@ -13,7 +13,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "motion/react";
@@ -62,14 +67,26 @@ function SiteNav() {
           <span className="font-display text-xl">Carbonly</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#features" className="hover:text-foreground">Features</a>
-          <a href="#preview" className="hover:text-foreground">Calculator</a>
-          <a href="#about" className="hover:text-foreground">About</a>
-          <a href="#faq" className="hover:text-foreground">FAQ</a>
-          <a href="#contact" className="hover:text-foreground">Contact</a>
+          <a href="#features" className="hover:text-foreground">
+            Features
+          </a>
+          <a href="#preview" className="hover:text-foreground">
+            Calculator
+          </a>
+          <a href="#about" className="hover:text-foreground">
+            About
+          </a>
+          <a href="#faq" className="hover:text-foreground">
+            FAQ
+          </a>
+          <a href="#contact" className="hover:text-foreground">
+            Contact
+          </a>
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground">Sign in</Link>
+          <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground">
+            Sign in
+          </Link>
           <Button asChild size="sm">
             <Link to="/auth">Start free</Link>
           </Button>
@@ -94,14 +111,12 @@ function Hero() {
             <Sparkles className="h-3 w-3 text-accent" /> IPCC 2006 · GHG Protocol
           </div>
           <h1 className="mt-5 font-display text-5xl leading-[1.05] text-balance md:text-6xl">
-            Measure emissions with{" "}
-            <span className="italic text-primary">precision.</span>{" "}
-            Report with confidence.
+            Measure emissions with <span className="italic text-primary">precision.</span> Report
+            with confidence.
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-            A professional carbon accounting workspace for sustainability teams, ESG
-            consultants and manufacturers. Live emission factors, defensible math,
-            audit-ready PDFs.
+            A professional carbon accounting workspace for sustainability teams, ESG consultants and
+            manufacturers. Live emission factors, defensible math, audit-ready PDFs.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg">
@@ -130,7 +145,9 @@ function Hero() {
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">
                   Q3 · Facility A
                 </p>
-                <p className="mt-1 font-display text-3xl">1,284.7 <span className="text-lg text-muted-foreground">t CO₂e</span></p>
+                <p className="mt-1 font-display text-3xl">
+                  1,284.7 <span className="text-lg text-muted-foreground">t CO₂e</span>
+                </p>
               </div>
               <div className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
                 −12% vs Q2
@@ -151,7 +168,11 @@ function Hero() {
             <div className="mt-6 h-32 rounded-xl border bg-gradient-to-b from-secondary/40 to-transparent p-3">
               <div className="flex h-full items-end gap-2">
                 {[42, 68, 51, 79, 63, 88, 74, 92, 81].map((h, i) => (
-                  <div key={i} className="flex-1 rounded-t bg-primary/80" style={{ height: `${h}%` }} />
+                  <div
+                    key={i}
+                    className="flex-1 rounded-t bg-primary/80"
+                    style={{ height: `${h}%` }}
+                  />
                 ))}
               </div>
             </div>
@@ -196,20 +217,41 @@ function Stats() {
 
 function Features() {
   const items = [
-    { icon: BarChart3, t: "Live dashboards", d: "Monthly trends, gas breakdowns and product-wise emissions in one place." },
-    { icon: ShieldCheck, t: "Audit-grade math", d: "IPCC 2006 factors with AR5 100-year GWP. Every calculation is traceable." },
-    { icon: FileText, t: "Branded PDFs", d: "Company, facility and methodology captured for every report." },
-    { icon: Factory, t: "Multi-scope ready", d: "Stationary combustion today. Mobile, freight and refrigerants next." },
+    {
+      icon: BarChart3,
+      t: "Live dashboards",
+      d: "Monthly trends, gas breakdowns and product-wise emissions in one place.",
+    },
+    {
+      icon: ShieldCheck,
+      t: "Audit-grade math",
+      d: "IPCC 2006 factors with AR5 100-year GWP. Every calculation is traceable.",
+    },
+    {
+      icon: FileText,
+      t: "Branded PDFs",
+      d: "Company, facility and methodology captured for every report.",
+    },
+    {
+      icon: Factory,
+      t: "Multi-scope ready",
+      d: "Stationary combustion today. Mobile, freight and refrigerants next.",
+    },
   ];
   return (
     <section id="features" className="mx-auto max-w-7xl px-4 py-24 md:px-8">
       <div className="max-w-2xl">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">What's inside</p>
-        <h2 className="mt-2 font-display text-4xl md:text-5xl">Everything an ESG team needs, nothing they don't.</h2>
+        <h2 className="mt-2 font-display text-4xl md:text-5xl">
+          Everything an ESG team needs, nothing they don't.
+        </h2>
       </div>
       <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {items.map((f) => (
-          <Card key={f.t} className="group h-full rounded-2xl border-border/60 p-6 transition-shadow hover:shadow-lg">
+          <Card
+            key={f.t}
+            className="group h-full rounded-2xl border-border/60 p-6 transition-shadow hover:shadow-lg"
+          >
             <div className="grid h-10 w-10 place-items-center rounded-lg bg-secondary text-secondary-foreground">
               <f.icon className="h-5 w-5" />
             </div>
@@ -230,22 +272,26 @@ function Preview() {
           <p className="text-xs uppercase tracking-widest text-muted-foreground">The calculator</p>
           <h2 className="mt-2 font-display text-4xl">Pick a fuel. Enter a quantity. Done.</h2>
           <p className="mt-4 text-muted-foreground">
-            Emission factors are looked up automatically from the built-in IPCC & EPA
-            database. Results show CO₂, CH₄, N₂O and total CO₂e — with the exact factor
-            and unit used, so anyone can audit the number.
+            Emission factors are looked up automatically from the built-in IPCC & EPA database.
+            Results show CO₂, CH₄, N₂O and total CO₂e — with the exact factor and unit used, so
+            anyone can audit the number.
           </p>
           <ul className="mt-6 space-y-3 text-sm">
-            {["Litres · kg · tonnes · m³ · MWh", "GWP AR5 100-year", "Save & tag by facility, export to PDF"].map(
-              (t) => (
-                <li key={t} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-primary" /> {t}
-                </li>
-              ),
-            )}
+            {[
+              "Litres · kg · tonnes · m³ · MWh",
+              "GWP AR5 100-year",
+              "Save & tag by facility, export to PDF",
+            ].map((t) => (
+              <li key={t} className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-primary" /> {t}
+              </li>
+            ))}
           </ul>
           <div className="mt-8">
             <Button asChild>
-              <Link to="/auth">Try the calculator <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/auth">
+                Try the calculator <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
@@ -287,7 +333,10 @@ function Preview() {
 
 function WhyUs() {
   const items = [
-    { t: "Defensible", d: "Public IPCC/EPA sources cited on every report — no hidden assumptions." },
+    {
+      t: "Defensible",
+      d: "Public IPCC/EPA sources cited on every report — no hidden assumptions.",
+    },
     { t: "Fast", d: "Sub-second lookup and calculation. Reports in under two minutes." },
     { t: "Extensible", d: "Add mobile combustion, freight, refrigerants and Scope 3 as you grow." },
     { t: "Secure", d: "Row-level security, role-based admin, and audit trail on every save." },
@@ -295,7 +344,9 @@ function WhyUs() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-24 md:px-8">
       <div className="max-w-2xl">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Why teams choose Carbonly</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+          Why teams choose Carbonly
+        </p>
         <h2 className="mt-2 font-display text-4xl">Built by people who've filed CDP reports.</h2>
       </div>
       <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -316,23 +367,30 @@ function About() {
       <div className="mx-auto grid max-w-7xl gap-12 px-4 py-24 md:grid-cols-2 md:px-8">
         <div>
           <p className="text-xs uppercase tracking-widest text-muted-foreground">About</p>
-          <h2 className="mt-2 font-display text-4xl">A quiet, capable workbench for climate teams.</h2>
+          <h2 className="mt-2 font-display text-4xl">
+            A quiet, capable workbench for climate teams.
+          </h2>
         </div>
         <div className="space-y-4 text-muted-foreground">
           <p>
-            Carbonly starts where most spreadsheets stall — a shared source of emission
-            factors, a clean audit trail, and reports that don't need a design pass
-            before you can share them.
+            Carbonly starts where most spreadsheets stall — a shared source of emission factors, a
+            clean audit trail, and reports that don't need a design pass before you can share them.
           </p>
           <p>
-            We use the IPCC 2006 Guidelines for stationary combustion, EPA eGRID for US
-            electricity, and national factors for major grids. Every number on your
-            report links back to its source.
+            We use the IPCC 2006 Guidelines for stationary combustion, EPA eGRID for US electricity,
+            and national factors for major grids. Every number on your report links back to its
+            source.
           </p>
           <div className="flex flex-wrap gap-4 pt-2 text-foreground">
-            <div className="flex items-center gap-2"><Trees className="h-4 w-4 text-primary" /> IPCC 2006</div>
-            <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> GHG Protocol</div>
-            <div className="flex items-center gap-2"><Factory className="h-4 w-4 text-primary" /> EPA eGRID</div>
+            <div className="flex items-center gap-2">
+              <Trees className="h-4 w-4 text-primary" /> IPCC 2006
+            </div>
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" /> GHG Protocol
+            </div>
+            <div className="flex items-center gap-2">
+              <Factory className="h-4 w-4 text-primary" /> EPA eGRID
+            </div>
           </div>
         </div>
       </div>
@@ -342,11 +400,26 @@ function About() {
 
 function FAQ() {
   const items = [
-    { q: "What emission factors do you use?", a: "IPCC 2006 Guidelines for stationary and mobile fuel combustion, US EPA eGRID for US grid electricity, and national published factors for China, UK, Brazil, Taiwan, and Thailand. Every report cites the exact source and factor value." },
-    { q: "Which gases are calculated?", a: "CO₂, CH₄ and N₂O. CO₂-equivalent is computed with IPCC AR5 100-year Global Warming Potentials (CO₂=1, CH₄=28, N₂O=265)." },
-    { q: "Can I export reports?", a: "Yes — every calculation generates a branded PDF with company, facility, methodology and charts. You can also print directly from the browser." },
-    { q: "Is my data secure?", a: "All calculations are scoped to your account by row-level security. Only you (and admins in your workspace) can see your data." },
-    { q: "What's coming next?", a: "Mobile combustion by distance, freight, refrigerants, Scope 3 categories, multi-facility rollup, and a lightweight API." },
+    {
+      q: "What emission factors do you use?",
+      a: "IPCC 2006 Guidelines for stationary and mobile fuel combustion, US EPA eGRID for US grid electricity, and national published factors for China, UK, Brazil, Taiwan, and Thailand. Every report cites the exact source and factor value.",
+    },
+    {
+      q: "Which gases are calculated?",
+      a: "CO₂, CH₄ and N₂O. CO₂-equivalent is computed with IPCC AR5 100-year Global Warming Potentials (CO₂=1, CH₄=28, N₂O=265).",
+    },
+    {
+      q: "Can I export reports?",
+      a: "Yes — every calculation generates a branded PDF with company, facility, methodology and charts. You can also print directly from the browser.",
+    },
+    {
+      q: "Is my data secure?",
+      a: "All calculations are scoped to your account by row-level security. Only you (and admins in your workspace) can see your data.",
+    },
+    {
+      q: "What's coming next?",
+      a: "Mobile combustion by distance, freight, refrigerants, Scope 3 categories, multi-facility rollup, and a lightweight API.",
+    },
   ];
   return (
     <section id="faq" className="mx-auto max-w-4xl px-4 py-24 md:px-8">
@@ -373,12 +446,15 @@ function Contact() {
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Contact</p>
           <h2 className="mt-2 font-display text-4xl">Talk to the team.</h2>
           <p className="mt-4 text-muted-foreground">
-            Enterprise pilot, custom emission factors, on-prem deployment — tell us what
-            you need.
+            Enterprise pilot, custom emission factors, on-prem deployment — tell us what you need.
           </p>
           <div className="mt-6 space-y-2 text-sm">
-            <p><span className="text-muted-foreground">Email · </span>hello@carbonly.example</p>
-            <p><span className="text-muted-foreground">Support · </span>support@carbonly.example</p>
+            <p>
+              <span className="text-muted-foreground">Email · </span>hello@carbonly.example
+            </p>
+            <p>
+              <span className="text-muted-foreground">Support · </span>support@carbonly.example
+            </p>
           </div>
         </div>
         <form
@@ -395,7 +471,9 @@ function Contact() {
           </div>
           <Input required type="email" placeholder="Work email" name="email" maxLength={200} />
           <Textarea required placeholder="How can we help?" name="msg" maxLength={1000} rows={4} />
-          <Button type="submit" disabled={sent}>{sent ? "Sent ✓" : "Send message"}</Button>
+          <Button type="submit" disabled={sent}>
+            {sent ? "Sent ✓" : "Send message"}
+          </Button>
         </form>
       </div>
     </section>
@@ -417,9 +495,32 @@ function Footer() {
             Precise carbon accounting for teams that need defensible numbers.
           </p>
         </div>
-        <FooterCol title="Product" links={[["Calculator", "#preview"], ["Features", "#features"], ["FAQ", "#faq"]]} />
-        <FooterCol title="Company" links={[["About", "#about"], ["Contact", "#contact"]]} />
-        <FooterCol title="Methodology" links={[["IPCC 2006", "https://www.ipcc.ch/report/2006-ipcc-guidelines-for-national-greenhouse-gas-inventories/"], ["EPA eGRID", "https://www.epa.gov/egrid"], ["GHG Protocol", "https://ghgprotocol.org/"]]} />
+        <FooterCol
+          title="Product"
+          links={[
+            ["Calculator", "#preview"],
+            ["Features", "#features"],
+            ["FAQ", "#faq"],
+          ]}
+        />
+        <FooterCol
+          title="Company"
+          links={[
+            ["About", "#about"],
+            ["Contact", "#contact"],
+          ]}
+        />
+        <FooterCol
+          title="Methodology"
+          links={[
+            [
+              "IPCC 2006",
+              "https://www.ipcc.ch/report/2006-ipcc-guidelines-for-national-greenhouse-gas-inventories/",
+            ],
+            ["EPA eGRID", "https://www.epa.gov/egrid"],
+            ["GHG Protocol", "https://ghgprotocol.org/"],
+          ]}
+        />
       </div>
       <div className="border-t border-primary-foreground/15">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 text-xs text-primary-foreground/60 md:px-8">
@@ -437,7 +538,11 @@ function FooterCol({ title, links }: { title: string; links: [string, string][] 
       <p className="text-sm font-medium">{title}</p>
       <ul className="mt-3 space-y-2 text-sm text-primary-foreground/70">
         {links.map(([l, h]) => (
-          <li key={l}><a className="hover:text-primary-foreground" href={h}>{l}</a></li>
+          <li key={l}>
+            <a className="hover:text-primary-foreground" href={h}>
+              {l}
+            </a>
+          </li>
         ))}
       </ul>
     </div>

@@ -5,29 +5,32 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SUBSTANCES, type Substance, type GasGroup } from "@/lib/gwp-odp-data";
 import { downloadGwpOdpReport } from "@/lib/pdf-report";
 import { toast } from "sonner";
-import { 
-  Download, 
-  Trash2, 
-  Plus, 
-  Layers, 
-  Info, 
-  TrendingUp, 
-  Wind, 
+import {
+  Download,
+  Trash2,
+  Plus,
+  Layers,
+  Info,
+  TrendingUp,
+  Wind,
   AlertTriangle,
-  Award
+  Award,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export const Route = createFileRoute("/_authenticated/gwp-odp")({
   head: () => ({
-    meta: [
-      { title: "GWP-ODP Calculator — Carbonly" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "GWP-ODP Calculator — Carbonly" }, { name: "robots", content: "noindex" }],
   }),
   component: GwpOdpPage,
 });
@@ -45,7 +48,7 @@ function GwpOdpPage() {
   const [notes, setNotes] = useState("");
   const [company, setCompany] = useState("");
   const [facility, setFacility] = useState("");
-  
+
   // Pure Substance states
   const [selectedSubstanceName, setSelectedSubstanceName] = useState<string>("R-134a");
   const [quantity, setQuantity] = useState<string>("100");
@@ -62,10 +65,14 @@ function GwpOdpPage() {
   // Multiplier for mass units to convert to kilograms
   const massToKg = (q: number, u: string): number => {
     switch (u) {
-      case "g": return q / 1000;
-      case "lbs": return q * 0.45359237;
-      case "tonnes": return q * 1000;
-      default: return q; // kg
+      case "g":
+        return q / 1000;
+      case "lbs":
+        return q * 0.45359237;
+      case "tonnes":
+        return q * 1000;
+      default:
+        return q; // kg
     }
   };
 
@@ -101,25 +108,26 @@ function GwpOdpPage() {
       return;
     }
 
-    const existing = blendComponents.find(c => c.name === newCompName);
+    const existing = blendComponents.find((c) => c.name === newCompName);
     if (existing) {
       toast.error(`${newCompName} is already in the blend list.`);
       return;
     }
 
-    setBlendComponents(prev => [
+    setBlendComponents((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), name: newCompName, percentage: pctNum }
+      { id: crypto.randomUUID(), name: newCompName, percentage: pctNum },
     ]);
     toast.success(`${newCompName} added to blend`);
-    
+
     // Auto adjust next components input percentage
-    const nextPct = 100 - (blendComponents.reduce((sum, item) => sum + item.percentage, 0) + pctNum);
+    const nextPct =
+      100 - (blendComponents.reduce((sum, item) => sum + item.percentage, 0) + pctNum);
     setNewCompPct(nextPct > 0 ? nextPct.toString() : "0");
   };
 
   const handleRemoveComponent = (id: string) => {
-    setBlendComponents(prev => prev.filter(c => c.id !== id));
+    setBlendComponents((prev) => prev.filter((c) => c.id !== id));
     toast.success("Component removed");
   };
 
@@ -134,7 +142,7 @@ function GwpOdpPage() {
         odp: 0,
         gwpAR4: 0,
         gwpAR5: 0,
-        gwpAR6: 0
+        gwpAR6: 0,
       };
     }
 
@@ -144,7 +152,7 @@ function GwpOdpPage() {
     let weightedAR6 = 0;
 
     blendComponents.forEach((item) => {
-      const matched = SUBSTANCES.find(s => s.name === item.name);
+      const matched = SUBSTANCES.find((s) => s.name === item.name);
       if (matched) {
         const factor = item.percentage / 100;
         weightedOdp += matched.odp * factor;
@@ -156,7 +164,7 @@ function GwpOdpPage() {
 
     // Generate composition label
     const sortedComp = [...blendComponents].sort((a, b) => b.percentage - a.percentage);
-    const formulaStr = sortedComp.map(c => `${c.name} (${c.percentage.toFixed(0)}%)`).join(" / ");
+    const formulaStr = sortedComp.map((c) => `${c.name} (${c.percentage.toFixed(0)}%)`).join(" / ");
 
     return {
       name: blendName || "Custom Blend",
@@ -166,7 +174,7 @@ function GwpOdpPage() {
       odp: weightedOdp,
       gwpAR4: weightedAR4,
       gwpAR5: weightedAR5,
-      gwpAR6: weightedAR6
+      gwpAR6: weightedAR6,
     };
   }, [blendComponents, blendName]);
 
@@ -200,46 +208,56 @@ function GwpOdpPage() {
       return {
         status: "Phased Out (Global Ban)",
         color: "text-red-500 bg-red-500/10 border-red-200/20",
-        message: "CFCs have high Ozone Depleting Potential and were globally phased out in 2010 under the Montreal Protocol. Use is strictly prohibited except for essential critical laboratory/medical uses.",
-        percentage: 100
+        message:
+          "CFCs have high Ozone Depleting Potential and were globally phased out in 2010 under the Montreal Protocol. Use is strictly prohibited except for essential critical laboratory/medical uses.",
+        percentage: 100,
       };
     }
     if (group === "HCFCs") {
       return {
         status: "Active Phase-Out (99.5% reduction)",
         color: "text-amber-500 bg-amber-500/10 border-amber-200/20",
-        message: "HCFCs (like R-22) are undergoing active phase-out. Developed countries completed phase-out in 2020 (except 0.5% servicing tail). Developing countries will phase them out by 2030.",
-        percentage: 90
+        message:
+          "HCFCs (like R-22) are undergoing active phase-out. Developed countries completed phase-out in 2020 (except 0.5% servicing tail). Developing countries will phase them out by 2030.",
+        percentage: 90,
       };
     }
-    if (group === "HFCs" || group === "HFC Blends" || (group === "Custom" && activeSub.gwpAR6 > 150)) {
+    if (
+      group === "HFCs" ||
+      group === "HFC Blends" ||
+      (group === "Custom" && activeSub.gwpAR6 > 150)
+    ) {
       const gwp = activeSub.gwpAR6;
       let phaseClass = "";
       let msg = "";
-      
+
       if (gwp > 2500) {
         phaseClass = "High Impact Phase-down";
-        msg = "Subject to rapid transition under the Kigali Amendment. High-GWP HFCs face servicing restrictions and strict quota limits globally. Transition to low-GWP alternatives is highly recommended.";
+        msg =
+          "Subject to rapid transition under the Kigali Amendment. High-GWP HFCs face servicing restrictions and strict quota limits globally. Transition to low-GWP alternatives is highly recommended.";
       } else if (gwp > 750) {
         phaseClass = "Medium Impact Phase-down";
-        msg = "Controlled substance under Kigali. Face progressive quotas and bans in new equipment (e.g. EU F-Gas restrictions for new air conditioning and heat pumps).";
+        msg =
+          "Controlled substance under Kigali. Face progressive quotas and bans in new equipment (e.g. EU F-Gas restrictions for new air conditioning and heat pumps).";
       } else {
         phaseClass = "Low GWP Transition Substance";
-        msg = "Lower GWP HFCs (like R-32) act as transition agents. Though controlled under Kigali, they are preferred over high-GWP agents due to their reduced climate footprint.";
+        msg =
+          "Lower GWP HFCs (like R-32) act as transition agents. Though controlled under Kigali, they are preferred over high-GWP agents due to their reduced climate footprint.";
       }
 
       return {
         status: phaseClass,
         color: "text-primary bg-primary/10 border-primary/20",
         message: msg,
-        percentage: 45
+        percentage: 45,
       };
     }
     return {
       status: "Eco-Friendly / Natural",
       color: "text-emerald-500 bg-emerald-500/10 border-emerald-200/20",
-      message: "Natural refrigerants (CO₂, Ammonia, Propane) have zero ODP and negligible GWP (<3). They are exempt from Montreal/Kigali phase-downs and represent the optimal sustainable choice.",
-      percentage: 0
+      message:
+        "Natural refrigerants (CO₂, Ammonia, Propane) have zero ODP and negligible GWP (<3). They are exempt from Montreal/Kigali phase-downs and represent the optimal sustainable choice.",
+      percentage: 0,
     };
   }, [activeSub]);
 
@@ -274,11 +292,14 @@ function GwpOdpPage() {
       co2eAR4: results.co2eAR4,
       co2eAR5: results.co2eAR5,
       co2eAR6: results.co2eAR6,
-      composition: mode === "blend" ? blendComponents.map(c => ({
-        name: c.name,
-        percentage: c.percentage,
-        quantity: (c.percentage / 100) * kgVal
-      })) : undefined,
+      composition:
+        mode === "blend"
+          ? blendComponents.map((c) => ({
+              name: c.name,
+              percentage: c.percentage,
+              quantity: (c.percentage / 100) * kgVal,
+            }))
+          : undefined,
       notes,
       companyName: company,
       facility,
@@ -290,11 +311,13 @@ function GwpOdpPage() {
     <AppShell>
       <div className="mb-8 flex flex-wrap justify-between items-end gap-4">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Specialized Calculators</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            Specialized Calculators
+          </p>
           <h1 className="mt-1 font-display text-4xl">GWP-ODP Refrigerant Calculator</h1>
           <p className="mt-2 text-muted-foreground max-w-xl">
-            Evaluate climate impact (Global Warming Potential) and ozone layer depletion 
-            (Ozone Depletion Potential) for standard gases and custom blends.
+            Evaluate climate impact (Global Warming Potential) and ozone layer depletion (Ozone
+            Depletion Potential) for standard gases and custom blends.
           </p>
         </div>
       </div>
@@ -304,8 +327,8 @@ function GwpOdpPage() {
         <button
           onClick={() => setMode("pure")}
           className={`flex-1 flex justify-center items-center gap-1.5 py-2 px-3 text-sm rounded-lg transition-all ${
-            mode === "pure" 
-              ? "bg-background text-primary font-medium shadow-sm" 
+            mode === "pure"
+              ? "bg-background text-primary font-medium shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -314,8 +337,8 @@ function GwpOdpPage() {
         <button
           onClick={() => setMode("blend")}
           className={`flex-1 flex justify-center items-center gap-1.5 py-2 px-3 text-sm rounded-lg transition-all ${
-            mode === "blend" 
-              ? "bg-background text-primary font-medium shadow-sm" 
+            mode === "blend"
+              ? "bg-background text-primary font-medium shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -339,16 +362,16 @@ function GwpOdpPage() {
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[350px]">
                       {/* Grouping substances in the dropdown */}
-                      {Array.from(new Set(SUBSTANCES.map(s => s.group))).map((grp) => (
+                      {Array.from(new Set(SUBSTANCES.map((s) => s.group))).map((grp) => (
                         <div key={grp}>
                           <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/20 tracking-wider">
                             {grp}
                           </div>
-                          {SUBSTANCES.filter(s => s.group === grp).map((sub) => (
+                          {SUBSTANCES.filter((s) => s.group === grp).map((sub) => (
                             <SelectItem key={sub.name} value={sub.name}>
-                              {sub.name} — {sub.chemicalName}
+                              {sub.name} — {sub.chemicalName} ({sub.formula})
                             </SelectItem>
                           ))}
                         </div>
@@ -393,27 +416,42 @@ function GwpOdpPage() {
               <div className="grid gap-5">
                 <div>
                   <Label>Custom Blend Name</Label>
-                  <Input 
-                    value={blendName} 
-                    onChange={(e) => setBlendName(e.target.value)} 
+                  <Input
+                    value={blendName}
+                    onChange={(e) => setBlendName(e.target.value)}
                     placeholder="e.g. My Retrofitted AC Blend"
                   />
                 </div>
 
                 <div className="border border-dashed border-border/70 rounded-xl p-4 bg-muted/5">
-                  <h3 className="text-sm font-semibold mb-3">Add Gas Components ({remainingPercentage}% remaining)</h3>
+                  <h3 className="text-sm font-semibold mb-3">
+                    Add Gas Components ({remainingPercentage}% remaining)
+                  </h3>
                   <div className="grid md:grid-cols-3 gap-3 items-end">
                     <div className="md:col-span-1">
                       <Label className="text-xs">Substance</Label>
                       <Select value={newCompName} onValueChange={setNewCompName}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
-                          {SUBSTANCES.filter(s => s.group !== "HFC Blends").map(s => (
-                            <SelectItem key={s.name} value={s.name}>
-                              {s.name} ({s.formula})
-                            </SelectItem>
+                        <SelectContent className="max-h-[350px]">
+                          {Array.from(
+                            new Set(
+                              SUBSTANCES.filter((s) => s.group !== "HFC Blends").map(
+                                (s) => s.group,
+                              ),
+                            ),
+                          ).map((grp) => (
+                            <div key={grp}>
+                              <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/20 tracking-wider">
+                                {grp}
+                              </div>
+                              {SUBSTANCES.filter((s) => s.group === grp).map((sub) => (
+                                <SelectItem key={sub.name} value={sub.name}>
+                                  {sub.name} ({sub.formula})
+                                </SelectItem>
+                              ))}
+                            </div>
                           ))}
                         </SelectContent>
                       </Select>
@@ -429,7 +467,11 @@ function GwpOdpPage() {
                         placeholder="e.g. 50"
                       />
                     </div>
-                    <Button onClick={handleAddComponent} disabled={remainingPercentage <= 0} className="w-full">
+                    <Button
+                      onClick={handleAddComponent}
+                      disabled={remainingPercentage <= 0}
+                      className="w-full"
+                    >
                       <Plus className="mr-1 h-4 w-4" /> Add to Blend
                     </Button>
                   </div>
@@ -444,7 +486,10 @@ function GwpOdpPage() {
                     </div>
                     <div className="divide-y">
                       {blendComponents.map((item) => (
-                        <div key={item.id} className="px-4 py-2 text-sm grid grid-cols-12 items-center">
+                        <div
+                          key={item.id}
+                          className="px-4 py-2 text-sm grid grid-cols-12 items-center"
+                        >
                           <span className="col-span-6 font-medium">{item.name}</span>
                           <span className="col-span-4 text-center">{item.percentage} %</span>
                           <span className="col-span-2 text-right">
@@ -498,11 +543,19 @@ function GwpOdpPage() {
             <div className="grid gap-4 md:grid-cols-3">
               <div>
                 <Label>Company Name</Label>
-                <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Acme Aircon" />
+                <Input
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="e.g. Acme Aircon"
+                />
               </div>
               <div>
                 <Label>Facility / System ID</Label>
-                <Input value={facility} onChange={(e) => setFacility(e.target.value)} placeholder="e.g. Chiller Unit B" />
+                <Input
+                  value={facility}
+                  onChange={(e) => setFacility(e.target.value)}
+                  placeholder="e.g. Chiller Unit B"
+                />
               </div>
               <div className="md:col-span-1">
                 <Label>Assessment Date</Label>
@@ -510,7 +563,11 @@ function GwpOdpPage() {
               </div>
               <div className="md:col-span-3">
                 <Label>Assessment Notes</Label>
-                <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Provide system context or leakage details..." />
+                <Input
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Provide system context or leakage details..."
+                />
               </div>
             </div>
           </Card>
@@ -525,11 +582,13 @@ function GwpOdpPage() {
                 <Wind className="h-4 w-4" /> Ozone Depletion Impact
               </p>
               <p className="mt-2 font-display text-3xl text-amber-900 font-extrabold">
-                {results.odpEq.toFixed(5)} t <span className="text-lg font-normal text-amber-700">CFC-11 eq</span>
+                {results.odpEq.toFixed(5)} t{" "}
+                <span className="text-lg font-normal text-amber-700">CFC-11 eq</span>
               </p>
             </div>
             <p className="text-xs text-amber-700/80">
-              Evaluated Ozone Depletion Potential (ODP). CFCs have an ODP of 1.0, HFCs have an ODP of 0.
+              Evaluated Ozone Depletion Potential (ODP). CFCs have an ODP of 1.0, HFCs have an ODP
+              of 0.
             </p>
           </Card>
 
@@ -539,10 +598,12 @@ function GwpOdpPage() {
               <TrendingUp className="h-4 w-4" /> GWP Climate Impact (AR6)
             </p>
             <p className="mt-2 font-display text-3xl font-extrabold">
-              {results.co2eAR6.toFixed(3)} t <span className="text-lg font-normal text-primary-foreground/75">CO₂-eq</span>
+              {results.co2eAR6.toFixed(3)} t{" "}
+              <span className="text-lg font-normal text-primary-foreground/75">CO₂-eq</span>
             </p>
             <p className="mt-2 text-xs text-primary-foreground/75">
-              IPCC 6th Assessment Report GWP-100 values. Equates to emissions generated by burning approx. {Math.round(results.co2eAR6 * 110).toLocaleString()} gallons of gasoline.
+              IPCC 6th Assessment Report GWP-100 values. Equates to emissions generated by burning
+              approx. {Math.round(results.co2eAR6 * 110).toLocaleString()} gallons of gasoline.
             </p>
           </Card>
 
@@ -554,7 +615,9 @@ function GwpOdpPage() {
             <div className="space-y-3.5 text-sm">
               <div className="flex justify-between border-b pb-1.5">
                 <span className="text-muted-foreground">Chemical Name</span>
-                <span className="font-semibold text-right max-w-[200px] truncate">{activeSub.chemicalName}</span>
+                <span className="font-semibold text-right max-w-[200px] truncate">
+                  {activeSub.chemicalName}
+                </span>
               </div>
               <div className="flex justify-between border-b pb-1.5">
                 <span className="text-muted-foreground">Chemical Formula</span>
@@ -562,7 +625,9 @@ function GwpOdpPage() {
               </div>
               <div className="flex justify-between border-b pb-1.5">
                 <span className="text-muted-foreground">ODP Value</span>
-                <span className={`font-semibold ${activeSub.odp > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                <span
+                  className={`font-semibold ${activeSub.odp > 0 ? "text-amber-600" : "text-emerald-600"}`}
+                >
                   {activeSub.odp.toFixed(3)}
                 </span>
               </div>
@@ -576,7 +641,9 @@ function GwpOdpPage() {
               </div>
               <div className="flex justify-between pb-0.5">
                 <span className="text-muted-foreground">IPCC AR6 GWP</span>
-                <span className="font-semibold text-primary">{activeSub.gwpAR6.toLocaleString()}</span>
+                <span className="font-semibold text-primary">
+                  {activeSub.gwpAR6.toLocaleString()}
+                </span>
               </div>
             </div>
           </Card>
@@ -601,7 +668,10 @@ function GwpOdpPage() {
                   <span>IPCC AR4 (2007)</span>
                   <span className="font-semibold">{results.co2eAR4.toFixed(2)} t CO2e</span>
                 </div>
-                <Progress value={results.co2eAR6 > 0 ? (results.co2eAR4 / results.co2eAR6) * 100 : 0} className="h-2 bg-muted [&>div]:bg-primary/60" />
+                <Progress
+                  value={results.co2eAR6 > 0 ? (results.co2eAR4 / results.co2eAR6) * 100 : 0}
+                  className="h-2 bg-muted [&>div]:bg-primary/60"
+                />
               </div>
 
               <div className="space-y-1">
@@ -609,7 +679,10 @@ function GwpOdpPage() {
                   <span>IPCC AR5 (2014)</span>
                   <span className="font-semibold">{results.co2eAR5.toFixed(2)} t CO2e</span>
                 </div>
-                <Progress value={results.co2eAR6 > 0 ? (results.co2eAR5 / results.co2eAR6) * 100 : 0} className="h-2 bg-muted [&>div]:bg-primary/80" />
+                <Progress
+                  value={results.co2eAR6 > 0 ? (results.co2eAR5 / results.co2eAR6) * 100 : 0}
+                  className="h-2 bg-muted [&>div]:bg-primary/80"
+                />
               </div>
 
               <div className="space-y-1">

@@ -4,7 +4,20 @@ import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/app/app-shell";
 import { getMyStats, getMyProfile } from "@/lib/calculations.functions";
 import { Card } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
+} from "recharts";
 import { formatKg } from "@/lib/emission-calculator";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -46,7 +59,9 @@ function Dashboard() {
           </h1>
         </div>
         <Button asChild>
-          <Link to="/calculator">New calculation <ArrowRight className="ml-1 h-4 w-4" /></Link>
+          <Link to="/calculator">
+            New calculation <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
         </Button>
       </div>
 
@@ -71,7 +86,13 @@ function Dashboard() {
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                   <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                   <Tooltip contentStyle={{ borderRadius: 8, borderColor: "var(--border)" }} />
-                  <Line type="monotone" dataKey="value" stroke="var(--chart-1)" strokeWidth={2.5} dot={{ r: 3 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="var(--chart-1)"
+                    strokeWidth={2.5}
+                    dot={{ r: 3 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
@@ -86,8 +107,16 @@ function Dashboard() {
             {total > 0 ? (
               <ResponsiveContainer>
                 <PieChart>
-                  <Pie data={gases} dataKey="value" innerRadius={44} outerRadius={80} paddingAngle={2}>
-                    {gases.map((g, i) => <Cell key={i} fill={g.fill} />)}
+                  <Pie
+                    data={gases}
+                    dataKey="value"
+                    innerRadius={44}
+                    outerRadius={80}
+                    paddingAngle={2}
+                  >
+                    {gases.map((g, i) => (
+                      <Cell key={i} fill={g.fill} />
+                    ))}
                   </Pie>
                   <Tooltip contentStyle={{ borderRadius: 8, borderColor: "var(--border)" }} />
                 </PieChart>
@@ -117,7 +146,13 @@ function Dashboard() {
               <ResponsiveContainer>
                 <BarChart data={byProduct} layout="vertical" margin={{ left: 20 }}>
                   <XAxis type="number" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-                  <YAxis type="category" dataKey="key" tick={{ fontSize: 11 }} width={140} stroke="var(--muted-foreground)" />
+                  <YAxis
+                    type="category"
+                    dataKey="key"
+                    tick={{ fontSize: 11 }}
+                    width={140}
+                    stroke="var(--muted-foreground)"
+                  />
                   <Tooltip contentStyle={{ borderRadius: 8, borderColor: "var(--border)" }} />
                   <Bar dataKey="value" fill="var(--chart-2)" radius={[0, 6, 6, 0]} />
                 </BarChart>
@@ -131,7 +166,10 @@ function Dashboard() {
           <p className="mb-3 font-display text-lg">Recent</p>
           <ul className="space-y-2 text-sm">
             {rows.slice(0, 6).map((r, i) => (
-              <li key={i} className="flex items-center justify-between border-b pb-2 last:border-none">
+              <li
+                key={i}
+                className="flex items-center justify-between border-b pb-2 last:border-none"
+              >
                 <span className="truncate pr-2">{r.product_name}</span>
                 <span className="whitespace-nowrap font-medium">{formatKg(Number(r.co2e_kg))}</span>
               </li>
