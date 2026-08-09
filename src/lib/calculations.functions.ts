@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAuth } from "@/integrations/auth/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 
 const SaveSchema = z.object({
@@ -99,12 +99,21 @@ const localProfile: {
   created_at: new Date().toISOString(),
 };
 
+// Helper to lazily import the Supabase admin client (for database operations only)
+async function getSupabaseAdmin() {
+  const { supabaseAdmin } = await import(
+    "@/integrations/supabase/client.server"
+  );
+  return supabaseAdmin;
+}
+
 export const saveCalculation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .inputValidator((d: unknown) => SaveSchema.parse(d))
   .handler(async ({ data, context }): Promise<CalculationRow> => {
-    const { supabase, userId } = context;
+    const { userId } = context;
     try {
+      const supabase = await getSupabaseAdmin();
       const { data: row, error } = await supabase
         .from("calculations")
         .insert({ ...data, user_id: userId })
@@ -140,12 +149,14 @@ export const saveCalculation = createServerFn({ method: "POST" })
   });
 
 export const listMyCalculations = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .handler(async ({ context }): Promise<CalculationRow[]> => {
     try {
-      const { data, error } = await context.supabase
+      const supabase = await getSupabaseAdmin();
+      const { data, error } = await supabase
         .from("calculations")
         .select("*")
+        .eq("user_id", context.userId)
         .order("created_at", { ascending: false })
         .limit(500);
       if (!error && data) return data as CalculationRow[];
@@ -156,11 +167,16 @@ export const listMyCalculations = createServerFn({ method: "GET" })
   });
 
 export const deleteCalculation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     try {
-      await context.supabase.from("calculations").delete().eq("id", data.id);
+      const supabase = await getSupabaseAdmin();
+      await supabase
+        .from("calculations")
+        .delete()
+        .eq("id", data.id)
+        .eq("user_id", context.userId);
     } catch {
       // fallback
     }
@@ -169,29 +185,35 @@ export const deleteCalculation = createServerFn({ method: "POST" })
   });
 
 export const getCalculation = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string() }).parse(d))
   .handler(async ({ data, context }): Promise<CalculationRow> => {
     try {
-      const { data: row, error } = await context.supabase
+      const supabase = await getSupabaseAdmin();
+      const { data: row, error } = await supabase
         .from("calculations")
         .select("*")
         .eq("id", data.id)
+        .eq("user_id", context.userId)
         .single();
       if (!error && row) return row as CalculationRow;
     } catch {
       // fallback
     }
-    return localCalculations.find((c) => c.id === data.id) ?? localCalculations[0];
+    return (
+      localCalculations.find((c) => c.id === data.id) ?? localCalculations[0]
+    );
   });
 
 export const getMyStats = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .handler(async ({ context }): Promise<CalculationRow[]> => {
     try {
-      const { data, error } = await context.supabase
+      const supabase = await getSupabaseAdmin();
+      const { data, error } = await supabase
         .from("calculations")
         .select("*")
+        .eq("user_id", context.userId)
         .order("created_at", { ascending: false });
       if (!error && data) return data as CalculationRow[];
     } catch {
@@ -201,10 +223,11 @@ export const getMyStats = createServerFn({ method: "GET" })
   });
 
 export const getMyProfile = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .handler(async ({ context }) => {
     try {
-      const { data, error } = await context.supabase
+      const supabase = await getSupabaseAdmin();
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", context.userId)
@@ -217,7 +240,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
   });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .inputValidator((d: unknown) =>
     z
       .object({
@@ -229,7 +252,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     try {
-      await context.supabase.from("profiles").update(data).eq("id", context.userId);
+      const supabase = await getSupabaseAdmin();
+      await supabase.from("profiles").update(data).eq("id", context.userId);
     } catch {
       // fallback
     }
@@ -240,21 +264,27 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   });
 
 export const amIAdmin = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .handler(async () => {
     return { isAdmin: true };
   });
 
 export const adminOverview = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAuth])
   .handler(
     async ({
       context,
-    }): Promise<{ profiles: (typeof localProfile)[]; calculations: CalculationRow[] }> => {
+    }): Promise<{
+      profiles: (typeof localProfile)[];
+      calculations: CalculationRow[];
+    }> => {
       try {
+        const supabase = await getSupabaseAdmin();
         const [{ data: profiles }, { data: calcs }] = await Promise.all([
-          context.supabase.from("profiles").select("id,full_name,company,facility,created_at"),
-          context.supabase
+          supabase
+            .from("profiles")
+            .select("id,full_name,company,facility,created_at"),
+          supabase
             .from("calculations")
             .select("*")
             .order("created_at", { ascending: false })

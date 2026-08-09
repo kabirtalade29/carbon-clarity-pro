@@ -11,7 +11,7 @@ import {
   Gauge,
 } from "lucide-react";
 import { type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { logout, clearAuthCache } from "@/lib/auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { amIAdmin } from "@/lib/calculations.functions";
 import { cn } from "@/lib/utils";
@@ -34,22 +34,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/reports", label: "Report Builder", icon: FileText },
     { to: "/gwp-odp", label: "GWP-ODP Calc", icon: Gauge },
     { to: "/history", label: "History", icon: History },
-    ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),
+    ...(adminInfo?.isAdmin
+      ? [{ to: "/admin", label: "Admin", icon: Shield }]
+      : []),
   ] as const;
 
   async function signOut() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("demo_user_session");
-    }
     await qc.cancelQueries();
     qc.clear();
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // ignore offline error
-    }
+    clearAuthCache();
+    await logout();
     toast.success("Signed out");
-    window.location.href = "/";
+    window.location.href = "/auth";
   }
 
   return (
@@ -140,14 +136,20 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="px-3 pb-5">
-          <Button variant="ghost" className="w-full justify-start gap-2" onClick={signOut}>
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2"
+            onClick={signOut}
+          >
             <LogOut className="h-4 w-4" /> Sign out
           </Button>
         </div>
       </aside>
 
       <main className="md:pl-60">
-        <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-10">{children}</div>
+        <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-10">
+          {children}
+        </div>
       </main>
     </div>
   );

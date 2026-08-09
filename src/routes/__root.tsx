@@ -18,7 +18,7 @@ import "@fontsource/inter/600.css";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { clearAuthCache } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -75,36 +75,42 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Carbonly — Enterprise Carbon Emission Calculator" },
-      {
-        name: "description",
-        content:
-          "Calculate, track and report Scope 1 and Scope 2 greenhouse gas emissions using IPCC-grade emission factors. Built for sustainability teams, ESG consultants and manufacturers.",
-      },
-      { name: "author", content: "Carbonly" },
-      { property: "og:title", content: "Carbonly — Enterprise Carbon Emission Calculator" },
-      {
-        property: "og:description",
-        content: "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-    ],
-  }),
-  shellComponent: RootShell,
-  component: RootComponent,
-  notFoundComponent: NotFoundComponent,
-  errorComponent: ErrorComponent,
-});
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    head: () => ({
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: "Carbonly — Enterprise Carbon Emission Calculator" },
+        {
+          name: "description",
+          content:
+            "Calculate, track and report Scope 1 and Scope 2 greenhouse gas emissions using IPCC-grade emission factors. Built for sustainability teams, ESG consultants and manufacturers.",
+        },
+        { name: "author", content: "Carbonly" },
+        {
+          property: "og:title",
+          content: "Carbonly — Enterprise Carbon Emission Calculator",
+        },
+        {
+          property: "og:description",
+          content:
+            "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [
+        { rel: "stylesheet", href: appCss },
+        { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      ],
+    }),
+    shellComponent: RootShell,
+    component: RootComponent,
+    notFoundComponent: NotFoundComponent,
+    errorComponent: ErrorComponent,
+  },
+);
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -124,13 +130,17 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Clear auth cache on visibility change (e.g. tab switch) to ensure
+  // fresh auth checks when user returns to the app.
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-    });
-    return () => sub.subscription.unsubscribe();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        clearAuthCache();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [router, queryClient]);
 
   return (
