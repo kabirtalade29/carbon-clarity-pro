@@ -1,17 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AppShell } from "@/components/app/app-shell";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SUBSTANCES, type Substance, type GasGroup } from "@/lib/gwp-odp-data";
 import {
   downloadGwpOdpReport,
@@ -25,13 +18,7 @@ import {
   Trash2,
   Plus,
   Layers,
-  Info,
-  TrendingUp,
   Wind,
-  AlertTriangle,
-  Award,
-  CheckCircle2,
-  ShieldCheck,
   Filter,
   FileText,
 } from "lucide-react";
@@ -108,7 +95,7 @@ function GwpOdpPage() {
   ]);
 
   // Pure Substance selector states
-  const [selectedSubstanceName, setSelectedSubstanceName] = useState<string>("R-410A");
+  const [selectedSubstanceName, setSelectedSubstanceName] = useState<string>("R-134a");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<string>("All");
   const [pureQuantity, setPureQuantity] = useState<string>("100");
@@ -125,7 +112,7 @@ function GwpOdpPage() {
   const [blendQuantity, setBlendQuantity] = useState<string>("250");
   const [blendUnit, setBlendUnit] = useState<string>("kg");
 
-  // Filter pure substances
+  // Filter pure substances dynamically
   const filteredSubstances = useMemo(() => {
     return SUBSTANCES.filter((sub) => {
       const matchesGroup = selectedGroup === "All" || sub.group === selectedGroup;
@@ -139,9 +126,31 @@ function GwpOdpPage() {
     });
   }, [selectedGroup, searchQuery]);
 
+  // Keep selectedSubstanceName in sync with filtered list
+  useEffect(() => {
+    if (filteredSubstances.length > 0) {
+      const exists = filteredSubstances.some((s) => s.name === selectedSubstanceName);
+      if (!exists) {
+        setSelectedSubstanceName(filteredSubstances[0].name);
+      }
+    }
+  }, [filteredSubstances, selectedSubstanceName]);
+
+  const handleGroupSelect = (group: string) => {
+    setSelectedGroup(group);
+    const matching = SUBSTANCES.filter((sub) => group === "All" || sub.group === group);
+    if (matching.length > 0) {
+      setSelectedSubstanceName(matching[0].name);
+    }
+  };
+
   const activeSubstance = useMemo(() => {
-    return SUBSTANCES.find((s) => s.name === selectedSubstanceName) || SUBSTANCES[0];
-  }, [selectedSubstanceName]);
+    return (
+      filteredSubstances.find((s) => s.name === selectedSubstanceName) ||
+      filteredSubstances[0] ||
+      SUBSTANCES[0]
+    );
+  }, [filteredSubstances, selectedSubstanceName]);
 
   // Add Pure Substance to Inventory
   const handleAddPureToInventory = () => {
@@ -151,29 +160,30 @@ function GwpOdpPage() {
       return;
     }
 
+    const targetSubstance = activeSubstance;
     const kg = massToKg(qtyNum, pureUnit);
     const tonnes = kg / 1000;
 
     const newItem: GwpOdpItem = {
       id: crypto.randomUUID(),
-      name: activeSubstance.name,
-      chemicalName: activeSubstance.chemicalName,
-      formula: activeSubstance.formula,
-      group: activeSubstance.group,
+      name: targetSubstance.name,
+      chemicalName: targetSubstance.chemicalName,
+      formula: targetSubstance.formula,
+      group: targetSubstance.group,
       quantity: qtyNum,
       unit: pureUnit,
-      odp: activeSubstance.odp,
-      gwpAR4: activeSubstance.gwpAR4,
-      gwpAR5: activeSubstance.gwpAR5,
-      gwpAR6: activeSubstance.gwpAR6,
-      odpEquivalent: tonnes * activeSubstance.odp,
-      co2eAR4: tonnes * activeSubstance.gwpAR4,
-      co2eAR5: tonnes * activeSubstance.gwpAR5,
-      co2eAR6: tonnes * activeSubstance.gwpAR6,
+      odp: targetSubstance.odp,
+      gwpAR4: targetSubstance.gwpAR4,
+      gwpAR5: targetSubstance.gwpAR5,
+      gwpAR6: targetSubstance.gwpAR6,
+      odpEquivalent: tonnes * targetSubstance.odp,
+      co2eAR4: tonnes * targetSubstance.gwpAR4,
+      co2eAR5: tonnes * targetSubstance.gwpAR5,
+      co2eAR6: tonnes * targetSubstance.gwpAR6,
     };
 
     setInventoryItems((prev) => [...prev, newItem]);
-    toast.success(`Added ${activeSubstance.name} (${qtyNum} ${pureUnit}) to Assessment Inventory`);
+    toast.success(`Added ${targetSubstance.name} (${qtyNum} ${pureUnit}) to Assessment Inventory`);
   };
 
   // Blend Builder Calculations
@@ -450,7 +460,7 @@ function GwpOdpPage() {
               {["All", "CFCs", "HCFCs", "HFCs", "PFCs", "HFC Blends", "Naturals & Others"].map((g) => (
                 <button
                   key={g}
-                  onClick={() => setSelectedGroup(g)}
+                  onClick={() => handleGroupSelect(g)}
                   className={`text-xs px-3 py-1 rounded-full font-semibold transition-all ${
                     selectedGroup === g
                       ? "bg-primary text-primary-foreground shadow-sm"
@@ -666,18 +676,6 @@ function GwpOdpPage() {
             ) : (
               <div className="overflow-x-auto border rounded-xl">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-muted text-muted-foreground uppercase text-[10px] font-bold">
-                    <tr>
-                      <th className="p-3">Substance / Blend Name</th>
-                      <th className="p-3">Gas Family</th>
-                      <th className="p-3">Quantity</th>
-                      <th className="p-3 text-right">ODP Factor</th>
-                      <th className="p-3 text-right">ODP Eq (t)</th>
-                      <th className="p-3 text-right">GWP (AR5)</th>
-                      <th className="p-3 text-right">CO₂e (t AR5)</th>
-                      <th className="p-3 text-center">Action</th>
-                    </tr>
-                  </thead>
                   <tbody className="divide-y font-medium">
                     {inventoryItems.map((item) => (
                       <tr key={item.id} className="hover:bg-muted/30">
