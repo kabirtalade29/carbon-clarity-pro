@@ -42,6 +42,11 @@ import {
   FileText,
   BarChart3,
   TrendingUp,
+  Upload,
+  FileUp,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 import {
   allProducts,
@@ -54,13 +59,15 @@ import {
 } from "@/lib/emission-calculator";
 import { saveCalculation } from "@/lib/calculations.functions";
 import { downloadConsolidatedReport } from "@/lib/pdf-report";
+import { parseInvoiceFile } from "@/lib/invoice-parser";
+import { detectAnomalies } from "@/lib/anomaly-detector";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
-    meta: [{ title: "Report Builder — Carbonly" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Report Builder — Climateintel.ai" }, { name: "robots", content: "noindex" }],
   }),
   component: ReportsPage,
 });
@@ -94,7 +101,43 @@ function ReportsPage() {
   const [unit, setUnit] = useState("litre");
   const [customProductName, setCustomProductName] = useState("");
   const [customFactor, setCustomFactor] = useState("1.0");
+  const [customMetricType, setCustomMetricType] = useState("Mass");
   const [open, setOpen] = useState(false);
+
+  // Document AI OCR states
+  const [isParsingInvoice, setIsParsingInvoice] = useState(false);
+  const [lastOcrInfo, setLastOcrInfo] = useState<{ vendor: string; confidence: number } | null>(null);
+
+  const handleInvoiceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsParsingInvoice(true);
+    try {
+      const parsedItems = await parseInvoiceFile(file);
+      if (parsedItems.length > 0) {
+        const item = parsedItems[0];
+        setScopeGroup(item.scopeGroup);
+        setTimeout(() => {
+          setCategory(item.scope);
+          if (item.matchedProduct) {
+            setProductName(item.matchedProduct.name);
+          }
+          setQuantity(item.quantity.toString());
+          setUnit(item.unit);
+        }, 50);
+        setLastOcrInfo({ vendor: item.vendorName, confidence: item.confidenceScore });
+        toast.success(`AI Document Engine extracted physical activity from ${file.name} (${item.confidenceScore}% confidence)`);
+      }
+    } catch {
+      toast.error("Failed to extract data from file");
+    } finally {
+      setIsParsingInvoice(false);
+    }
+  };
+
+  const anomaly = useMemo(() => {
+    return detectAnomalies(Number(quantity), unit, category);
+  }, [quantity, unit, category]);
 
   // Available categories under selected scope group
   const availableCategories = useMemo(() => {
@@ -114,11 +157,11 @@ function ReportsPage() {
         setUnit(unts[0] ?? "");
       } else {
         setProductName("");
-        const unts = unitsForProduct(null);
+        const unts = unitsForProduct(null, customMetricType);
         setUnit(unts[0] ?? "");
       }
     }
-  }, [scopeGroup, availableCategories]);
+  }, [scopeGroup, availableCategories, customMetricType]);
 
   const catProducts = useMemo(() => {
     return allProducts.filter((p) => p.scope === category);
@@ -129,8 +172,8 @@ function ReportsPage() {
   }, [catProducts, productName]);
 
   const activeUnits = useMemo(() => {
-    return activeProduct ? unitsForProduct(activeProduct) : unitsForProduct(null);
-  }, [activeProduct]);
+    return activeProduct ? unitsForProduct(activeProduct) : unitsForProduct(null, customMetricType);
+  }, [activeProduct, customMetricType]);
 
   useEffect(() => {
     if (!activeUnits.includes(unit)) {
@@ -343,9 +386,44 @@ function ReportsPage() {
         {/* Left Side: Add Form & Report Settings */}
         <div className="grid gap-6 lg:col-span-3">
           <Card className="rounded-2xl p-6">
-            <h2 className="mb-4 font-display text-xl text-primary flex items-center gap-2">
-              <Plus className="h-5 w-5" /> Add activities to report
-            </h2>
+            <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+              <h2 className="font-display text-xl text-primary flex items-center gap-2">
+                <Plus className="h-5 w-5" /> Add activities to report
+              </h2>
+
+              {/* AI Invoice Document Dropzone Trigger */}
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
+                  className="hidden"
+                  onChange={handleInvoiceUpload}
+                  disabled={isParsingInvoice}
+                />
+                <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+                  {isParsingInvoice ? (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5 animate-spin" />
+                      <span>Parsing Document AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileUp className="h-3.5 w-3.5" />
+                      <span>AI Invoice Extract</span>
+                    </>
+                  )}
+                </div>
+              </label>
+            </div>
+
+            {lastOcrInfo && (
+              <div className="mb-4 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-800">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Physical Data Extracted from Supplier Invoice ({lastOcrInfo.vendor})
+                </span>
+                <span className="font-bold text-emerald-700">{lastOcrInfo.confidence}% Confidence</span>
+              </div>
+            )}
 
             <div className="grid gap-5">
               <div className="grid grid-cols-2 gap-4">
@@ -482,6 +560,16 @@ function ReportsPage() {
                   </Select>
                 </div>
               </div>
+
+              {anomaly.hasAnomaly && (
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 flex items-start gap-2.5 text-xs">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">{anomaly.title}</p>
+                    <p className="text-amber-800/90">{anomaly.message}</p>
+                  </div>
+                </div>
+              )}
 
               <Button onClick={handleAddItem} className="w-full">
                 <Plus className="mr-2 h-4 w-4" /> Add Item to Report

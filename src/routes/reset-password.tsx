@@ -11,8 +11,8 @@ import { getErrorMessage } from "@/lib/utils";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — Carbonly" },
-      { name: "description", content: "Set a new password for your Carbonly account." },
+      { title: "Reset password — Climateintel.ai" },
+      { name: "description", content: "Set a new password for your Climateintel.ai account." },
       { name: "robots", content: "noindex" },
     ],
   }),

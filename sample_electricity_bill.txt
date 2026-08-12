@@ -1,0 +1,20 @@
+===================================================
+             POWERCORP UTILITIES LTD
+             INVOICE & METER STATEMENT
+===================================================
+Invoice Number: INV-982415
+Account ID: ACCT-77412-B
+Billing Period: June 1, 2026 - June 30, 2026
+Facility: Plant Alpha Industrial Complex
+
+---------------------------------------------------
+LINE ITEM DESCRIPTION                    QUANTITY
+---------------------------------------------------
+Industrial Peak Grid Electricity         14,500 kWh
+Off-Peak Grid Electricity                 8,200 kWh
+Total Active Consumption:                22,700 kWh
+
+Total Amount Due: $4,540.00 USD
+Payment Due Date: July 15, 2026
+---------------------------------------------------
+Verified Source Document — Auditor Traceable

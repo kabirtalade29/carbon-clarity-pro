@@ -28,7 +28,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Carbonly — Enterprise Carbon Emission Calculator" },
+      { title: "Climateintel.ai — Enterprise Carbon Emission Calculator" },
       {
         name: "description",
         content:
@@ -64,7 +64,7 @@ function SiteNav() {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-xl">Carbonly</span>
+          <span className="font-display text-xl">Climateintel.ai</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <a href="#features" className="hover:text-foreground">
@@ -345,7 +345,7 @@ function WhyUs() {
     <section className="mx-auto max-w-7xl px-4 py-24 md:px-8">
       <div className="max-w-2xl">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          Why teams choose Carbonly
+          Why teams choose Climateintel.ai
         </p>
         <h2 className="mt-2 font-display text-4xl">Built by people who've filed CDP reports.</h2>
       </div>
@@ -373,7 +373,7 @@ function About() {
         </div>
         <div className="space-y-4 text-muted-foreground">
           <p>
-            Carbonly starts where most spreadsheets stall — a shared source of emission factors, a
+            Climateintel.ai starts where most spreadsheets stall — a shared source of emission factors, a
             clean audit trail, and reports that don't need a design pass before you can share them.
           </p>
           <p>
@@ -450,10 +450,10 @@ function Contact() {
           </p>
           <div className="mt-6 space-y-2 text-sm">
             <p>
-              <span className="text-muted-foreground">Email · </span>hello@carbonly.example
+              <span className="text-muted-foreground">Email · </span>hello@climateintel.ai
             </p>
             <p>
-              <span className="text-muted-foreground">Support · </span>support@carbonly.example
+              <span className="text-muted-foreground">Support · </span>support@climateintel.ai
             </p>
           </div>
         </div>
@@ -489,7 +489,7 @@ function Footer() {
             <div className="grid h-8 w-8 place-items-center rounded-md bg-primary-foreground text-primary">
               <Leaf className="h-4 w-4" />
             </div>
-            <span className="font-display text-xl">Carbonly</span>
+            <span className="font-display text-xl">Climateintel.ai</span>
           </div>
           <p className="mt-3 max-w-xs text-sm text-primary-foreground/70">
             Precise carbon accounting for teams that need defensible numbers.
@@ -524,7 +524,7 @@ function Footer() {
       </div>
       <div className="border-t border-primary-foreground/15">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 text-xs text-primary-foreground/60 md:px-8">
-          <p>© {new Date().getFullYear()} Carbonly. Beta.</p>
+          <p>© {new Date().getFullYear()} Climateintel.ai. Beta.</p>
           <p>Made for climate teams.</p>
         </div>
       </div>

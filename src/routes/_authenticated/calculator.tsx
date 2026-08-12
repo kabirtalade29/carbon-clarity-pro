@@ -35,13 +35,15 @@ import {
 import { saveCalculation } from "@/lib/calculations.functions";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import { ChevronsUpDown, Save, Download, FileText } from "lucide-react";
+import { ChevronsUpDown, Save, Download, FileText, FileUp, Sparkles, CheckCircle2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downloadReport } from "@/lib/pdf-report";
+import { parseInvoiceFile } from "@/lib/invoice-parser";
+import { detectAnomalies } from "@/lib/anomaly-detector";
 
 export const Route = createFileRoute("/_authenticated/calculator")({
   head: () => ({
-    meta: [{ title: "Calculator — Carbonly" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Calculator — Climateintel.ai" }, { name: "robots", content: "noindex" }],
   }),
   component: CalculatorPage,
 });
@@ -60,6 +62,38 @@ function CalculatorPage() {
   // States for custom categories
   const [customProductName, setCustomProductName] = useState("");
   const [customFactor, setCustomFactor] = useState("1.0");
+  const [customMetricType, setCustomMetricType] = useState("Mass");
+  // Document AI OCR states
+  const [isParsingInvoice, setIsParsingInvoice] = useState(false);
+  const [lastOcrInfo, setLastOcrInfo] = useState<{ vendor: string; confidence: number } | null>(null);
+
+  const handleInvoiceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsParsingInvoice(true);
+    try {
+      const parsedItems = await parseInvoiceFile(file);
+      if (parsedItems.length > 0) {
+        const item = parsedItems[0];
+        setScope(item.scope);
+        if (item.matchedProduct) {
+          setProductName(item.matchedProduct.name);
+        }
+        setQuantity(item.quantity.toString());
+        setUnit(item.unit);
+        setLastOcrInfo({ vendor: item.vendorName, confidence: item.confidenceScore });
+        toast.success(`AI Document Engine extracted physical activity from ${file.name} (${item.confidenceScore}% confidence)`);
+      }
+    } catch {
+      toast.error("Failed to extract data from file");
+    } finally {
+      setIsParsingInvoice(false);
+    }
+  };
+
+  const anomaly = useMemo(() => {
+    return detectAnomalies(Number(quantity), unit, scope);
+  }, [quantity, unit, scope]);
 
   const products = useMemo(() => allProducts.filter((p) => p.scope === scope), [scope]);
   const product = useMemo(
@@ -67,8 +101,8 @@ function CalculatorPage() {
     [products, productName],
   );
   const units = useMemo(
-    () => (product ? unitsForProduct(product) : unitsForProduct(null)),
-    [product],
+    () => (product ? unitsForProduct(product) : unitsForProduct(null, customMetricType)),
+    [product, customMetricType],
   );
 
   // ensure unit valid
@@ -160,6 +194,41 @@ function CalculatorPage() {
 
       <div className="grid gap-6 lg:grid-cols-5">
         <Card className="rounded-2xl p-6 lg:col-span-3">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-display text-xl font-semibold">Activity Calculator</h2>
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
+                className="hidden"
+                onChange={handleInvoiceUpload}
+                disabled={isParsingInvoice}
+              />
+              <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+                {isParsingInvoice ? (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5 animate-spin" />
+                    <span>Parsing Document AI...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileUp className="h-3.5 w-3.5" />
+                    <span>AI Invoice Extract</span>
+                  </>
+                )}
+              </div>
+            </label>
+          </div>
+
+          {lastOcrInfo && (
+            <div className="mb-4 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-800">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Physical Data Extracted from Supplier Invoice ({lastOcrInfo.vendor})
+              </span>
+              <span className="font-bold text-emerald-700">{lastOcrInfo.confidence}% Confidence</span>
+            </div>
+          )}
+
           <div className="grid gap-5">
             <div>
               <Label>Scope</Label>

@@ -1,0 +1,17 @@
+===================================================
+             NATIONAL STEEL SUPPLIES
+               BILL OF LADING
+===================================================
+Invoice #: MAT-551029
+Date: July 20, 2026
+Ship To: Industrial Construction Site 4
+
+---------------------------------------------------
+MATERIAL DESCRIPTION                    WEIGHT
+---------------------------------------------------
+Structural Steel Beams (Grade 350)      12.5 Tonnes
+Mill Test Certified EAF Recycled Content
+
+Total Mass Delivered: 12.5 Metric Tonnes
+---------------------------------------------------
+GHG Protocol Scope 3 Category 1 Verified

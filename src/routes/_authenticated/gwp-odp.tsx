@@ -30,7 +30,7 @@ import { Progress } from "@/components/ui/progress";
 
 export const Route = createFileRoute("/_authenticated/gwp-odp")({
   head: () => ({
-    meta: [{ title: "GWP-ODP Calculator — Carbonly" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "GWP-ODP Calculator — Climateintel.ai" }, { name: "robots", content: "noindex" }],
   }),
   component: GwpOdpPage,
 });
@@ -49,10 +49,25 @@ function GwpOdpPage() {
   const [company, setCompany] = useState("");
   const [facility, setFacility] = useState("");
 
-  // Pure Substance states
+  // Pure Substance states & Filter
   const [selectedSubstanceName, setSelectedSubstanceName] = useState<string>("R-134a");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedGroup, setSelectedGroup] = useState<string>("All");
   const [quantity, setQuantity] = useState<string>("100");
   const [unit, setUnit] = useState<string>("kg");
+
+  const filteredSubstances = useMemo(() => {
+    return SUBSTANCES.filter((sub) => {
+      const matchesGroup = selectedGroup === "All" || sub.group === selectedGroup;
+      const q = searchQuery.toLowerCase().trim();
+      const matchesQuery =
+        !q ||
+        sub.name.toLowerCase().includes(q) ||
+        sub.chemicalName.toLowerCase().includes(q) ||
+        sub.formula.toLowerCase().includes(q);
+      return matchesGroup && matchesQuery;
+    });
+  }, [selectedGroup, searchQuery]);
 
   // Custom Blend states
   const [blendName, setBlendName] = useState("My Custom Refrigerant Blend");
@@ -224,6 +239,7 @@ function GwpOdpPage() {
     }
     if (
       group === "HFCs" ||
+      group === "PFCs" ||
       group === "HFC Blends" ||
       (group === "Custom" && activeSub.gwpAR6 > 150)
     ) {
@@ -356,24 +372,57 @@ function GwpOdpPage() {
               </h2>
 
               <div className="grid gap-5">
+                {/* Group Filter Badges */}
                 <div>
-                  <Label>Gas / Refrigerant Substance</Label>
+                  <Label className="text-xs text-muted-foreground mb-1.5 block">Filter by Gas Family</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {["All", "CFCs", "HCFCs", "HFCs", "PFCs", "HFC Blends", "Naturals & Others"].map((grp) => (
+                      <button
+                        key={grp}
+                        type="button"
+                        onClick={() => setSelectedGroup(grp)}
+                        className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                          selectedGroup === grp
+                            ? "bg-primary text-primary-foreground font-medium shadow-sm"
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        {grp}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Search */}
+                <div>
+                  <Label>Search Substance or Formula</Label>
+                  <Input
+                    placeholder="Search by R-number, chemical name or formula (e.g. R-134a, CCl4, CO2)..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label>Gas / Refrigerant Substance ({filteredSubstances.length} available)</Label>
                   <Select value={selectedSubstanceName} onValueChange={setSelectedSubstanceName}>
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="max-h-[350px]">
-                      {/* Grouping substances in the dropdown */}
-                      {Array.from(new Set(SUBSTANCES.map((s) => s.group))).map((grp) => (
+                      {Array.from(new Set(filteredSubstances.map((s) => s.group))).map((grp) => (
                         <div key={grp}>
                           <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/20 tracking-wider">
                             {grp}
                           </div>
-                          {SUBSTANCES.filter((s) => s.group === grp).map((sub) => (
-                            <SelectItem key={sub.name} value={sub.name}>
-                              {sub.name} — {sub.chemicalName} ({sub.formula})
-                            </SelectItem>
-                          ))}
+                          {filteredSubstances
+                            .filter((s) => s.group === grp)
+                            .map((sub) => (
+                              <SelectItem key={sub.name} value={sub.name}>
+                                {sub.name} — {sub.chemicalName} ({sub.formula})
+                              </SelectItem>
+                            ))}
                         </div>
                       ))}
                     </SelectContent>

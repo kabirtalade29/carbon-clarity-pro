@@ -41,7 +41,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     const token = authHeader?.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : null;
 
     let userId = "demo-user-id";
-    let claims: Record<string, unknown> = { sub: "demo-user-id", email: "demo@carbonly.example" };
+    let claims: Record<string, unknown> = { sub: "demo-user-id", email: "demo@climateintel.ai" };
 
     const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
       global: {

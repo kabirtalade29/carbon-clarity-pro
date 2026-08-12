@@ -5,7 +5,7 @@ export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
     if (typeof window !== "undefined" && localStorage.getItem("demo_user_session") === "true") {
-      return { user: { id: "demo-user-id", email: "demo@carbonly.example" } };
+      return { user: { id: "demo-user-id", email: "demo@climateintel.ai" } };
     }
     try {
       const { data, error } = await supabase.auth.getUser();
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated")({
     if (typeof window !== "undefined") {
       localStorage.setItem("demo_user_session", "true");
     }
-    return { user: { id: "demo-user-id", email: "demo@carbonly.example" } };
+    return { user: { id: "demo-user-id", email: "demo@climateintel.ai" } };
   },
   component: () => <Outlet />,
 });

@@ -9,6 +9,7 @@ import {
   FileText,
   Menu,
   Gauge,
+  TrendingDown,
 } from "lucide-react";
 import { type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { AiCopilotSheet } from "./ai-copilot";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -32,6 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/calculator", label: "Calculator", icon: Calculator },
     { to: "/reports", label: "Report Builder", icon: FileText },
+    { to: "/decarbonization", label: "Decarbonization", icon: TrendingDown },
     { to: "/gwp-odp", label: "GWP-ODP Calc", icon: Gauge },
     { to: "/history", label: "History", icon: History },
     ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),
@@ -60,7 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-base">Carbonly</span>
+          <span className="font-display text-base">Climateintel.ai</span>
         </div>
         <Sheet>
           <SheetTrigger asChild>
@@ -76,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
                 <Leaf className="h-4 w-4" />
               </div>
-              <span className="font-display text-lg">Carbonly</span>
+              <span className="font-display text-lg">Climateintel.ai</span>
             </div>
             <nav className="flex-1 space-y-1 px-3 mt-4">
               {nav.map((n) => {
@@ -117,7 +120,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-lg">Carbonly</span>
+          <span className="font-display text-lg">Climateintel.ai</span>
         </div>
         <nav className="flex-1 space-y-1 px-3">
           {nav.map((n) => {
@@ -147,6 +150,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <main className="md:pl-60">
+        <div className="flex h-14 items-center justify-between border-b px-4 md:px-8 bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">
+              Carbon Clarity Pro
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <AiCopilotSheet />
+          </div>
+        </div>
         <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-10">{children}</div>
       </main>
     </div>

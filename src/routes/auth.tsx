@@ -12,8 +12,8 @@ import { getErrorMessage } from "@/lib/utils";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Carbonly" },
-      { name: "description", content: "Sign in or create your Carbonly account." },
+      { title: "Sign in — Climateintel.ai" },
+      { name: "description", content: "Sign in or create your Climateintel.ai account." },
     ],
   }),
   component: AuthPage,
@@ -90,7 +90,7 @@ function AuthPage() {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary-foreground text-primary">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-xl">Carbonly</span>
+          <span className="font-display text-xl">Climateintel.ai</span>
         </Link>
         <div>
           <p className="font-display text-4xl leading-tight">
@@ -122,7 +122,7 @@ function AuthPage() {
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {mode === "signin"
-                ? "Welcome back to Carbonly."
+                ? "Welcome back to Climateintel.ai."
                 : mode === "signup"
                   ? "Start measuring in under a minute."
                   : "We'll email you a reset link."}

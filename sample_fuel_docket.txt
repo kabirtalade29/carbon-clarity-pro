@@ -1,0 +1,19 @@
+===================================================
+             APEX FUEL LOGISTICS
+            PHYSICAL DELIVERY DOCKET
+===================================================
+Docket Number: FL-849201
+Date: July 12, 2026
+Customer: Acme Industrial Corp
+Delivery Site: Depot Tank 2, Plant B
+
+---------------------------------------------------
+PRODUCT DELIVERED                       QUANTITY
+---------------------------------------------------
+Ultra Low Sulfur Diesel (ULSD)           850 Litres
+Density: 0.835 kg/L
+
+Total Delivered: 850 L
+Driver Signoff: J. Miller
+---------------------------------------------------
+Audit-Defensible Physical Quantity Trail

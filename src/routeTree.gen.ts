@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedGwpOdpRouteImport } from './routes/_authenticated/gwp-odp'
+import { Route as AuthenticatedDecarbonizationRouteImport } from './routes/_authenticated/decarbonization'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalculatorRouteImport } from './routes/_authenticated/calculator'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -54,6 +55,12 @@ const AuthenticatedGwpOdpRoute = AuthenticatedGwpOdpRouteImport.update({
   path: '/gwp-odp',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDecarbonizationRoute =
+  AuthenticatedDecarbonizationRouteImport.update({
+    id: '/decarbonization',
+    path: '/decarbonization',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/calculator': typeof AuthenticatedCalculatorRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/decarbonization': typeof AuthenticatedDecarbonizationRoute
   '/gwp-odp': typeof AuthenticatedGwpOdpRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -88,6 +96,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/calculator': typeof AuthenticatedCalculatorRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/decarbonization': typeof AuthenticatedDecarbonizationRoute
   '/gwp-odp': typeof AuthenticatedGwpOdpRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -101,6 +110,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calculator': typeof AuthenticatedCalculatorRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/decarbonization': typeof AuthenticatedDecarbonizationRoute
   '/_authenticated/gwp-odp': typeof AuthenticatedGwpOdpRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/calculator'
     | '/dashboard'
+    | '/decarbonization'
     | '/gwp-odp'
     | '/history'
     | '/reports'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/calculator'
     | '/dashboard'
+    | '/decarbonization'
     | '/gwp-odp'
     | '/history'
     | '/reports'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/calculator'
     | '/_authenticated/dashboard'
+    | '/_authenticated/decarbonization'
     | '/_authenticated/gwp-odp'
     | '/_authenticated/history'
     | '/_authenticated/reports'
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGwpOdpRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/decarbonization': {
+      id: '/_authenticated/decarbonization'
+      path: '/decarbonization'
+      fullPath: '/decarbonization'
+      preLoaderRoute: typeof AuthenticatedDecarbonizationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -228,6 +248,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCalculatorRoute: typeof AuthenticatedCalculatorRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDecarbonizationRoute: typeof AuthenticatedDecarbonizationRoute
   AuthenticatedGwpOdpRoute: typeof AuthenticatedGwpOdpRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
@@ -237,6 +258,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCalculatorRoute: AuthenticatedCalculatorRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDecarbonizationRoute: AuthenticatedDecarbonizationRoute,
   AuthenticatedGwpOdpRoute: AuthenticatedGwpOdpRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
