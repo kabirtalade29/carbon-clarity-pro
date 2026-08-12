@@ -213,22 +213,22 @@ export function buildGwpOdpReport(data: MultiGwpOdpReportData): jsPDF {
   const cards = [
     { label: "Total Gas Mass", value: `${(data.overall.totalQuantityKg / 1000).toLocaleString(undefined, { maximumFractionDigits: 2 })} t`, color: "#1F4F3A" },
     { label: "Total ODP Eq", value: `${data.overall.totalOdpEq.toLocaleString(undefined, { maximumFractionDigits: 4 })} t ODP`, color: "#5B7A45" },
-    { label: "Total CO₂e (AR5)", value: `${totalTonsCO2e.toLocaleString(undefined, { maximumFractionDigits: 2 })} t CO₂e`, color: "#2F6F52" },
+    { label: "Total CO2e (AR5)", value: `${totalTonsCO2e.toLocaleString(undefined, { maximumFractionDigits: 2 })} t CO2e`, color: "#2F6F52" },
     { label: "Total Substances", value: `${data.overall.totalItems} Items`, color: "#8A5A2A" },
   ];
 
-  const cw = 120, gap = 12;
+  const cw = 118, gap = 9;
   cards.forEach((c, i) => {
     const x = 48 + i * (cw + gap);
     doc.setFillColor(BONE);
     doc.roundedRect(x, y, cw, 60, 6, 6, "F");
     doc.setFontSize(8);
     doc.setTextColor(MUTED);
-    doc.text(c.label, x + 10, y + 18);
-    doc.setFontSize(12);
+    doc.text(c.label, x + 8, y + 18);
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(c.color);
-    doc.text(c.value, x + 10, y + 42);
+    doc.text(c.value, x + 8, y + 42);
   });
 
   y += 80;
@@ -253,7 +253,7 @@ export function buildGwpOdpReport(data: MultiGwpOdpReportData): jsPDF {
   doc.text("Quantity", 270, y + 14);
   doc.text("ODP Eq (t)", 345, y + 14);
   doc.text("GWP (AR5)", 420, y + 14);
-  doc.text("CO₂e (t AR5)", 480, y + 14);
+  doc.text("CO2e (t AR5)", 480, y + 14);
 
   y += 22;
   doc.setFont("helvetica", "normal");
@@ -278,7 +278,7 @@ export function buildGwpOdpReport(data: MultiGwpOdpReportData): jsPDF {
       doc.text("Quantity", 270, y + 14);
       doc.text("ODP Eq (t)", 345, y + 14);
       doc.text("GWP (AR5)", 420, y + 14);
-      doc.text("CO₂e (t AR5)", 480, y + 14);
+      doc.text("CO2e (t AR5)", 480, y + 14);
       y += 22;
       doc.setFont("helvetica", "normal");
       doc.setTextColor(INK);
@@ -327,7 +327,7 @@ export function buildGwpOdpReport(data: MultiGwpOdpReportData): jsPDF {
   doc.text("Items Count", 200, y + 14);
   doc.text("Total Mass (kg)", 280, y + 14);
   doc.text("Total ODP Eq (t)", 375, y + 14);
-  doc.text("Total CO₂e (t AR5)", 470, y + 14);
+  doc.text("Total CO2e (t AR5)", 470, y + 14);
 
   y += 22;
   doc.setFont("helvetica", "normal");
