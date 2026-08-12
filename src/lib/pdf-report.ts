@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import { formatKg, SCOPES } from "./emission-calculator";
 import { SUBSTANCES } from "./gwp-odp-data";
+import { requireAuth } from "./auth";
 
 export type ReportData = {
   id: string;
@@ -276,12 +277,14 @@ function triggerPdfDownload(doc: jsPDF, filename: string) {
   doc.save(filename);
 }
 
-export function downloadReport(data: ReportData) {
+export async function downloadReport(data: ReportData) {
+  await requireAuth();
   const doc = buildReport(data);
   triggerPdfDownload(doc, `climateintel-report-${data.id.slice(0, 8)}.pdf`);
 }
 
-export function printReport(data: ReportData) {
+export async function printReport(data: ReportData) {
+  await requireAuth();
   const doc = buildReport(data);
   doc.autoPrint();
   const blob = doc.output("bloburl");
@@ -697,7 +700,8 @@ export function buildConsolidatedReport(data: ConsolidatedReportData): jsPDF {
   return doc;
 }
 
-export function downloadConsolidatedReport(data: ConsolidatedReportData) {
+export async function downloadConsolidatedReport(data: ConsolidatedReportData) {
+  await requireAuth();
   const doc = buildConsolidatedReport(data);
   triggerPdfDownload(doc, `climateintel-consolidated-${data.id.slice(0, 8)}.pdf`);
 }
@@ -980,7 +984,8 @@ export function buildGwpOdpReport(data: GwpOdpReportData): jsPDF {
   return doc;
 }
 
-export function downloadGwpOdpReport(data: GwpOdpReportData) {
+export async function downloadGwpOdpReport(data: GwpOdpReportData) {
+  await requireAuth();
   const doc = buildGwpOdpReport(data);
   triggerPdfDownload(doc, `gwp-odp-analysis-${data.id.slice(0, 8)}.pdf`);
 }

@@ -1,30 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Leaf,
-  Sparkles,
-  BarChart3,
-  ShieldCheck,
-  FileText,
-  ArrowRight,
-  Check,
-  Factory,
-  Building2,
-  Trees,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { motion } from "motion/react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// The index route now redirects to the dashboard.
+// The dashboard (under /_authenticated) will handle the auth check.
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -36,7 +13,10 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Landing,
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard" });
+  },
+  component: () => null,
 });
 
 function Landing() {

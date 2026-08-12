@@ -18,7 +18,7 @@ import "@fontsource/inter/600.css";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { clearAuthCache } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -124,13 +124,17 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Clear auth cache on visibility change (e.g. tab switch) to ensure
+  // fresh auth checks when user returns to the app.
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-    });
-    return () => sub.subscription.unsubscribe();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        clearAuthCache();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [router, queryClient]);
 
   return (
