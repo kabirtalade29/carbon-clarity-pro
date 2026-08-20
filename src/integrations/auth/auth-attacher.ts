@@ -4,10 +4,8 @@
 // than the old Supabase bearer-token approach.
 import { createMiddleware } from "@tanstack/react-start";
 
-export const attachAuth = createMiddleware({ type: "function" }).client(
-  async ({ next }) => {
-    // Cookies are automatically sent with same-origin requests.
-    // No explicit header attachment needed — just pass through.
-    return next({});
-  },
-);
+export const attachAuth = createMiddleware({ type: "function" }).client(async ({ next }) => {
+  // Cookies are automatically sent with same-origin requests.
+  // No explicit header attachment needed — just pass through.
+  return next({});
+});

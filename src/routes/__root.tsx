@@ -80,14 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Climateintel.ai — Enterprise Carbon Emission Calculator" },
+      { title: "clisomumbai — Enterprise Carbon Emission Calculator" },
       {
         name: "description",
         content:
-          "Calculate, track and report Scope 1 and Scope 2 greenhouse gas emissions using IPCC-grade emission factors. Built for sustainability teams, ESG consultants and manufacturers.",
+          "Calculate, track and report Scope 1 and Scope 2 greenhouse gas emissions using IPCC-grade emission factors. Built for sustainability teams, ESG consultants and manufacturers by Climate Social Mumbai.",
       },
-      { name: "author", content: "Climateintel.ai" },
-      { property: "og:title", content: "Climateintel.ai — Enterprise Carbon Emission Calculator" },
+      { name: "author", content: "Climate Social Mumbai" },
+      { property: "og:title", content: "clisomumbai — Enterprise Carbon Emission Calculator" },
       {
         property: "og:description",
         content: "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports.",
@@ -133,8 +133,7 @@ function RootComponent() {
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [router, queryClient]);
 
   return (

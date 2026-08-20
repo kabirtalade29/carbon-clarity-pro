@@ -25,7 +25,7 @@ export function AiCopilotSheet() {
     {
       id: "welcome",
       sender: "copilot",
-      text: "Hello! I am **Carbon Clarity Co-Pilot**. I can analyze your GHG inventory, run audit traces, identify decarbonization levers, and draft board summaries. How can I help today?",
+      text: "Hello! I am **clisomumbai Co-Pilot**. I can analyze your GHG inventory, run audit traces, identify decarbonization levers, and draft board summaries. How can I help today?",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -64,7 +64,11 @@ export function AiCopilotSheet() {
       reply = `### Executive Climate Audit Summary (Q3 2026)\n\n- **Total Corporate GHG Baseline:** 4,658.2 t CO₂e\n- **Scope 1 (Stationary & Fugitive):** 2,364.8 t CO₂e (50.8%)\n- **Scope 2 (Grid Electricity):** 1,293.4 t CO₂e (27.8%)\n- **Scope 3 (Supply Chain & Freight):** 1,000.0 t CO₂e (21.4%)\n\n**Key Recommendation:** Transitioning facility HVAC systems from high-GWP R-410A to low-GWP R-454B will abate ~420 t CO₂e/yr while satisfying Kigali Amendment phase-down quotas.`;
     } else if (qLower.includes("scope 3") || qLower.includes("driver")) {
       reply = `Based on your live Scope 3 ledger, **Category 1: Purchased Goods & Services (Primary Steel & Aluminium)** represents **48% of total Scope 3 emissions**, followed by **Category 4: Upstream Freight Trucking (32%)**.\n\n*Action item:* Engaging top 5 steel suppliers for EAF recycled content certification can yield an immediate 18% reduction.`;
-    } else if (qLower.includes("montreal") || qLower.includes("refrigerant") || qLower.includes("gwp")) {
+    } else if (
+      qLower.includes("montreal") ||
+      qLower.includes("refrigerant") ||
+      qLower.includes("gwp")
+    ) {
       reply = `**Refrigerant Compliance Audit:**\n- **CFCs (R-11, R-12, Halons):** 0% active reliance (Compliant with 2010 Global Phase-out).\n- **HCFCs (R-22):** 1 site remaining under servicing tail (Phased out by 2030 under Montreal Protocol).\n- **HFCs (R-410A, R-134a):** Controlled under Kigali Amendment. Quota reductions of 40% take effect in 2026. Transition to R-32 or R-454B recommended.`;
     } else {
       reply = `I have cross-referenced your activity data against the DEFRA & EPA emission factor libraries.\n\n- All physical entries (kWh, Litres, Tonnes) have been verified with complete audit trail links.\n- Zero critical anomalies detected in recent billing entries.\n\nWould you like me to model a specific decarbonization scenario in the Decarbonization Planner?`;
@@ -84,7 +88,10 @@ export function AiCopilotSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2 border-primary/40 bg-primary/5 hover:bg-primary/10">
+        <Button
+          variant="outline"
+          className="gap-2 border-primary/40 bg-primary/5 hover:bg-primary/10"
+        >
           <Sparkles className="h-4 w-4 text-primary animate-pulse" />
           <span className="hidden sm:inline font-medium">AI Co-Pilot</span>
         </Button>
@@ -92,7 +99,7 @@ export function AiCopilotSheet() {
       <SheetContent className="w-full sm:max-w-md flex flex-col h-full p-6">
         <SheetHeader className="pb-4 border-b">
           <SheetTitle className="flex items-center gap-2 text-primary font-display text-xl">
-            <Sparkles className="h-5 w-5" /> Carbon Clarity Co-Pilot
+            <Sparkles className="h-5 w-5" /> clisomumbai Co-Pilot
           </SheetTitle>
           <SheetDescription className="text-xs">
             Natural language climate intelligence, audit traces & board reporting.
@@ -122,10 +129,16 @@ export function AiCopilotSheet() {
             >
               <div
                 className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 ${
-                  m.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground border"
+                  m.sender === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-foreground border"
                 }`}
               >
-                {m.sender === "user" ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5 text-primary" />}
+                {m.sender === "user" ? (
+                  <User className="h-3.5 w-3.5" />
+                ) : (
+                  <Bot className="h-3.5 w-3.5 text-primary" />
+                )}
               </div>
               <div
                 className={`rounded-2xl p-3.5 max-w-[85%] leading-relaxed ${

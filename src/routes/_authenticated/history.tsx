@@ -21,7 +21,9 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/history")({
-  head: () => ({ meta: [{ title: "History — Climateintel.ai" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "History — clisomumbai" }, { name: "robots", content: "noindex" }],
+  }),
   component: HistoryPage,
 });
 

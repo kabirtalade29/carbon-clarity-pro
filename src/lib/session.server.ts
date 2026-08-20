@@ -9,8 +9,7 @@ export type SessionUser = {
   picture: string;
 };
 
-const SESSION_SECRET =
-  process.env.SESSION_SECRET || "carbonly-dev-secret-change-in-production";
+const SESSION_SECRET = process.env.SESSION_SECRET || "carbonly-dev-secret-change-in-production";
 const COOKIE_NAME = "carbonly_session";
 const MAX_AGE_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
@@ -57,9 +56,7 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
  * Verify and decode a session token. Returns null if invalid or tampered.
  * Uses timing-safe comparison via crypto.subtle.verify.
  */
-export async function verifySessionToken(
-  token: string,
-): Promise<SessionUser | null> {
+export async function verifySessionToken(token: string): Promise<SessionUser | null> {
   const dotIdx = token.lastIndexOf(".");
   if (dotIdx === -1) return null;
 

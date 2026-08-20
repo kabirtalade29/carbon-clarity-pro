@@ -5,11 +5,11 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Climateintel.ai — Enterprise Carbon Emission Calculator" },
+      { title: "clisomumbai — Enterprise Carbon Emission Calculator" },
       {
         name: "description",
         content:
-          "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports for sustainability teams.",
+          "IPCC-grade GHG calculations, live dashboards and audit-ready PDF reports for sustainability teams by Climate Social Mumbai.",
       },
     ],
   }),

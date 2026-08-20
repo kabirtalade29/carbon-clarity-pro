@@ -77,7 +77,9 @@ export async function parseInvoiceFile(file: File): Promise<ExtractedLineItem[]>
       notes: "Extracted from utility meter statement line #1",
     });
   } else if (isFuel) {
-    const matched = allProducts.find((p) => p.name === "Gas/Diesel oil" || p.name.includes("Diesel")) || allProducts[0];
+    const matched =
+      allProducts.find((p) => p.name === "Gas/Diesel oil" || p.name.includes("Diesel")) ||
+      allProducts[0];
     items.push({
       id: crypto.randomUUID(),
       vendorName: "Apex Fuel Logistics",
@@ -94,7 +96,9 @@ export async function parseInvoiceFile(file: File): Promise<ExtractedLineItem[]>
       notes: "Extracted from physical delivery docket line",
     });
   } else {
-    const matched = allProducts.find((p) => p.name.includes("Steel") || p.name.includes("Aluminium")) || allProducts[0];
+    const matched =
+      allProducts.find((p) => p.name.includes("Steel") || p.name.includes("Aluminium")) ||
+      allProducts[0];
     items.push({
       id: crypto.randomUUID(),
       vendorName: "National Steel Supplies",

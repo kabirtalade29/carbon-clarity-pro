@@ -9,10 +9,8 @@ import {
   clearSessionCookieHeader,
 } from "./session.server";
 
-const GOOGLE_CLIENT_ID = () =>
-  process.env.GOOGLE_CLIENT_ID || "";
-const GOOGLE_CLIENT_SECRET = () =>
-  process.env.GOOGLE_CLIENT_SECRET || "";
+const GOOGLE_CLIENT_ID = () => process.env.GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_SECRET = () => process.env.GOOGLE_CLIENT_SECRET || "";
 const GOOGLE_REDIRECT_URI = () =>
   process.env.GOOGLE_REDIRECT_URI || "http://localhost:8080/api/auth/callback";
 
@@ -33,9 +31,7 @@ type GoogleUserInfo = {
  * Main router — returns a Response if the path matches an auth route,
  * or null to let TanStack Start handle it.
  */
-export async function handleAuthRoute(
-  request: Request,
-): Promise<Response | null> {
+export async function handleAuthRoute(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
 
   if (url.pathname === "/api/auth/login" && request.method === "GET") {
@@ -128,12 +124,9 @@ async function handleCallback(url: URL): Promise<Response> {
   // 2. Fetch user info from Google
   let googleUser: GoogleUserInfo;
   try {
-    const userRes = await fetch(
-      "https://www.googleapis.com/oauth2/v3/userinfo",
-      {
-        headers: { Authorization: `Bearer ${tokens.access_token}` },
-      },
-    );
+    const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    });
 
     if (!userRes.ok) {
       console.error("[auth] User info fetch failed:", await userRes.text());

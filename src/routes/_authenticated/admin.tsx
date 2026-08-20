@@ -32,7 +32,9 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Admin — Climateintel.ai" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Admin — clisomumbai" }, { name: "robots", content: "noindex" }],
+  }),
   beforeLoad: async () => {
     try {
       const res = await amIAdmin();

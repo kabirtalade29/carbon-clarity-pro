@@ -94,16 +94,14 @@ const localProfile: {
 } = {
   id: "demo-user-id",
   full_name: "Demo User",
-  company: "Carbon Clarity Pro Demo",
+  company: "Climate Social Mumbai",
   facility: "Headquarters",
   created_at: new Date().toISOString(),
 };
 
 // Helper to lazily import the Supabase admin client (for database operations only)
 async function getSupabaseAdmin() {
-  const { supabaseAdmin } = await import(
-    "@/integrations/supabase/client.server"
-  );
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
 
@@ -172,11 +170,7 @@ export const deleteCalculation = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     try {
       const supabase = await getSupabaseAdmin();
-      await supabase
-        .from("calculations")
-        .delete()
-        .eq("id", data.id)
-        .eq("user_id", context.userId);
+      await supabase.from("calculations").delete().eq("id", data.id).eq("user_id", context.userId);
     } catch {
       // fallback
     }
@@ -200,9 +194,7 @@ export const getCalculation = createServerFn({ method: "GET" })
     } catch {
       // fallback
     }
-    return (
-      localCalculations.find((c) => c.id === data.id) ?? localCalculations[0]
-    );
+    return localCalculations.find((c) => c.id === data.id) ?? localCalculations[0];
   });
 
 export const getMyStats = createServerFn({ method: "GET" })
@@ -281,9 +273,7 @@ export const adminOverview = createServerFn({ method: "GET" })
       try {
         const supabase = await getSupabaseAdmin();
         const [{ data: profiles }, { data: calcs }] = await Promise.all([
-          supabase
-            .from("profiles")
-            .select("id,full_name,company,facility,created_at"),
+          supabase.from("profiles").select("id,full_name,company,facility,created_at"),
           supabase
             .from("calculations")
             .select("*")

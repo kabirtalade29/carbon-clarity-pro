@@ -68,88 +68,494 @@ export const factors = raw;
 // Comprehensive Scope 3 Predefined Emission Factors (DEFRA, GHG Protocol & EPA Guidelines)
 const scope3Products: SimpleFactor[] = [
   // Category 1: Purchased Goods & Services
-  { name: "Primary Steel (BF-BOF)", category: "Metals & Mining", ef_value: 1.81, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Recycled Steel (EAF)", category: "Metals & Mining", ef_value: 0.45, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Primary Aluminium", category: "Metals & Mining", ef_value: 8.85, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Recycled Aluminium", category: "Metals & Mining", ef_value: 0.62, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Copper (virgin)", category: "Metals & Mining", ef_value: 3.80, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Plastics — PET", category: "Polymers & Synthetics", ef_value: 2.15, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Plastics — HDPE", category: "Polymers & Synthetics", ef_value: 1.90, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Plastics — PVC", category: "Polymers & Synthetics", ef_value: 2.41, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Concrete & Cement", category: "Building Materials", ef_value: 0.13, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Paper & Cardboard Packaging", category: "Paper & Packaging", ef_value: 0.88, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Flat Glass", category: "Glass & Ceramics", ef_value: 1.22, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Organic Chemicals", category: "Chemicals", ef_value: 1.95, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Cotton Fabric & Textiles", category: "Textiles", ef_value: 4.20, ef_unit: "kg CO2e/kg", source: "DEFRA 2024 / GHG Protocol", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "IT Equipment — Laptop Computer", category: "Electronics", ef_value: 320.00, ef_unit: "kg CO2e/unit", source: "GHG Protocol ICT Sector", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "IT Equipment — Enterprise Server", category: "Electronics", ef_value: 1250.00, ef_unit: "kg CO2e/unit", source: "GHG Protocol ICT Sector", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Professional & Legal Services", category: "Services (Spend-based)", ef_value: 0.14, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
-  { name: "Marketing & IT Cloud Services", category: "Services (Spend-based)", ef_value: 0.22, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 1: Purchased Goods & Services" },
+  {
+    name: "Primary Steel (BF-BOF)",
+    category: "Metals & Mining",
+    ef_value: 1.81,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Recycled Steel (EAF)",
+    category: "Metals & Mining",
+    ef_value: 0.45,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Primary Aluminium",
+    category: "Metals & Mining",
+    ef_value: 8.85,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Recycled Aluminium",
+    category: "Metals & Mining",
+    ef_value: 0.62,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Copper (virgin)",
+    category: "Metals & Mining",
+    ef_value: 3.8,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Plastics — PET",
+    category: "Polymers & Synthetics",
+    ef_value: 2.15,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Plastics — HDPE",
+    category: "Polymers & Synthetics",
+    ef_value: 1.9,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Plastics — PVC",
+    category: "Polymers & Synthetics",
+    ef_value: 2.41,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Concrete & Cement",
+    category: "Building Materials",
+    ef_value: 0.13,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Paper & Cardboard Packaging",
+    category: "Paper & Packaging",
+    ef_value: 0.88,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Flat Glass",
+    category: "Glass & Ceramics",
+    ef_value: 1.22,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Organic Chemicals",
+    category: "Chemicals",
+    ef_value: 1.95,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Cotton Fabric & Textiles",
+    category: "Textiles",
+    ef_value: 4.2,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024 / GHG Protocol",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "IT Equipment — Laptop Computer",
+    category: "Electronics",
+    ef_value: 320.0,
+    ef_unit: "kg CO2e/unit",
+    source: "GHG Protocol ICT Sector",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "IT Equipment — Enterprise Server",
+    category: "Electronics",
+    ef_value: 1250.0,
+    ef_unit: "kg CO2e/unit",
+    source: "GHG Protocol ICT Sector",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Professional & Legal Services",
+    category: "Services (Spend-based)",
+    ef_value: 0.14,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
+  {
+    name: "Marketing & IT Cloud Services",
+    category: "Services (Spend-based)",
+    ef_value: 0.22,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 1: Purchased Goods & Services",
+  },
 
   // Category 2: Capital Goods
-  { name: "Industrial Heavy Machinery", category: "Capital Equipment", ef_value: 0.38, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 2: Capital Goods" },
-  { name: "Commercial HVAC & Chiller Systems", category: "Capital Equipment", ef_value: 0.45, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 2: Capital Goods" },
-  { name: "Commercial Fleet Vehicles & Trucks", category: "Vehicles", ef_value: 0.32, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 2: Capital Goods" },
-  { name: "Office Building Construction", category: "Infrastructure", ef_value: 0.28, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 2: Capital Goods" },
-  { name: "Office IT Hardware & Computers", category: "IT Infrastructure", ef_value: 0.42, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 2: Capital Goods" },
+  {
+    name: "Industrial Heavy Machinery",
+    category: "Capital Equipment",
+    ef_value: 0.38,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 2: Capital Goods",
+  },
+  {
+    name: "Commercial HVAC & Chiller Systems",
+    category: "Capital Equipment",
+    ef_value: 0.45,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 2: Capital Goods",
+  },
+  {
+    name: "Commercial Fleet Vehicles & Trucks",
+    category: "Vehicles",
+    ef_value: 0.32,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 2: Capital Goods",
+  },
+  {
+    name: "Office Building Construction",
+    category: "Infrastructure",
+    ef_value: 0.28,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 2: Capital Goods",
+  },
+  {
+    name: "Office IT Hardware & Computers",
+    category: "IT Infrastructure",
+    ef_value: 0.42,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 2: Capital Goods",
+  },
 
   // Category 3: Fuel & Energy Activities
-  { name: "Well-to-Tank (WTT) — Grid Electricity", category: "Upstream Energy", ef_value: 0.048, ef_unit: "kg CO2e/kWh", source: "DEFRA 2024", scope: "Scope 3 - Category 3: Fuel & Energy Activities" },
-  { name: "Well-to-Tank (WTT) — Natural Gas", category: "Upstream Energy", ef_value: 0.024, ef_unit: "kg CO2e/kWh", source: "DEFRA 2024", scope: "Scope 3 - Category 3: Fuel & Energy Activities" },
-  { name: "Well-to-Tank (WTT) — Diesel Fuel", category: "Upstream Energy", ef_value: 0.58, ef_unit: "kg CO2e/litre", source: "DEFRA 2024", scope: "Scope 3 - Category 3: Fuel & Energy Activities" },
-  { name: "Transmission & Distribution Grid Losses", category: "Grid Losses", ef_value: 0.065, ef_unit: "kg CO2e/kWh", source: "DEFRA 2024", scope: "Scope 3 - Category 3: Fuel & Energy Activities" },
+  {
+    name: "Well-to-Tank (WTT) — Grid Electricity",
+    category: "Upstream Energy",
+    ef_value: 0.048,
+    ef_unit: "kg CO2e/kWh",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 3: Fuel & Energy Activities",
+  },
+  {
+    name: "Well-to-Tank (WTT) — Natural Gas",
+    category: "Upstream Energy",
+    ef_value: 0.024,
+    ef_unit: "kg CO2e/kWh",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 3: Fuel & Energy Activities",
+  },
+  {
+    name: "Well-to-Tank (WTT) — Diesel Fuel",
+    category: "Upstream Energy",
+    ef_value: 0.58,
+    ef_unit: "kg CO2e/litre",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 3: Fuel & Energy Activities",
+  },
+  {
+    name: "Transmission & Distribution Grid Losses",
+    category: "Grid Losses",
+    ef_value: 0.065,
+    ef_unit: "kg CO2e/kWh",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 3: Fuel & Energy Activities",
+  },
 
   // Category 5: Waste Generated in Operations
-  { name: "Municipal Solid Waste — Landfill", category: "Waste Disposal", ef_value: 0.467, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 5: Waste Generated in Operations" },
-  { name: "Municipal Solid Waste — Incineration", category: "Waste Disposal", ef_value: 0.021, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 5: Waste Generated in Operations" },
-  { name: "Recycled Paper & Cardboard", category: "Recycling", ef_value: 0.021, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 5: Waste Generated in Operations" },
-  { name: "Recycled Scrap Metal", category: "Recycling", ef_value: 0.021, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 5: Waste Generated in Operations" },
-  { name: "Recycled Mixed Plastics", category: "Recycling", ef_value: 0.021, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 5: Waste Generated in Operations" },
-  { name: "Industrial Wastewater Treatment", category: "Wastewater", ef_value: 0.728, ef_unit: "kg CO2e/m³", source: "DEFRA 2024", scope: "Scope 3 - Category 5: Waste Generated in Operations" },
+  {
+    name: "Municipal Solid Waste — Landfill",
+    category: "Waste Disposal",
+    ef_value: 0.467,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 5: Waste Generated in Operations",
+  },
+  {
+    name: "Municipal Solid Waste — Incineration",
+    category: "Waste Disposal",
+    ef_value: 0.021,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 5: Waste Generated in Operations",
+  },
+  {
+    name: "Recycled Paper & Cardboard",
+    category: "Recycling",
+    ef_value: 0.021,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 5: Waste Generated in Operations",
+  },
+  {
+    name: "Recycled Scrap Metal",
+    category: "Recycling",
+    ef_value: 0.021,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 5: Waste Generated in Operations",
+  },
+  {
+    name: "Recycled Mixed Plastics",
+    category: "Recycling",
+    ef_value: 0.021,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 5: Waste Generated in Operations",
+  },
+  {
+    name: "Industrial Wastewater Treatment",
+    category: "Wastewater",
+    ef_value: 0.728,
+    ef_unit: "kg CO2e/m³",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 5: Waste Generated in Operations",
+  },
 
   // Category 7: Employee Commuting
-  { name: "Commuter Car — Gasoline / Petrol", category: "Road Commute", ef_value: 0.171, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 7: Employee Commuting" },
-  { name: "Commuter Car — Diesel", category: "Road Commute", ef_value: 0.165, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 7: Employee Commuting" },
-  { name: "Commuter Car — Hybrid", category: "Road Commute", ef_value: 0.112, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 7: Employee Commuting" },
-  { name: "Commuter Car — Electric Vehicle (EV)", category: "Road Commute", ef_value: 0.053, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 7: Employee Commuting" },
-  { name: "Public Bus Commute", category: "Transit", ef_value: 0.089, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 7: Employee Commuting" },
-  { name: "Metro / Subway Commute", category: "Transit", ef_value: 0.028, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 7: Employee Commuting" },
+  {
+    name: "Commuter Car — Gasoline / Petrol",
+    category: "Road Commute",
+    ef_value: 0.171,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 7: Employee Commuting",
+  },
+  {
+    name: "Commuter Car — Diesel",
+    category: "Road Commute",
+    ef_value: 0.165,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 7: Employee Commuting",
+  },
+  {
+    name: "Commuter Car — Hybrid",
+    category: "Road Commute",
+    ef_value: 0.112,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 7: Employee Commuting",
+  },
+  {
+    name: "Commuter Car — Electric Vehicle (EV)",
+    category: "Road Commute",
+    ef_value: 0.053,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 7: Employee Commuting",
+  },
+  {
+    name: "Public Bus Commute",
+    category: "Transit",
+    ef_value: 0.089,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 7: Employee Commuting",
+  },
+  {
+    name: "Metro / Subway Commute",
+    category: "Transit",
+    ef_value: 0.028,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 7: Employee Commuting",
+  },
 
   // Category 8: Upstream Leased Assets
-  { name: "Leased Commercial Office Space", category: "Real Estate", ef_value: 35.50, ef_unit: "kg CO2e/m²", source: "DEFRA 2024", scope: "Scope 3 - Category 8: Upstream Leased Assets" },
-  { name: "Leased Warehouse & Logistics Hub", category: "Real Estate", ef_value: 22.40, ef_unit: "kg CO2e/m²", source: "DEFRA 2024", scope: "Scope 3 - Category 8: Upstream Leased Assets" },
-  { name: "Leased Data Center Rack Space", category: "IT Facilities", ef_value: 0.380, ef_unit: "kg CO2e/kWh", source: "DEFRA 2024", scope: "Scope 3 - Category 8: Upstream Leased Assets" },
+  {
+    name: "Leased Commercial Office Space",
+    category: "Real Estate",
+    ef_value: 35.5,
+    ef_unit: "kg CO2e/m²",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 8: Upstream Leased Assets",
+  },
+  {
+    name: "Leased Warehouse & Logistics Hub",
+    category: "Real Estate",
+    ef_value: 22.4,
+    ef_unit: "kg CO2e/m²",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 8: Upstream Leased Assets",
+  },
+  {
+    name: "Leased Data Center Rack Space",
+    category: "IT Facilities",
+    ef_value: 0.38,
+    ef_unit: "kg CO2e/kWh",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 8: Upstream Leased Assets",
+  },
 
   // Category 9: Downstream Transportation
-  { name: "Delivery Van (Last-mile Local)", category: "Road Freight", ef_value: 0.218, ef_unit: "kg CO2e/km", source: "DEFRA 2024", scope: "Scope 3 - Category 9: Downstream Transportation" },
-  { name: "Downstream Road Freight Truck", category: "Road Freight", ef_value: 0.107, ef_unit: "kg CO2e/tonne.km", source: "DEFRA 2024", scope: "Scope 3 - Category 9: Downstream Transportation" },
-  { name: "Downstream Sea Cargo Freight", category: "Sea Freight", ef_value: 0.0161, ef_unit: "kg CO2e/tonne.km", source: "DEFRA 2024", scope: "Scope 3 - Category 9: Downstream Transportation" },
+  {
+    name: "Delivery Van (Last-mile Local)",
+    category: "Road Freight",
+    ef_value: 0.218,
+    ef_unit: "kg CO2e/km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 9: Downstream Transportation",
+  },
+  {
+    name: "Downstream Road Freight Truck",
+    category: "Road Freight",
+    ef_value: 0.107,
+    ef_unit: "kg CO2e/tonne.km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 9: Downstream Transportation",
+  },
+  {
+    name: "Downstream Sea Cargo Freight",
+    category: "Sea Freight",
+    ef_value: 0.0161,
+    ef_unit: "kg CO2e/tonne.km",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 9: Downstream Transportation",
+  },
 
   // Category 10: Processing of Sold Products
-  { name: "Metal Machining & Fabrication", category: "Manufacturing", ef_value: 0.52, ef_unit: "kg CO2e/kg", source: "GHG Protocol", scope: "Scope 3 - Category 10: Processing of Sold Products" },
-  { name: "Chemical Synthesis & Processing", category: "Manufacturing", ef_value: 0.85, ef_unit: "kg CO2e/kg", source: "GHG Protocol", scope: "Scope 3 - Category 10: Processing of Sold Products" },
-  { name: "Plastic Molding & Extrusion", category: "Manufacturing", ef_value: 0.42, ef_unit: "kg CO2e/kg", source: "GHG Protocol", scope: "Scope 3 - Category 10: Processing of Sold Products" },
+  {
+    name: "Metal Machining & Fabrication",
+    category: "Manufacturing",
+    ef_value: 0.52,
+    ef_unit: "kg CO2e/kg",
+    source: "GHG Protocol",
+    scope: "Scope 3 - Category 10: Processing of Sold Products",
+  },
+  {
+    name: "Chemical Synthesis & Processing",
+    category: "Manufacturing",
+    ef_value: 0.85,
+    ef_unit: "kg CO2e/kg",
+    source: "GHG Protocol",
+    scope: "Scope 3 - Category 10: Processing of Sold Products",
+  },
+  {
+    name: "Plastic Molding & Extrusion",
+    category: "Manufacturing",
+    ef_value: 0.42,
+    ef_unit: "kg CO2e/kg",
+    source: "GHG Protocol",
+    scope: "Scope 3 - Category 10: Processing of Sold Products",
+  },
 
   // Category 11: Use of Sold Products
-  { name: "Direct Electricity Consumption", category: "Product Use Phase", ef_value: 0.450, ef_unit: "kg CO2e/kWh", source: "GHG Protocol", scope: "Scope 3 - Category 11: Use of Sold Products" },
-  { name: "Fuel Consumption of Sold Equipment", category: "Product Use Phase", ef_value: 2.68, ef_unit: "kg CO2e/litre", source: "GHG Protocol", scope: "Scope 3 - Category 11: Use of Sold Products" },
+  {
+    name: "Direct Electricity Consumption",
+    category: "Product Use Phase",
+    ef_value: 0.45,
+    ef_unit: "kg CO2e/kWh",
+    source: "GHG Protocol",
+    scope: "Scope 3 - Category 11: Use of Sold Products",
+  },
+  {
+    name: "Fuel Consumption of Sold Equipment",
+    category: "Product Use Phase",
+    ef_value: 2.68,
+    ef_unit: "kg CO2e/litre",
+    source: "GHG Protocol",
+    scope: "Scope 3 - Category 11: Use of Sold Products",
+  },
 
   // Category 12: End-of-Life of Sold Products
-  { name: "E-Waste Electronics Recycling", category: "End of Life", ef_value: 0.085, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 12: End-of-Life of Sold Products" },
-  { name: "Plastic Product Landfill Disposal", category: "End of Life", ef_value: 0.042, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 12: End-of-Life of Sold Products" },
-  { name: "Packaging Waste Incineration", category: "End of Life", ef_value: 0.920, ef_unit: "kg CO2e/kg", source: "DEFRA 2024", scope: "Scope 3 - Category 12: End-of-Life of Sold Products" },
+  {
+    name: "E-Waste Electronics Recycling",
+    category: "End of Life",
+    ef_value: 0.085,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 12: End-of-Life of Sold Products",
+  },
+  {
+    name: "Plastic Product Landfill Disposal",
+    category: "End of Life",
+    ef_value: 0.042,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 12: End-of-Life of Sold Products",
+  },
+  {
+    name: "Packaging Waste Incineration",
+    category: "End of Life",
+    ef_value: 0.92,
+    ef_unit: "kg CO2e/kg",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 12: End-of-Life of Sold Products",
+  },
 
   // Category 13: Downstream Leased Assets
-  { name: "Downstream Leased Commercial Building", category: "Leased Assets", ef_value: 35.50, ef_unit: "kg CO2e/m²", source: "DEFRA 2024", scope: "Scope 3 - Category 13: Downstream Leased Assets" },
-  { name: "Downstream Leased Retail Outlet", category: "Leased Assets", ef_value: 48.20, ef_unit: "kg CO2e/m²", source: "DEFRA 2024", scope: "Scope 3 - Category 13: Downstream Leased Assets" },
+  {
+    name: "Downstream Leased Commercial Building",
+    category: "Leased Assets",
+    ef_value: 35.5,
+    ef_unit: "kg CO2e/m²",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 13: Downstream Leased Assets",
+  },
+  {
+    name: "Downstream Leased Retail Outlet",
+    category: "Leased Assets",
+    ef_value: 48.2,
+    ef_unit: "kg CO2e/m²",
+    source: "DEFRA 2024",
+    scope: "Scope 3 - Category 13: Downstream Leased Assets",
+  },
 
   // Category 14: Franchises
-  { name: "Franchise Operations Spend", category: "Franchises", ef_value: 0.35, ef_unit: "kg CO2e/USD", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 14: Franchises" },
-  { name: "Franchise Facility Energy Use", category: "Franchises", ef_value: 0.45, ef_unit: "kg CO2e/kWh", source: "EPA EEIO v2.0", scope: "Scope 3 - Category 14: Franchises" },
+  {
+    name: "Franchise Operations Spend",
+    category: "Franchises",
+    ef_value: 0.35,
+    ef_unit: "kg CO2e/USD",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 14: Franchises",
+  },
+  {
+    name: "Franchise Facility Energy Use",
+    category: "Franchises",
+    ef_value: 0.45,
+    ef_unit: "kg CO2e/kWh",
+    source: "EPA EEIO v2.0",
+    scope: "Scope 3 - Category 14: Franchises",
+  },
 
   // Category 15: Investments
-  { name: "Equity Investment Portfolio", category: "Investments", ef_value: 0.22, ef_unit: "kg CO2e/USD", source: "PCAF Standard / EPA EEIO", scope: "Scope 3 - Category 15: Investments" },
-  { name: "Commercial Project Finance", category: "Investments", ef_value: 0.31, ef_unit: "kg CO2e/USD", source: "PCAF Standard / EPA EEIO", scope: "Scope 3 - Category 15: Investments" },
+  {
+    name: "Equity Investment Portfolio",
+    category: "Investments",
+    ef_value: 0.22,
+    ef_unit: "kg CO2e/USD",
+    source: "PCAF Standard / EPA EEIO",
+    scope: "Scope 3 - Category 15: Investments",
+  },
+  {
+    name: "Commercial Project Finance",
+    category: "Investments",
+    ef_value: 0.31,
+    ef_unit: "kg CO2e/USD",
+    source: "PCAF Standard / EPA EEIO",
+    scope: "Scope 3 - Category 15: Investments",
+  },
 ];
 
 export const allProducts = [
@@ -278,19 +684,39 @@ export function unitsForProduct(p: Product | null, customMetricType?: string): s
   const s = p as SimpleFactor;
   const efUnit = (s.ef_unit ?? "").toLowerCase();
 
-  if (efUnit.includes("/usd") || efUnit.includes("/inr") || efUnit.includes("/spend") || efUnit.includes("/$")) {
+  if (
+    efUnit.includes("/usd") ||
+    efUnit.includes("/inr") ||
+    efUnit.includes("/spend") ||
+    efUnit.includes("/$")
+  ) {
     return ["USD", "INR", "EUR", "GBP"];
   }
   if (efUnit.includes("/tonne.km") || efUnit.includes("/tkm") || efUnit.includes("/ton-mile")) {
     return ["tonne.km", "ton-miles"];
   }
-  if (efUnit.includes("/km") || efUnit.includes("/mile") || efUnit.includes("/pkm") || efUnit.includes("/passenger.km")) {
+  if (
+    efUnit.includes("/km") ||
+    efUnit.includes("/mile") ||
+    efUnit.includes("/pkm") ||
+    efUnit.includes("/passenger.km")
+  ) {
     return ["km", "mile"];
   }
-  if (efUnit.includes("/kg") || efUnit.includes("/tonne") || efUnit.includes("/ton") || efUnit.includes("/g")) {
+  if (
+    efUnit.includes("/kg") ||
+    efUnit.includes("/tonne") ||
+    efUnit.includes("/ton") ||
+    efUnit.includes("/g")
+  ) {
     return ["kg", "tonne", "lbs", "g"];
   }
-  if (efUnit.includes("/l") || efUnit.includes("/litre") || efUnit.includes("/m3") || efUnit.includes("/m³")) {
+  if (
+    efUnit.includes("/l") ||
+    efUnit.includes("/litre") ||
+    efUnit.includes("/m3") ||
+    efUnit.includes("/m³")
+  ) {
     return ["litre", "m³"];
   }
   if (efUnit.includes("/kwh") || efUnit.includes("/mwh") || efUnit.includes("/gj")) {
@@ -503,7 +929,8 @@ export function calculate(
   else if (unit === "lbs" && efUnit.includes("kg")) multiplier = 0.45359237;
   else if (unit === "MWh" && efUnit.includes("kWh")) multiplier = 1000;
   else if (unit === "GJ" && efUnit.includes("kWh")) multiplier = 277.778;
-  else if (unit === "mile" && (efUnit.includes("km") || efUnit.includes("pkm"))) multiplier = 1.60934;
+  else if (unit === "mile" && (efUnit.includes("km") || efUnit.includes("pkm")))
+    multiplier = 1.60934;
   else if (unit === "ton-miles" && efUnit.includes("tonne.km")) multiplier = 1.45997;
   else if (unit === "INR" && efUnit.includes("USD")) multiplier = 1 / 85;
   else if (unit === "EUR" && efUnit.includes("USD")) multiplier = 1.08;

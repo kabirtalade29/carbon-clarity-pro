@@ -25,7 +25,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
-    meta: [{ title: "Dashboard — Climateintel.ai" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Dashboard — clisomumbai" }, { name: "robots", content: "noindex" }],
   }),
   component: Dashboard,
 });

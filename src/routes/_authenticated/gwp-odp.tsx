@@ -13,20 +13,15 @@ import {
   type MultiGwpOdpReportData,
 } from "@/lib/pdf-report";
 import { toast } from "sonner";
-import {
-  Download,
-  Trash2,
-  Plus,
-  Layers,
-  Wind,
-  Filter,
-  FileText,
-} from "lucide-react";
+import { Download, Trash2, Plus, Layers, Wind, Filter, FileText } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/gwp-odp")({
   head: () => ({
-    meta: [{ title: "GWP-ODP Calculator — Climateintel.ai" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "GWP-ODP Calculator — clisomumbai" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: GwpOdpPage,
 });
@@ -222,7 +217,10 @@ function GwpOdpPage() {
       return { odp: 0, gwpAR4: 0, gwpAR5: 0, gwpAR6: 0 };
     }
 
-    let odp = 0, gwpAR4 = 0, gwpAR5 = 0, gwpAR6 = 0;
+    let odp = 0,
+      gwpAR4 = 0,
+      gwpAR5 = 0,
+      gwpAR6 = 0;
     blendComponents.forEach((comp) => {
       const frac = comp.percentage / totalPct;
       const sub = SUBSTANCES.find((s) => s.name === comp.name);
@@ -271,7 +269,7 @@ function GwpOdpPage() {
       composition: blendComponents.map((c) => ({
         name: c.name,
         percentage: c.percentage,
-        quantity: (kg * (c.percentage / 100)),
+        quantity: kg * (c.percentage / 100),
       })),
     };
 
@@ -357,8 +355,14 @@ function GwpOdpPage() {
       companyName: company || "Corporate Operations",
       facility: facility || "Main Facility Site",
       userName: "Sustainability Manager",
-      reportDate: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
-      notes: notes || "3-Tier GWP-ODP assessment report generated under Kigali Amendment & Montreal Protocol standards.",
+      reportDate: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      notes:
+        notes ||
+        "3-Tier GWP-ODP assessment report generated under Kigali Amendment & Montreal Protocol standards.",
       items: inventoryItems,
       familySummaries,
       overall: overallTotals,
@@ -384,11 +388,17 @@ function GwpOdpPage() {
             <Wind className="h-9 w-9 text-sky-600" /> Multi-Substance GWP-ODP Calculator
           </h1>
           <p className="mt-2 text-muted-foreground max-w-2xl text-sm">
-            Add unlimited pure substances & custom blends across all gas families (CFCs, HCFCs, HFCs, PFCs, HFOs, Naturals). Generate 3-tier reports: Single Substance-Wise, Family-Wise, and Overall Consolidated.
+            Add unlimited pure substances & custom blends across all gas families (CFCs, HCFCs,
+            HFCs, PFCs, HFOs, Naturals). Generate 3-tier reports: Single Substance-Wise,
+            Family-Wise, and Overall Consolidated.
           </p>
         </div>
 
-        <Button onClick={handleDownloadPDF} disabled={inventoryItems.length === 0} className="gap-2 font-bold">
+        <Button
+          onClick={handleDownloadPDF}
+          disabled={inventoryItems.length === 0}
+          className="gap-2 font-bold"
+        >
           <Download className="h-4 w-4" /> Download 3-Tier Report PDF
         </Button>
       </div>
@@ -396,38 +406,59 @@ function GwpOdpPage() {
       {/* OVERALL CONSOLIDATED SUMMARY CARDS (TIER 3) */}
       <div className="grid gap-4 md:grid-cols-4 mb-8">
         <Card className="p-5 rounded-2xl border-primary/20 bg-primary/5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Inventory Gas Mass</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Total Inventory Gas Mass
+          </p>
           <p className="mt-2 text-3xl font-display font-extrabold text-foreground">
-            {(overallTotals.totalQuantityKg / 1000).toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
+            {(overallTotals.totalQuantityKg / 1000).toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}{" "}
             <span className="text-sm font-normal text-muted-foreground">Tonnes</span>
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">{overallTotals.totalQuantityKg.toLocaleString()} kg total mass</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {overallTotals.totalQuantityKg.toLocaleString()} kg total mass
+          </p>
         </Card>
 
         <Card className="p-5 rounded-2xl border-amber-500/30 bg-amber-500/10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800 font-extrabold">Total ODP Impact</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800 font-extrabold">
+            Total ODP Impact
+          </p>
           <p className="mt-2 text-3xl font-display font-extrabold text-amber-950">
             {overallTotals.totalOdpEq.toLocaleString(undefined, { maximumFractionDigits: 4 })}{" "}
             <span className="text-sm font-normal text-amber-800">t ODP eq</span>
           </p>
-          <p className="mt-1 text-xs text-amber-800 font-medium">Montreal Protocol Ozone Equivalent</p>
+          <p className="mt-1 text-xs text-amber-800 font-medium">
+            Montreal Protocol Ozone Equivalent
+          </p>
         </Card>
 
         <Card className="p-5 rounded-2xl border-emerald-500/30 bg-emerald-500/10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800 font-extrabold">Total Global Warming (AR5)</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800 font-extrabold">
+            Total Global Warming (AR5)
+          </p>
           <p className="mt-2 text-3xl font-display font-extrabold text-emerald-950">
             {overallTotals.totalCo2eAR5.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
             <span className="text-sm font-normal text-emerald-800">t CO₂e</span>
           </p>
-          <p className="mt-1 text-xs text-emerald-800 font-medium">AR6: {overallTotals.totalCo2eAR6.toLocaleString(undefined, { maximumFractionDigits: 2 })} t CO₂e</p>
+          <p className="mt-1 text-xs text-emerald-800 font-medium">
+            AR6:{" "}
+            {overallTotals.totalCo2eAR6.toLocaleString(undefined, { maximumFractionDigits: 2 })} t
+            CO₂e
+          </p>
         </Card>
 
         <Card className="p-5 rounded-2xl">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Active Gases</p>
-          <p className="mt-2 text-3xl font-display font-extrabold text-primary">
-            {overallTotals.totalItems} <span className="text-sm font-normal text-muted-foreground">Substances</span>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Total Active Gases
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">{familySummaries.length} Gas Families Covered</p>
+          <p className="mt-2 text-3xl font-display font-extrabold text-primary">
+            {overallTotals.totalItems}{" "}
+            <span className="text-sm font-normal text-muted-foreground">Substances</span>
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {familySummaries.length} Gas Families Covered
+          </p>
         </Card>
       </div>
 
@@ -435,13 +466,15 @@ function GwpOdpPage() {
       <Tabs defaultValue="add-pure" className="space-y-6 mb-8">
         <TabsList className="bg-muted p-1 rounded-xl">
           <TabsTrigger value="add-pure" className="gap-2 text-xs font-semibold">
-            <Wind className="h-4 w-4 text-sky-600" /> Add Pure Substance (CFCs, HCFCs, HFCs, PFCs, Naturals)
+            <Wind className="h-4 w-4 text-sky-600" /> Add Pure Substance (CFCs, HCFCs, HFCs, PFCs,
+            Naturals)
           </TabsTrigger>
           <TabsTrigger value="add-blend" className="gap-2 text-xs font-semibold">
             <Layers className="h-4 w-4 text-purple-600" /> Add Custom Blend Builder
           </TabsTrigger>
           <TabsTrigger value="assessment-report" className="gap-2 text-xs font-semibold">
-            <FileText className="h-4 w-4 text-primary" /> View 3-Tier Assessment Report ({inventoryItems.length})
+            <FileText className="h-4 w-4 text-primary" /> View 3-Tier Assessment Report (
+            {inventoryItems.length})
           </TabsTrigger>
         </TabsList>
 
@@ -457,19 +490,21 @@ function GwpOdpPage() {
               <span className="text-xs font-bold text-muted-foreground mr-1 flex items-center gap-1">
                 <Filter className="h-3.5 w-3.5" /> Family Filter:
               </span>
-              {["All", "CFCs", "HCFCs", "HFCs", "PFCs", "HFC Blends", "Naturals & Others"].map((g) => (
-                <button
-                  key={g}
-                  onClick={() => handleGroupSelect(g)}
-                  className={`text-xs px-3 py-1 rounded-full font-semibold transition-all ${
-                    selectedGroup === g
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {g}
-                </button>
-              ))}
+              {["All", "CFCs", "HCFCs", "HFCs", "PFCs", "HFC Blends", "Naturals & Others"].map(
+                (g) => (
+                  <button
+                    key={g}
+                    onClick={() => handleGroupSelect(g)}
+                    className={`text-xs px-3 py-1 rounded-full font-semibold transition-all ${
+                      selectedGroup === g
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {g}
+                  </button>
+                ),
+              )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-3 mb-5">
@@ -515,7 +550,9 @@ function GwpOdpPage() {
                 </div>
                 <div>
                   <span className="text-muted-foreground font-semibold">GWP (AR5 100yr):</span>
-                  <p className="font-bold text-sm text-emerald-700">{activeSubstance.gwpAR5} × CO₂</p>
+                  <p className="font-bold text-sm text-emerald-700">
+                    {activeSubstance.gwpAR5} × CO₂
+                  </p>
                 </div>
               </div>
             )}
@@ -601,13 +638,21 @@ function GwpOdpPage() {
             <div className="p-4 rounded-xl border bg-muted/20 mb-5">
               <div className="flex justify-between items-center mb-2 text-xs font-semibold">
                 <span>Blend Chemical Composition ({blendComponents.length} Components)</span>
-                <span className={remainingPercentage === 0 ? "text-emerald-700 font-bold" : "text-amber-700"}>
-                  {remainingPercentage === 0 ? "✓ 100% Complete" : `${remainingPercentage}% Remaining`}
+                <span
+                  className={
+                    remainingPercentage === 0 ? "text-emerald-700 font-bold" : "text-amber-700"
+                  }
+                >
+                  {remainingPercentage === 0
+                    ? "✓ 100% Complete"
+                    : `${remainingPercentage}% Remaining`}
                 </span>
               </div>
 
               {blendComponents.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No components added yet. Add components above.</p>
+                <p className="text-xs text-muted-foreground">
+                  No components added yet. Add components above.
+                </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {blendComponents.map((c) => (
@@ -653,7 +698,10 @@ function GwpOdpPage() {
                 </select>
               </div>
 
-              <Button onClick={handleAddBlendToInventory} className="font-bold bg-purple-700 hover:bg-purple-800">
+              <Button
+                onClick={handleAddBlendToInventory}
+                className="font-bold bg-purple-700 hover:bg-purple-800"
+              >
                 <Plus className="mr-2 h-4 w-4" /> Add Custom Blend to Inventory
               </Button>
             </div>
@@ -668,11 +716,16 @@ function GwpOdpPage() {
               <h2 className="font-display text-xl font-bold text-primary flex items-center gap-2">
                 <FileText className="h-5 w-5" /> 1. Single Substance-Wise Detailed Breakdown
               </h2>
-              <span className="text-xs font-semibold text-muted-foreground">{inventoryItems.length} Substances Registered</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                {inventoryItems.length} Substances Registered
+              </span>
             </div>
 
             {inventoryItems.length === 0 ? (
-              <p className="text-xs text-muted-foreground py-6 text-center">No substances in assessment inventory. Use the tabs above to add pure gases or custom blends.</p>
+              <p className="text-xs text-muted-foreground py-6 text-center">
+                No substances in assessment inventory. Use the tabs above to add pure gases or
+                custom blends.
+              </p>
             ) : (
               <div className="overflow-x-auto border rounded-xl">
                 <table className="w-full text-xs text-left">
@@ -685,11 +738,17 @@ function GwpOdpPage() {
                             {item.group}
                           </span>
                         </td>
-                        <td className="p-3">{item.quantity} {item.unit}</td>
+                        <td className="p-3">
+                          {item.quantity} {item.unit}
+                        </td>
                         <td className="p-3 text-right text-amber-700">{item.odp}</td>
-                        <td className="p-3 text-right font-bold text-amber-900">{item.odpEquivalent.toFixed(4)} t</td>
+                        <td className="p-3 text-right font-bold text-amber-900">
+                          {item.odpEquivalent.toFixed(4)} t
+                        </td>
                         <td className="p-3 text-right font-bold">{item.gwpAR5}</td>
-                        <td className="p-3 text-right font-extrabold text-emerald-600">{item.co2eAR5.toLocaleString(undefined, { maximumFractionDigits: 2 })} t</td>
+                        <td className="p-3 text-right font-extrabold text-emerald-600">
+                          {item.co2eAR5.toLocaleString(undefined, { maximumFractionDigits: 2 })} t
+                        </td>
                         <td className="p-3 text-center">
                           <Button
                             size="icon"
@@ -721,7 +780,9 @@ function GwpOdpPage() {
                     <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                       {fam.family}
                     </span>
-                    <span className="text-xs text-muted-foreground font-semibold">{fam.itemCount} Items</span>
+                    <span className="text-xs text-muted-foreground font-semibold">
+                      {fam.itemCount} Items
+                    </span>
                   </div>
                   <div className="space-y-1 mt-3 text-xs">
                     <div className="flex justify-between">
@@ -730,11 +791,16 @@ function GwpOdpPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Total ODP Eq:</span>
-                      <span className="font-bold text-amber-700">{fam.totalOdpEq.toFixed(4)} t ODP</span>
+                      <span className="font-bold text-amber-700">
+                        {fam.totalOdpEq.toFixed(4)} t ODP
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Total CO₂e (AR5):</span>
-                      <span className="font-extrabold text-emerald-600">{fam.totalCo2eAR5.toLocaleString(undefined, { maximumFractionDigits: 2 })} t CO₂e</span>
+                      <span className="font-extrabold text-emerald-600">
+                        {fam.totalCo2eAR5.toLocaleString(undefined, { maximumFractionDigits: 2 })} t
+                        CO₂e
+                      </span>
                     </div>
                   </div>
                 </div>

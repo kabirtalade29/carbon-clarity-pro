@@ -33,12 +33,21 @@ import jsPDF from "jspdf";
 
 export const Route = createFileRoute("/_authenticated/decarbonization")({
   head: () => ({
-    meta: [{ title: "Decarbonization Planner — Climateintel.ai" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Decarbonization Planner — clisomumbai" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: DecarbonizationPage,
 });
 
-type Category = "Energy Efficiency" | "Renewable Energy" | "Fleet Transition" | "Refrigerants" | "Supply Chain" | "Process & Heat";
+type Category =
+  | "Energy Efficiency"
+  | "Renewable Energy"
+  | "Fleet Transition"
+  | "Refrigerants"
+  | "Supply Chain"
+  | "Process & Heat";
 
 type Initiative = {
   id: string;
@@ -106,7 +115,8 @@ const DEFAULT_INITIATIVES: Initiative[] = [
     annualSavingsUSD: 48000,
     targetYear: 2029,
     enabled: false,
-    notes: "Converts primary thermal boiler from diesel oil to certified agricultural biomass pellets.",
+    notes:
+      "Converts primary thermal boiler from diesel oil to certified agricultural biomass pellets.",
   },
   {
     id: "init-6",
@@ -257,10 +267,7 @@ function DecarbonizationPage() {
   const totalSavingsDisp = totalSavingsUSD * rate;
 
   const projectedEmissions = Math.max(0, baselineEmissions - totalAbatement);
-  const reductionPercentage = Math.min(
-    100,
-    Math.round((totalAbatement / baselineEmissions) * 100),
-  );
+  const reductionPercentage = Math.min(100, Math.round((totalAbatement / baselineEmissions) * 100));
   const paybackYears = totalSavingsUSD > 0 ? (totalCapexUSD / totalSavingsUSD).toFixed(1) : "N/A";
 
   // MACC ranking (Marginal Abatement Cost = (Capex - Lifetime Savings) / (Abatement * 10))
@@ -282,10 +289,10 @@ function DecarbonizationPage() {
     doc.setTextColor("#FFFFFF");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
-    doc.text("Climateintel.ai", 48, 42);
+    doc.text("clisomumbai", 48, 42);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Corporate Decarbonization Business Case & Net-Zero Roadmap", 48, 62);
+    doc.text("Climate Social Mumbai — Decarbonization Business Case & Net-Zero Roadmap", 48, 62);
 
     let y = 120;
     doc.setTextColor("#1F2937");
@@ -298,13 +305,25 @@ function DecarbonizationPage() {
     doc.setFont("helvetica", "normal");
     doc.text(`Current Emissions Baseline: ${baselineEmissions.toLocaleString()} t CO₂e/yr`, 48, y);
     y += 18;
-    doc.text(`Active Abatement Volume: -${totalAbatement.toLocaleString()} t CO₂e/yr (${reductionPercentage}% Reduction)`, 48, y);
+    doc.text(
+      `Active Abatement Volume: -${totalAbatement.toLocaleString()} t CO₂e/yr (${reductionPercentage}% Reduction)`,
+      48,
+      y,
+    );
     y += 18;
     doc.text(`Projected 2030 Baseline: ${projectedEmissions.toLocaleString()} t CO₂e/yr`, 48, y);
     y += 18;
-    doc.text(`Total CAPEX Investment Required: ${currSymbol}${Math.round(totalCapexDisp).toLocaleString()}`, 48, y);
+    doc.text(
+      `Total CAPEX Investment Required: ${currSymbol}${Math.round(totalCapexDisp).toLocaleString()}`,
+      48,
+      y,
+    );
     y += 18;
-    doc.text(`Annual Energy Cost Savings: ${currSymbol}${Math.round(totalSavingsDisp).toLocaleString()}/yr`, 48, y);
+    doc.text(
+      `Annual Energy Cost Savings: ${currSymbol}${Math.round(totalSavingsDisp).toLocaleString()}/yr`,
+      48,
+      y,
+    );
     y += 18;
     doc.text(`Financial Payback Period: ${paybackYears} Years`, 48, y);
 
@@ -344,7 +363,7 @@ function DecarbonizationPage() {
       doc.text(pb, 520, y);
     });
 
-    doc.save("climateintel-decarbonization-roadmap.pdf");
+    doc.save("clisomumbai-decarbonization-roadmap.pdf");
     toast.success("Exported Decarbonization Business Case PDF");
   };
 
@@ -357,10 +376,12 @@ function DecarbonizationPage() {
             Decarbonization & Net-Zero Strategy
           </p>
           <h1 className="mt-1 font-display text-4xl flex items-center gap-3 font-extrabold text-foreground">
-            <TrendingDown className="h-9 w-9 text-emerald-600" /> Decarbonization Planner & ROI Simulator
+            <TrendingDown className="h-9 w-9 text-emerald-600" /> Decarbonization Planner & ROI
+            Simulator
           </h1>
           <p className="mt-2 text-muted-foreground max-w-2xl text-sm">
-            Model reduction initiatives, rank projects by Marginal Abatement Cost (MACC), calculate energy bill savings, and map 2030 Science-Based Target pathways.
+            Model reduction initiatives, rank projects by Marginal Abatement Cost (MACC), calculate
+            energy bill savings, and map 2030 Science-Based Target pathways.
           </p>
         </div>
 
@@ -370,7 +391,9 @@ function DecarbonizationPage() {
             <button
               onClick={() => setCurrency("INR")}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                currency === "INR" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                currency === "INR"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               🇮🇳 INR (₹)
@@ -378,7 +401,9 @@ function DecarbonizationPage() {
             <button
               onClick={() => setCurrency("USD")}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                currency === "USD" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                currency === "USD"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               🌐 USD ($)
@@ -394,36 +419,50 @@ function DecarbonizationPage() {
       {/* Baseline & KPI Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <Card className="p-5 rounded-2xl border-primary/20 bg-primary/5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Baseline</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Current Baseline
+          </p>
           <p className="mt-2 text-3xl font-display font-extrabold text-foreground">
-            {baselineEmissions.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">t CO₂e/yr</span>
+            {baselineEmissions.toLocaleString()}{" "}
+            <span className="text-sm font-normal text-muted-foreground">t CO₂e/yr</span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Audit-verified facility inventory</p>
         </Card>
 
         <Card className="p-5 rounded-2xl border-emerald-500/30 bg-emerald-500/10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800 font-extrabold">Active Abatement</p>
-          <p className="mt-2 text-3xl font-display font-extrabold text-emerald-950">
-            -{totalAbatement.toLocaleString()} <span className="text-sm font-normal text-emerald-800">t CO₂e/yr</span>
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800 font-extrabold">
+            Active Abatement
           </p>
-          <p className="mt-1 text-xs text-emerald-800 font-bold">-{reductionPercentage}% GHG reduction achieved</p>
+          <p className="mt-2 text-3xl font-display font-extrabold text-emerald-950">
+            -{totalAbatement.toLocaleString()}{" "}
+            <span className="text-sm font-normal text-emerald-800">t CO₂e/yr</span>
+          </p>
+          <p className="mt-1 text-xs text-emerald-800 font-bold">
+            -{reductionPercentage}% GHG reduction achieved
+          </p>
         </Card>
 
         <Card className="p-5 rounded-2xl">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Projected 2030 Baseline</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Projected 2030 Baseline
+          </p>
           <p className="mt-2 text-3xl font-display font-extrabold text-primary">
-            {projectedEmissions.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">t CO₂e/yr</span>
+            {projectedEmissions.toLocaleString()}{" "}
+            <span className="text-sm font-normal text-muted-foreground">t CO₂e/yr</span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Net emissions post-initiatives</p>
         </Card>
 
         <Card className="p-5 rounded-2xl border-amber-500/20 bg-amber-500/5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800 font-extrabold">Financial ROI Payback</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800 font-extrabold">
+            Financial ROI Payback
+          </p>
           <p className="mt-2 text-3xl font-display font-extrabold text-amber-700">
             {paybackYears} <span className="text-sm font-normal text-muted-foreground">Years</span>
           </p>
           <p className="mt-1 text-xs text-amber-800 font-medium">
-            {currSymbol}{Math.round(totalSavingsDisp).toLocaleString()}/yr energy savings
+            {currSymbol}
+            {Math.round(totalSavingsDisp).toLocaleString()}/yr energy savings
           </p>
         </Card>
       </div>
@@ -432,7 +471,8 @@ function DecarbonizationPage() {
       <Card className="p-6 rounded-2xl mb-8 border-primary/20">
         <div className="flex flex-wrap justify-between items-center mb-3">
           <span className="text-sm font-semibold flex items-center gap-2">
-            <Award className="h-5 w-5 text-amber-500" /> {targetYear} Science-Based Target Trajectory (SBTi Aligned)
+            <Award className="h-5 w-5 text-amber-500" /> {targetYear} Science-Based Target
+            Trajectory (SBTi Aligned)
           </span>
           <span className="text-sm font-extrabold text-emerald-700 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
             {reductionPercentage}% Reduction Target Reached
@@ -527,24 +567,32 @@ function DecarbonizationPage() {
                               </span>
                             </div>
                             {item.notes && (
-                              <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">{item.notes}</p>
+                              <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">
+                                {item.notes}
+                              </p>
                             )}
                           </div>
                         </div>
 
                         <div className="flex items-center gap-6 text-xs text-right">
                           <div>
-                            <p className="font-extrabold text-emerald-600 text-sm">-{item.abatementTons} t CO₂e/yr</p>
+                            <p className="font-extrabold text-emerald-600 text-sm">
+                              -{item.abatementTons} t CO₂e/yr
+                            </p>
                             <p className="text-muted-foreground font-medium">
-                              {currSymbol}{Math.round(sav).toLocaleString()}/yr saved
+                              {currSymbol}
+                              {Math.round(sav).toLocaleString()}/yr saved
                             </p>
                           </div>
 
                           <div>
                             <p className="font-semibold text-foreground">
-                              {currSymbol}{Math.round(cap).toLocaleString()} CAPEX
+                              {currSymbol}
+                              {Math.round(cap).toLocaleString()} CAPEX
                             </p>
-                            <p className={`text-[11px] font-bold ${isProfitable ? "text-emerald-700" : "text-amber-700"}`}>
+                            <p
+                              className={`text-[11px] font-bold ${isProfitable ? "text-emerald-700" : "text-amber-700"}`}
+                            >
                               {isProfitable ? "Net Positive 5yr ROI" : "Net Investment"}
                             </p>
                           </div>
@@ -646,10 +694,12 @@ function DecarbonizationPage() {
         <TabsContent value="macc">
           <Card className="p-6 rounded-2xl">
             <h2 className="font-display text-xl mb-2 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" /> Marginal Abatement Cost Curve (MACC) Ranks
+              <BarChart3 className="h-5 w-5 text-primary" /> Marginal Abatement Cost Curve (MACC)
+              Ranks
             </h2>
             <p className="text-xs text-muted-foreground mb-6 max-w-2xl">
-              Projects ranked from highest net financial savings to capital investments per tonne of carbon cut.
+              Projects ranked from highest net financial savings to capital investments per tonne of
+              carbon cut.
             </p>
 
             <div className="space-y-4">
@@ -660,26 +710,38 @@ function DecarbonizationPage() {
                 const isSavings = netPerTon < 0;
 
                 return (
-                  <div key={item.id} className="p-4 rounded-xl border bg-card flex flex-wrap items-center justify-between gap-4">
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-xl border bg-card flex flex-wrap items-center justify-between gap-4"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
                         #{idx + 1}
                       </div>
                       <div>
                         <p className="text-sm font-bold">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.category} • Cuts {item.abatementTons} t CO₂e/yr</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.category} • Cuts {item.abatementTons} t CO₂e/yr
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-6 text-xs text-right">
                       <div>
                         <p className="text-muted-foreground font-medium">5-Year Energy Savings</p>
-                        <p className="font-extrabold text-emerald-600">{currSymbol}{Math.round(sav * 5).toLocaleString()}</p>
+                        <p className="font-extrabold text-emerald-600">
+                          {currSymbol}
+                          {Math.round(sav * 5).toLocaleString()}
+                        </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground font-medium">Marginal Abatement Cost</p>
-                        <p className={`font-extrabold text-sm ${isSavings ? "text-emerald-700" : "text-amber-700"}`}>
-                          {isSavings ? `Net Savings (${currSymbol}${Math.abs(Math.round(netPerTon))}/t)` : `${currSymbol}${Math.round(netPerTon)}/t CO₂e`}
+                        <p
+                          className={`font-extrabold text-sm ${isSavings ? "text-emerald-700" : "text-amber-700"}`}
+                        >
+                          {isSavings
+                            ? `Net Savings (${currSymbol}${Math.abs(Math.round(netPerTon))}/t)`
+                            : `${currSymbol}${Math.round(netPerTon)}/t CO₂e`}
                         </p>
                       </div>
                     </div>
@@ -697,7 +759,8 @@ function DecarbonizationPage() {
               <Sparkles className="h-5 w-5 text-emerald-600" /> Industry Abatement Levers Library
             </h2>
             <p className="text-xs text-muted-foreground mb-6">
-              One-click add pre-engineered decarbonization projects with industry benchmarked abatement values.
+              One-click add pre-engineered decarbonization projects with industry benchmarked
+              abatement values.
             </p>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -706,21 +769,35 @@ function DecarbonizationPage() {
                 const sav = preset.annualSavingsUSD * rate;
 
                 return (
-                  <div key={preset.name} className="p-5 rounded-2xl border bg-card flex flex-col justify-between hover:border-primary/50 transition-all">
+                  <div
+                    key={preset.name}
+                    className="p-5 rounded-2xl border bg-card flex flex-col justify-between hover:border-primary/50 transition-all"
+                  >
                     <div>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                         {preset.category}
                       </span>
                       <h4 className="font-bold text-sm mt-2">{preset.name}</h4>
-                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{preset.notes}</p>
+                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                        {preset.notes}
+                      </p>
                     </div>
 
                     <div className="mt-4 pt-4 border-t flex items-center justify-between">
                       <div className="text-xs">
-                        <p className="font-extrabold text-emerald-600">-{preset.abatementTons} t CO₂e/yr</p>
-                        <p className="text-muted-foreground">{currSymbol}{Math.round(cap).toLocaleString()} CAPEX</p>
+                        <p className="font-extrabold text-emerald-600">
+                          -{preset.abatementTons} t CO₂e/yr
+                        </p>
+                        <p className="text-muted-foreground">
+                          {currSymbol}
+                          {Math.round(cap).toLocaleString()} CAPEX
+                        </p>
                       </div>
-                      <Button size="sm" onClick={() => handleAddPreset(preset)} className="text-xs gap-1">
+                      <Button
+                        size="sm"
+                        onClick={() => handleAddPreset(preset)}
+                        className="text-xs gap-1"
+                      >
                         <Plus className="h-3.5 w-3.5" /> Add Project
                       </Button>
                     </div>

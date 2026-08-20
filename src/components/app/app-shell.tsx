@@ -37,9 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/decarbonization", label: "Decarbonization", icon: TrendingDown },
     { to: "/gwp-odp", label: "GWP-ODP Calc", icon: Gauge },
     { to: "/history", label: "History", icon: History },
-    ...(adminInfo?.isAdmin
-      ? [{ to: "/admin", label: "Admin", icon: Shield }]
-      : []),
+    ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),
   ] as const;
 
   async function signOut() {
@@ -59,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-base">Climateintel.ai</span>
+          <span className="font-display text-base">clisomumbai</span>
         </div>
         <Sheet>
           <SheetTrigger asChild>
@@ -75,7 +73,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
                 <Leaf className="h-4 w-4" />
               </div>
-              <span className="font-display text-lg">Climateintel.ai</span>
+              <div>
+                <span className="font-display text-lg block leading-none">clisomumbai</span>
+                <span className="text-[10px] text-muted-foreground">Climate Social Mumbai</span>
+              </div>
             </div>
             <nav className="flex-1 space-y-1 px-3 mt-4">
               {nav.map((n) => {
@@ -112,11 +113,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r bg-sidebar text-sidebar-foreground md:flex">
-        <div className="flex items-center gap-2 px-5 py-5">
+        <div className="flex items-center gap-2.5 px-5 py-5">
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
             <Leaf className="h-4 w-4" />
           </div>
-          <span className="font-display text-lg">Climateintel.ai</span>
+          <div>
+            <span className="font-display text-lg block leading-tight">clisomumbai</span>
+            <span className="text-[10px] text-muted-foreground block">Climate Social Mumbai</span>
+          </div>
         </div>
         <nav className="flex-1 space-y-1 px-3">
           {nav.map((n) => {
@@ -139,11 +143,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="px-3 pb-5">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-2"
-            onClick={signOut}
-          >
+          <Button variant="ghost" className="w-full justify-start gap-2" onClick={signOut}>
             <LogOut className="h-4 w-4" /> Sign out
           </Button>
         </div>
@@ -153,7 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex h-14 items-center justify-between border-b px-4 md:px-8 bg-background/50 backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">
-              Climateintel.ai
+              Climate Social Mumbai
             </span>
           </div>
           <div className="flex items-center gap-3">

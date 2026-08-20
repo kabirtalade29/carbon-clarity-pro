@@ -1,11 +1,5 @@
 export type GasGroup =
-  | "CFCs"
-  | "HCFCs"
-  | "HFCs"
-  | "PFCs"
-  | "HFC Blends"
-  | "Naturals & Others"
-  | "Custom";
+  "CFCs" | "HCFCs" | "HFCs" | "PFCs" | "HFC Blends" | "Naturals & Others" | "Custom";
 
 export interface Substance {
   name: string;
