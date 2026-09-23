@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Leaf,
   Droplets,
@@ -34,12 +35,18 @@ import {
   ArrowUpRight,
   Calculator,
   Compass,
+  Play,
+  RotateCcw,
+  Cpu,
+  Fingerprint,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -61,12 +68,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  AreaChart,
+  Area,
+} from "recharts";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "clisomumbai — India's Enterprise Carbon & Resource Intelligence Platform" },
+      { title: "clisomumbai — Enterprise Carbon & Resource Intelligence Platform" },
       {
         name: "description",
         content:
@@ -91,6 +109,13 @@ export function LandingPage() {
   const [solutionsView, setSolutionsView] = useState<"role" | "industry">("role");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
 
+  // Interactive Live Demo States in Showcase Tabs
+  const [extraFuelSim, setExtraFuelSim] = useState(0);
+  const [selectedHsn, setSelectedHsn] = useState("72081000");
+  const [waterRecycleRate, setWaterRecycleRate] = useState(68);
+  const [simulatedHash, setSimulatedHash] = useState("634fab86e04d7c1a93e8201fa4b79c3d441e89");
+  const [isHashing, setIsHashing] = useState(false);
+
   // Interactive Estimator State
   const [sector, setSector] = useState("steel");
   const [turnover, setTurnover] = useState(150);
@@ -99,67 +124,92 @@ export function LandingPage() {
   const [euExportsTonnes, setEuExportsTonnes] = useState(10000);
 
   // Computed Values for Real-time Estimator
-  const scope1Est = useMemo(() => Math.round((fuelLitres * 2.68) / 1000), [fuelLitres]);
+  const scope1Est = useMemo(() => Math.round(((fuelLitres + extraFuelSim) * 2.68) / 1000), [fuelLitres, extraFuelSim]);
   const scope2Est = useMemo(() => Math.round(powerUnitsMWh * 0.716), [powerUnitsMWh]);
   const totalGhg = scope1Est + scope2Est;
-  const cbamRiskPenaltyEur = useMemo(() => Math.round(euExportsTonnes * 1.8 * 69), [euExportsTonnes]);
+  const cbamRiskPenaltyEur = useMemo(() => Math.round(euExportsTonnes * 1.82 * 69), [euExportsTonnes]);
   const brsrScore = useMemo(() => Math.min(99, Math.round(78 + (turnover > 100 ? 14 : 8))), [turnover]);
   const waterEstKL = useMemo(() => Math.round(turnover * 220), [turnover]);
+
+  // Dynamic Chart Data for Estimator
+  const chartData = useMemo(() => [
+    { name: "Scope 1 Direct", value: scope1Est, fill: "var(--primary)" },
+    { name: "Scope 2 Grid", value: scope2Est, fill: "oklch(0.46 0.078 155)" },
+    { name: "Abatement Potential", value: Math.round(totalGhg * 0.35), fill: "oklch(0.68 0.13 55)" },
+  ], [scope1Est, scope2Est, totalGhg]);
 
   const handleLaunchDemo = () => {
     if (typeof window !== "undefined") {
       localStorage.setItem("demo_user_session", "true");
     }
-    toast.success("Demo Workspace Activated", {
+    toast.success("Demo Workspace Initialized", {
       description: "You have full access to clisomumbai audit ledgers and tools.",
     });
     navigate({ to: "/dashboard" });
   };
 
+  const handleSimulateHash = () => {
+    setIsHashing(true);
+    setTimeout(() => {
+      const randomHex = Array.from({ length: 40 }, () =>
+        Math.floor(Math.random() * 16).toString(16)
+      ).join("");
+      setSimulatedHash(randomHex);
+      setIsHashing(false);
+      toast.success("SHA-256 Checksum Re-calculated", {
+        description: `Evidence Package stamped: ${randomHex.slice(0, 16)}...`,
+      });
+    }, 600);
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary overflow-x-hidden">
       {/* 1. TOP LIVE TICKER / REGULATORY MARQUEE */}
-      <div className="relative overflow-hidden border-b border-border/80 bg-muted/50 py-2 text-xs font-medium">
+      <div className="relative overflow-hidden border-b border-border/80 bg-muted/40 py-2 text-xs font-medium">
         <div className="flex animate-marquee items-center gap-8 whitespace-nowrap text-muted-foreground">
           <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse-subtle" />
-            <strong className="text-foreground">SEBI BRSR Core Mandate:</strong> 9 Essential Indicators &amp; Reasonable Assurance
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse-subtle" />
+            <strong className="text-foreground">SEBI BRSR Core:</strong> 9 Essential Indicators &amp; Reasonable Assurance
           </span>
           <span className="text-border">|</span>
           <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-600" />
-            <strong className="text-foreground">EU CBAM Regulation 2023/956:</strong> Definitive Period Transition Ready
+            <span className="h-2 w-2 rounded-full bg-sky-500" />
+            <strong className="text-foreground">EU CBAM Reg 2023/956:</strong> Definitive Transition XML Ready
           </span>
           <span className="text-border">|</span>
           <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
-            <strong className="text-foreground">India CEA v19 Baseline:</strong> 0.716 kg CO₂/kWh Integrated
+            <span className="h-2 w-2 rounded-full bg-amber-500" />
+            <strong className="text-foreground">India CEA v19 Baseline:</strong> 0.716 kg CO₂/kWh Factor
           </span>
           <span className="text-border">|</span>
           <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
-            <strong className="text-foreground">ASSA 5010 Alignment:</strong> Cryptographic SHA-256 Audit Lineage
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <strong className="text-foreground">ASSA 5010 Alignment:</strong> Cryptographic SHA-256 Lineage
           </span>
           <span className="text-border">|</span>
           <span className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" />
-            <strong className="text-foreground">GRI 303 &amp; ZLD:</strong> Certified Zero Liquid Discharge Tracking
+            <span className="h-2 w-2 rounded-full bg-indigo-500" />
+            <strong className="text-foreground">GRI 303 &amp; ZLD:</strong> Zero Liquid Discharge Ledger
           </span>
         </div>
       </div>
 
       {/* 2. ENTERPRISE HEADER WITH GROWW-STYLE MEGA MENUS */}
-      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-xl transition-all">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform duration-300 group-hover:scale-105">
+            <motion.div
+              whileHover={{ rotate: 12, scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm"
+            >
               <Leaf className="h-5 w-5" />
-            </div>
+            </motion.div>
             <div className="flex flex-col">
               <div className="flex items-baseline gap-1.5">
                 <span className="font-display text-xl font-bold tracking-tight text-foreground">clisomumbai</span>
-                <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-primary/10 text-primary font-semibold">Enterprise</span>
+                <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-primary/10 text-primary font-bold">Enterprise</span>
               </div>
               <span className="text-[10px] font-sans text-muted-foreground -mt-0.5 tracking-tight">
                 Climate Social Mumbai
@@ -171,17 +221,17 @@ export function LandingPage() {
           <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {/* Solutions Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none py-2">
+              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none py-2 cursor-pointer">
                 Solutions <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[520px] p-4 grid grid-cols-2 gap-4 bg-popover border-border shadow-xl rounded-xl">
+              <DropdownMenuContent className="w-[520px] p-4 grid grid-cols-2 gap-4 bg-popover border-border shadow-xl rounded-2xl animate-rise">
                 <div>
                   <DropdownMenuLabel className="text-[11px] font-bold text-primary tracking-wider uppercase">
-                    By Role
+                    By Executive Role
                   </DropdownMenuLabel>
                   <div className="space-y-1 mt-1">
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                           <Users className="h-3.5 w-3.5 text-primary" /> CFO &amp; Finance Directors
                         </span>
@@ -189,15 +239,15 @@ export function LandingPage() {
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                           <Factory className="h-3.5 w-3.5 text-emerald-600" /> Sustainability Leads &amp; EHS
                         </span>
-                        <span className="text-[11px] text-muted-foreground font-normal">Reclaim time spent chasing dockets &amp; fuel bills</span>
+                        <span className="text-[11px] text-muted-foreground font-normal">Reclaim time spent chasing plant dockets</span>
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                           <Briefcase className="h-3.5 w-3.5 text-sky-600" /> ESG Consultants &amp; Advisors
                         </span>
@@ -205,7 +255,7 @@ export function LandingPage() {
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("role")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                           <Shield className="h-3.5 w-3.5 text-amber-600" /> Board &amp; Audit Committee
                         </span>
@@ -217,29 +267,29 @@ export function LandingPage() {
 
                 <div className="border-l border-border/60 pl-3">
                   <DropdownMenuLabel className="text-[11px] font-bold text-primary tracking-wider uppercase">
-                    By Industry
+                    By Heavy Industry
                   </DropdownMenuLabel>
                   <div className="space-y-1 mt-1">
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground">Steel &amp; Metallurgy</span>
-                        <span className="text-[11px] text-muted-foreground font-normal">Blast furnace, DRI &amp; CBAM emissions</span>
+                        <span className="text-[11px] text-muted-foreground font-normal">Blast furnace, DRI &amp; CBAM chapter 72</span>
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground">Aluminium &amp; Non-Ferrous</span>
                         <span className="text-[11px] text-muted-foreground font-normal">Electrolysis anode PFCs &amp; energy intensity</span>
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground">Chemicals &amp; Pharma</span>
                         <span className="text-[11px] text-muted-foreground font-normal">Solvents, steam &amp; zero liquid discharge</span>
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-lg hover:bg-muted/60">
+                      <a href="#solutions" onClick={() => setSolutionsView("industry")} className="cursor-pointer flex flex-col items-start p-2 rounded-xl hover:bg-muted/60 transition-colors">
                         <span className="font-semibold text-xs text-foreground">Textiles &amp; Commercial Infra</span>
                         <span className="text-[11px] text-muted-foreground font-normal">GRI 303 water stress &amp; Scope 2 PPA</span>
                       </a>
@@ -251,13 +301,13 @@ export function LandingPage() {
 
             {/* Features Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none py-2">
+              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none py-2 cursor-pointer">
                 Features <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[360px] p-2 bg-popover border-border shadow-xl rounded-xl">
+              <DropdownMenuContent className="w-[360px] p-2 bg-popover border-border shadow-xl rounded-2xl animate-rise">
                 <DropdownMenuItem onClick={() => setActiveTab("ledger")} asChild>
-                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/60">
-                    <div className="h-7 w-7 rounded-md bg-emerald-500/10 text-emerald-600 grid place-items-center">
+                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-600 grid place-items-center">
                       <Zap className="h-4 w-4" />
                     </div>
                     <div>
@@ -267,8 +317,8 @@ export function LandingPage() {
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("cbam")} asChild>
-                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/60">
-                    <div className="h-7 w-7 rounded-md bg-sky-500/10 text-sky-600 grid place-items-center">
+                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
+                    <div className="h-8 w-8 rounded-lg bg-sky-500/10 text-sky-600 grid place-items-center">
                       <Globe2 className="h-4 w-4" />
                     </div>
                     <div>
@@ -278,8 +328,8 @@ export function LandingPage() {
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("water")} asChild>
-                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/60">
-                    <div className="h-7 w-7 rounded-md bg-cyan-500/10 text-cyan-600 grid place-items-center">
+                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
+                    <div className="h-8 w-8 rounded-lg bg-cyan-500/10 text-cyan-600 grid place-items-center">
                       <Droplets className="h-4 w-4" />
                     </div>
                     <div>
@@ -289,8 +339,8 @@ export function LandingPage() {
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("audit")} asChild>
-                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/60">
-                    <div className="h-7 w-7 rounded-md bg-amber-500/10 text-amber-600 grid place-items-center">
+                  <a href="#showcase" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
+                    <div className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-600 grid place-items-center">
                       <Lock className="h-4 w-4" />
                     </div>
                     <div>
@@ -309,12 +359,12 @@ export function LandingPage() {
 
             {/* Free Tools */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none py-2 text-primary font-bold">
-                <Sparkles className="h-3.5 w-3.5" /> Free Tools <ChevronDown className="h-3.5 w-3.5" />
+              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-foreground transition-colors focus:outline-none py-2 text-primary font-bold cursor-pointer">
+                <Sparkles className="h-3.5 w-3.5 animate-pulse-subtle" /> Free Tools <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[320px] p-2 bg-popover border-border shadow-xl rounded-xl">
+              <DropdownMenuContent className="w-[320px] p-2 bg-popover border-border shadow-xl rounded-2xl animate-rise">
                 <DropdownMenuItem asChild>
-                  <Link to="/cbam-checker" className="cursor-pointer flex items-center gap-3 p-2 rounded-lg hover:bg-muted/60">
+                  <Link to="/cbam-checker" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
                     <Calculator className="h-4 w-4 text-primary" />
                     <div>
                       <div className="text-xs font-semibold text-foreground">EU CBAM Exposure Screener</div>
@@ -323,7 +373,7 @@ export function LandingPage() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <a href="#estimator" className="cursor-pointer flex items-center gap-3 p-2 rounded-lg hover:bg-muted/60">
+                  <a href="#estimator" className="cursor-pointer flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/60 transition-colors">
                     <Sliders className="h-4 w-4 text-emerald-600" />
                     <div>
                       <div className="text-xs font-semibold text-foreground">ESG &amp; Carbon Liability Estimator</div>
@@ -355,444 +405,577 @@ export function LandingPage() {
             >
               Sign in
             </Link>
-            <Button
-              onClick={handleLaunchDemo}
-              size="sm"
-              className="font-medium text-xs px-4 h-9 shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-transform active:scale-95"
-            >
-              Open Workspace <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Button
+                onClick={handleLaunchDemo}
+                size="sm"
+                className="font-semibold text-xs px-4 h-9 shadow-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
+              >
+                Open Workspace <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+              </Button>
+            </motion.div>
           </div>
         </div>
       </header>
 
-      {/* 3. HERO SECTION (GROWW + CARBONLY HYBRID) */}
-      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden bg-gradient-to-b from-background via-muted/20 to-background">
+      {/* 3. HERO SECTION (GROWW + CARBONLY MOTION DESIGN) */}
+      <section className="relative pt-12 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+        {/* Animated Fluid Ambient Glow Orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+          <motion.div
+            animate={{
+              x: [0, 40, -20, 0],
+              y: [0, -30, 20, 0],
+              scale: [1, 1.1, 0.95, 1],
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-primary/15 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              x: [0, -30, 30, 0],
+              y: [0, 40, -20, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-48 right-10 w-[400px] h-[300px] bg-sky-500/10 rounded-full blur-3xl"
+          />
+        </div>
+
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto space-y-6">
             {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-xs">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-xs"
+            >
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse-subtle" />
               BUILT FOR SEBI BRSR CORE &amp; EU CBAM 2026 MANDATES
-            </div>
+            </motion.div>
 
-            {/* Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-foreground leading-[1.12]">
+            {/* Headline with Staggered Kinetic Motion */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="font-display text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-foreground leading-[1.1]"
+            >
               Your Corporate Carbon Reporting. <br />
-              <span className="italic font-serif text-primary bg-gradient-to-r from-primary via-emerald-700 to-primary bg-clip-text">
+              <span className="italic font-serif text-primary bg-gradient-to-r from-primary via-emerald-600 to-primary bg-clip-text">
                 Done. Verified. Audit-Proof.
               </span>
-            </h1>
+            </motion.h1>
 
             {/* Subheading */}
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto"
+            >
               Stop relying on spend-based approximations that fail assurance under <span className="text-foreground font-semibold">ASSA 5010</span>. 
-              <strong> clisomumbai</strong> automatically converts factory weighbridge slips, fuel dockets, electricity bills, and invoices into verifiable Scope 1-3 GHG ledgers, EU CBAM XML filings, and GRI 303 water disclosures.
-            </p>
+              <strong> clisomumbai</strong> converts factory weighbridge slips, fuel dockets, electricity bills, and invoices into verifiable Scope 1-3 GHG ledgers, EU CBAM XML filings, and GRI 303 water disclosures.
+            </motion.p>
 
-            {/* Primary Action Row */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button
-                onClick={handleLaunchDemo}
-                size="lg"
-                className="w-full sm:w-auto h-12 px-8 font-semibold text-sm gap-2 shadow-md hover:shadow-lg transition-all"
-              >
-                Launch Demo Workspace <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Link
-                to="/cbam-checker"
-                className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-xl border border-border bg-card hover:bg-muted/60 text-sm font-medium transition-all shadow-xs gap-2 text-foreground"
-              >
-                <Calculator className="h-4 w-4 text-primary" /> Check EU CBAM Exposure
-              </Link>
-            </div>
+            {/* Primary Action Row with Motion */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+            >
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Button
+                  onClick={handleLaunchDemo}
+                  size="lg"
+                  className="w-full sm:w-auto h-12 px-8 font-semibold text-sm gap-2 shadow-lg bg-primary hover:bg-primary/95 text-primary-foreground cursor-pointer"
+                >
+                  <Play className="h-4 w-4 fill-current" /> Launch Demo Workspace <ArrowRight className="h-4 w-4" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Link
+                  to="/cbam-checker"
+                  className="w-full sm:w-auto inline-flex items-center justify-center h-12 px-6 rounded-2xl border border-border bg-card hover:bg-muted/70 text-sm font-semibold transition-all shadow-xs gap-2 text-foreground"
+                >
+                  <Calculator className="h-4 w-4 text-primary" /> Check EU CBAM Exposure
+                </Link>
+              </motion.div>
+            </motion.div>
 
-            {/* Key Trust Signals Bar */}
-            <div className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
-              <div className="p-3.5 rounded-xl border border-border/70 bg-card/80 shadow-xs">
-                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">India CEA v19</div>
-                <div className="font-display text-xl font-bold text-foreground mt-0.5">0.716 kg</div>
-                <div className="text-[11px] text-muted-foreground">CO₂e per kWh Grid</div>
-              </div>
-              <div className="p-3.5 rounded-xl border border-border/70 bg-card/80 shadow-xs">
-                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">EU CBAM Penalty</div>
-                <div className="font-display text-xl font-bold text-primary mt-0.5">€69 / tonne</div>
+            {/* Key Trust Signals Bar with Groww-style Tilt Hover */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left"
+            >
+              <motion.div
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="p-4 rounded-2xl border border-border/70 bg-card/80 backdrop-blur-md shadow-xs"
+              >
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center justify-between">
+                  <span>India CEA v19</span>
+                  <Zap className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div className="font-display text-2xl font-bold text-foreground mt-1">0.716 kg</div>
+                <div className="text-[11px] text-muted-foreground">CO₂e per kWh Grid Factor</div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="p-4 rounded-2xl border border-border/70 bg-card/80 backdrop-blur-md shadow-xs"
+              >
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center justify-between">
+                  <span>EU CBAM Penalty</span>
+                  <Globe2 className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div className="font-display text-2xl font-bold text-primary mt-1">€69 / tonne</div>
                 <div className="text-[11px] text-muted-foreground">Default Fine Protection</div>
-              </div>
-              <div className="p-3.5 rounded-xl border border-border/70 bg-card/80 shadow-xs">
-                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Audit Standard</div>
-                <div className="font-display text-xl font-bold text-foreground mt-0.5">ASSA 5010</div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="p-4 rounded-2xl border border-border/70 bg-card/80 backdrop-blur-md shadow-xs"
+              >
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center justify-between">
+                  <span>Audit Standard</span>
+                  <FileCheck2 className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div className="font-display text-2xl font-bold text-foreground mt-1">ASSA 5010</div>
                 <div className="text-[11px] text-muted-foreground">Limited/Reasonable Assurance</div>
-              </div>
-              <div className="p-3.5 rounded-xl border border-border/70 bg-card/80 shadow-xs">
-                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Cryptographic Proof</div>
-                <div className="font-display text-xl font-bold text-emerald-700 mt-0.5">SHA-256</div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="p-4 rounded-2xl border border-border/70 bg-card/80 backdrop-blur-md shadow-xs"
+              >
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center justify-between">
+                  <span>Cryptographic Proof</span>
+                  <Fingerprint className="h-3.5 w-3.5 text-emerald-600" />
+                </div>
+                <div className="font-display text-2xl font-bold text-emerald-700 mt-1">SHA-256</div>
                 <div className="text-[11px] text-muted-foreground">Tamper-Proof Dossier ZIP</div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* 4. GROWW-STYLE TABBED INTERACTIVE PRODUCT SHOWCASE */}
-      <section id="showcase" className="py-20 border-y border-border bg-muted/20">
+      {/* 4. GROWW-STYLE TABBED INTERACTIVE PRODUCT SHOWCASE (WITH MOTION & LIVE ACTIONS) */}
+      <section id="showcase" className="py-24 border-y border-border bg-muted/20 relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
-              Live Product Capabilities
+              Live Interactive Engines
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-5xl text-foreground mt-1 font-normal">
               Everything Your Enterprise Needs in One Ledger
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Explore the five specialized engines that eliminate compliance friction and safeguard your balance sheet.
+              Select a module below to test real-time activity calculations, XML validation, and cryptographic hash lineage.
             </p>
 
-            {/* Groww-style Segmented Tabs */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl border border-border bg-card shadow-xs">
-              <button
-                onClick={() => setActiveTab("ledger")}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
-                  activeTab === "ledger"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Zap className="h-4 w-4" /> Scope 1-2-3 Direct Ledger
-              </button>
-              <button
-                onClick={() => setActiveTab("cbam")}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
-                  activeTab === "cbam"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Globe2 className="h-4 w-4" /> EU CBAM XML Declarant
-              </button>
-              <button
-                onClick={() => setActiveTab("water")}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
-                  activeTab === "water"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Droplets className="h-4 w-4" /> Water &amp; ZLD (GRI 303)
-              </button>
-              <button
-                onClick={() => setActiveTab("decarb")}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
-                  activeTab === "decarb"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <TrendingDown className="h-4 w-4" /> Decarbonization MACC
-              </button>
-              <button
-                onClick={() => setActiveTab("audit")}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
-                  activeTab === "audit"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Lock className="h-4 w-4" /> SHA-256 Audit Evidence
-              </button>
+            {/* Groww-style Segmented Tabs with Spring layoutId indicator */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl border border-border bg-card shadow-sm">
+              {[
+                { id: "ledger", label: "Scope 1-2-3 Direct Ledger", icon: Zap },
+                { id: "cbam", label: "EU CBAM XML Declarant", icon: Globe2 },
+                { id: "water", label: "Water & ZLD (GRI 303)", icon: Droplets },
+                { id: "decarb", label: "Decarbonization MACC", icon: TrendingDown },
+                { id: "audit", label: "SHA-256 Audit Evidence", icon: Lock },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isSelected = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className="relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    {isSelected && (
+                      <motion.div
+                        layoutId="activeShowcaseTab"
+                        className="absolute inset-0 bg-primary rounded-xl shadow-sm"
+                        transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    <span className={`relative z-10 flex items-center gap-2 ${isSelected ? "text-primary-foreground font-bold" : "text-muted-foreground hover:text-foreground"}`}>
+                      <Icon className="h-4 w-4" /> {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Tab Content Display Card */}
-          <div className="rounded-3xl border border-border bg-card p-6 lg:p-10 shadow-lg">
-            {activeTab === "ledger" && (
-              <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-4">
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20 font-mono text-xs">
-                    EMISSION FACTOR ENGINE
-                  </Badge>
-                  <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
-                    Physical activity data, not spend estimates.
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Capture kilowatt-hours, litres of diesel, tonnes of coal, and refrigerant top-ups directly from factory telemetry and invoice lines. Automatically mapped against India CEA Baseline v19 and IPCC 2006 tables.
-                  </p>
-                  <ul className="space-y-2.5 text-xs text-muted-foreground pt-2">
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Full Scope 1 (Stationary, Mobile &amp; Fugitive) calculations
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Scope 2 Location-based &amp; Market-based (Green Tariffs)
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Upstream Category 1-8 Scope 3 physical material cascade
-                    </li>
-                  </ul>
-                  <div className="pt-3">
-                    <Button onClick={handleLaunchDemo} className="gap-2">
-                      Open Direct Ledger <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+          {/* Animated Tab Content Display Card */}
+          <div className="rounded-3xl border border-border bg-card p-6 lg:p-10 shadow-xl overflow-hidden min-h-[460px]">
+            <AnimatePresence mode="wait">
+              {activeTab === "ledger" && (
+                <motion.div
+                  key="ledger"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35 }}
+                  className="grid lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-4">
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20 font-mono text-xs">
+                      EMISSION FACTOR ENGINE
+                    </Badge>
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
+                      Physical activity data, not spend estimates.
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Capture kilowatt-hours, litres of diesel, tonnes of coal, and refrigerant top-ups directly from factory telemetry and invoice lines. Automatically mapped against India CEA Baseline v19 and IPCC 2006 tables.
+                    </p>
+                    <ul className="space-y-2.5 text-xs text-muted-foreground pt-2">
+                      <li className="flex items-center gap-2 text-foreground font-medium">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Full Scope 1 (Stationary, Mobile &amp; Fugitive) calculations
+                      </li>
+                      <li className="flex items-center gap-2 text-foreground font-medium">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Scope 2 Location-based &amp; Market-based (Green Tariffs)
+                      </li>
+                      <li className="flex items-center gap-2 text-foreground font-medium">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Upstream Category 1-8 Scope 3 physical material cascade
+                      </li>
+                    </ul>
 
-                <div className="lg:col-span-6">
-                  <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-border/80">
-                      <span className="text-xs font-semibold text-muted-foreground">INVENTORY LINE ITEMS (FY 2026-27)</span>
-                      <Badge variant="secondary" className="text-[10px] font-mono">CEA v19 VERIFIED</Badge>
-                    </div>
-                    <div className="space-y-2.5 text-xs">
-                      <div className="p-3 rounded-xl border border-border bg-card flex items-center justify-between">
-                        <div>
-                          <span className="font-semibold text-foreground block">Facility Grid Power (Maharashtra MSEDCL)</span>
-                          <span className="text-[11px] text-muted-foreground">3,500 MWh × 0.716 kg CO₂/kWh</span>
-                        </div>
-                        <span className="font-mono font-bold text-foreground text-sm">2,506.0 tCO₂e</span>
-                      </div>
-                      <div className="p-3 rounded-xl border border-border bg-card flex items-center justify-between">
-                        <div>
-                          <span className="font-semibold text-foreground block">Heavy Machinery Diesel (HSD)</span>
-                          <span className="text-[11px] text-muted-foreground">48,000 Litres × 2.68 kg CO₂/L</span>
-                        </div>
-                        <span className="font-mono font-bold text-foreground text-sm">128.6 tCO₂e</span>
-                      </div>
-                      <div className="p-3 rounded-xl border border-border bg-card flex items-center justify-between">
-                        <div>
-                          <span className="font-semibold text-foreground block">Chiller Refrigerant Top-up (R-134a)</span>
-                          <span className="text-[11px] text-muted-foreground">12 kg × 1,430 GWP factor</span>
-                        </div>
-                        <span className="font-mono font-bold text-foreground text-sm">17.2 tCO₂e</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "cbam" && (
-              <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-4">
-                  <Badge variant="outline" className="bg-sky-500/10 text-sky-700 border-sky-500/20 font-mono text-xs">
-                    EU REGULATION 2023/956
-                  </Badge>
-                  <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
-                    Automated Indian HSN to EU CN Mapping &amp; XML Export.
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Avoid devastating €69/tonne default carbon tax penalties. Map chapter 72/73 steel, aluminium, and fertilizer exports into the official DG TAXUD transitional XML format in 1 click.
-                  </p>
-                  <ul className="space-y-2.5 text-xs text-muted-foreground pt-2">
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Direct &amp; Indirect specific embedded emissions (SEE) per tonne
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Precursor carbon tracking for billets, blooms, and scrap
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Validated against EU Commission XML Schema XSD v1.2
-                    </li>
-                  </ul>
-                  <div className="pt-3">
-                    <Link to="/cbam-checker">
-                      <Button className="gap-2">
-                        Run CBAM Exposure Test <ArrowRight className="h-4 w-4" />
+                    {/* Interactive Simulator Trigger */}
+                    <div className="pt-3 flex items-center gap-3">
+                      <Button onClick={handleLaunchDemo} className="gap-2 font-semibold">
+                        Open Direct Ledger <ArrowRight className="h-4 w-4" />
                       </Button>
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6">
-                  <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-border/80">
-                      <span className="text-xs font-semibold text-muted-foreground">EU CBAM DG TAXUD DECLARATION</span>
-                      <Badge className="bg-emerald-600 text-white font-mono text-[10px]">XML READY</Badge>
-                    </div>
-                    <div className="p-3.5 rounded-xl border border-border bg-card space-y-2 text-xs">
-                      <div className="flex justify-between font-mono">
-                        <span className="text-muted-foreground">HSN 7208.10.00 → CN 7208 10 00</span>
-                        <span className="text-primary font-bold">1.82 tCO₂e / t</span>
-                      </div>
-                      <div className="flex justify-between text-muted-foreground text-[11px]">
-                        <span>Direct Embedded: 1.42 t</span>
-                        <span>Indirect: 0.40 t</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
-                        <div className="h-full bg-sky-600 rounded-full w-[78%]" />
-                      </div>
-                    </div>
-                    <div className="p-3 rounded-xl border border-border/80 bg-card/60 text-xs font-mono text-muted-foreground">
-                      &lt;cbam:Declaration xmlns:cbam=&quot;http://ec.europa.eu/taxud/cbam/v1&quot;&gt;
-                      <br />&nbsp;&nbsp;&lt;cbam:GoodsItem CNCode=&quot;72081000&quot; NetMassTonnes=&quot;10000&quot; /&gt;
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setExtraFuelSim((prev) => prev + 5000);
+                          toast.success("Simulated 5,000L Fuel Docket Ingested", {
+                            description: "Ledger recalculating with CEA v19 factor...",
+                          });
+                        }}
+                        className="text-xs gap-1.5"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 text-primary" /> + Ingest Test Docket
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {activeTab === "water" && (
-              <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-4">
-                  <Badge variant="outline" className="bg-cyan-500/10 text-cyan-700 border-cyan-500/20 font-mono text-xs">
-                    GRI 303 &amp; SEBI PRINCIPLE 6
-                  </Badge>
-                  <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
-                    Complete Water Circularity &amp; Zero Liquid Discharge.
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Track groundwater withdrawal against Central Ground Water Board (CGWB) aquifer stress categories. Monitor RO recovery, MEE evaporation, and Zero Liquid Discharge (ZLD) ratios.
-                  </p>
-                  <ul className="space-y-2.5 text-xs text-muted-foreground pt-2">
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Water balance ledger: Intake, Consumption, Recycling &amp; Discharge
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> CGWB critical/over-exploited zone classification
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Effluent quality compliance (BOD, COD, TDS, Heavy Metals)
-                    </li>
-                  </ul>
-                  <div className="pt-3">
-                    <Button onClick={handleLaunchDemo} className="gap-2">
-                      View Water Accounting <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6">
-                  <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-border/80">
-                      <span className="text-xs font-semibold text-muted-foreground">FACILITY WATER BALANCE (kL/yr)</span>
-                      <Badge variant="outline" className="text-cyan-700 border-cyan-500/30 text-[10px] font-mono">ZLD CERTIFIED</Badge>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="p-3 rounded-xl border border-border bg-card">
-                        <span className="text-muted-foreground text-[11px] block">Freshwater Intake</span>
-                        <span className="font-display text-xl font-bold text-foreground mt-0.5 block">33,000 kL</span>
-                        <span className="text-[10px] text-muted-foreground">Borewell + Municipal</span>
+                  <div className="lg:col-span-6">
+                    <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                        <span className="text-xs font-semibold text-muted-foreground">INVENTORY LINE ITEMS (FY 2026-27)</span>
+                        <Badge variant="secondary" className="text-[10px] font-mono">CEA v19 VERIFIED</Badge>
                       </div>
-                      <div className="p-3 rounded-xl border border-border bg-card">
-                        <span className="text-muted-foreground text-[11px] block">Recycled &amp; Reused</span>
-                        <span className="font-display text-xl font-bold text-cyan-700 mt-0.5 block">22,570 kL</span>
-                        <span className="text-[10px] text-emerald-700 font-semibold">68.4% Circularity</span>
+                      <div className="space-y-2.5 text-xs">
+                        <motion.div
+                          whileHover={{ scale: 1.01 }}
+                          className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between shadow-2xs"
+                        >
+                          <div>
+                            <span className="font-semibold text-foreground block">Facility Grid Power (Maharashtra MSEDCL)</span>
+                            <span className="text-[11px] text-muted-foreground">{powerUnitsMWh.toLocaleString()} MWh × 0.716 kg CO₂/kWh</span>
+                          </div>
+                          <span className="font-mono font-bold text-foreground text-sm">{scope2Est.toLocaleString()} tCO₂e</span>
+                        </motion.div>
+
+                        <motion.div
+                          whileHover={{ scale: 1.01 }}
+                          className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between shadow-2xs"
+                        >
+                          <div>
+                            <span className="font-semibold text-foreground block">Heavy Machinery Diesel (HSD)</span>
+                            <span className="text-[11px] text-muted-foreground">{(fuelLitres + extraFuelSim).toLocaleString()} Litres × 2.68 kg CO₂/L</span>
+                          </div>
+                          <span className="font-mono font-bold text-primary text-sm">{scope1Est.toLocaleString()} tCO₂e</span>
+                        </motion.div>
+
+                        <motion.div
+                          whileHover={{ scale: 1.01 }}
+                          className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between shadow-2xs"
+                        >
+                          <div>
+                            <span className="font-semibold text-foreground block">Chiller Refrigerant Top-up (R-134a)</span>
+                            <span className="text-[11px] text-muted-foreground">12 kg × 1,430 GWP factor</span>
+                          </div>
+                          <span className="font-mono font-bold text-foreground text-sm">17.2 tCO₂e</span>
+                        </motion.div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
 
-            {activeTab === "decarb" && (
-              <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-4">
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20 font-mono text-xs">
-                    NET ZERO ROADMAP ENGINE
-                  </Badge>
-                  <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
-                    Marginal Abatement Cost Curves (MACC) &amp; ROI.
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Prioritize capital allocation across rooftop solar, waste heat recovery systems (WHRS), variable frequency drives (VFD), and biomass boilers with precise IRR and payback timelines.
-                  </p>
-                  <ul className="space-y-2.5 text-xs text-muted-foreground pt-2">
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Net present value (NPV) and cost per tCO₂e abated
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> SBTi 1.5°C science-based target alignment
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Carbon Credit Trading Scheme (CCTS) offset forecasting
-                    </li>
-                  </ul>
-                  <div className="pt-3">
-                    <Button onClick={handleLaunchDemo} className="gap-2">
-                      Explore Decarbonization Planner <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6">
-                  <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-border/80">
-                      <span className="text-xs font-semibold text-muted-foreground">ABATEMENT INITIATIVES</span>
-                      <span className="text-xs text-emerald-700 font-bold">Total Potential: -1,840 tCO₂e</span>
+              {activeTab === "cbam" && (
+                <motion.div
+                  key="cbam"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35 }}
+                  className="grid lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-4">
+                    <Badge variant="outline" className="bg-sky-500/10 text-sky-700 border-sky-500/20 font-mono text-xs">
+                      EU REGULATION 2023/956
+                    </Badge>
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
+                      Automated Indian HSN to EU CN Mapping &amp; XML Export.
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Avoid devastating €69/tonne default carbon tax penalties. Map chapter 72/73 steel, aluminium, and fertilizer exports into the official DG TAXUD transitional XML format in 1 click.
+                    </p>
+                    <div className="p-3 rounded-xl border border-border bg-muted/40 space-y-2">
+                      <Label className="text-xs font-semibold">Select Export HSN Code to Test:</Label>
+                      <Select value={selectedHsn} onValueChange={setSelectedHsn}>
+                        <SelectTrigger className="bg-card text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="72081000">7208.10.00 — Flat-rolled steel coils</SelectItem>
+                          <SelectItem value="72071100">7207.11.00 — Semi-finished steel billets</SelectItem>
+                          <SelectItem value="76011000">7601.10.00 — Unwrought primary aluminium</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="space-y-2 text-xs">
-                      <div className="p-3 rounded-xl border border-border bg-card flex justify-between items-center">
-                        <div>
-                          <span className="font-semibold text-foreground">Rooftop Solar 1.2 MW PPA</span>
-                          <span className="text-[11px] text-muted-foreground block">Capex: ₹4.2 Cr • Payback: 3.4 yrs</span>
+                    <div className="pt-2">
+                      <Link to="/cbam-checker">
+                        <Button className="gap-2 font-semibold">
+                          Run Full CBAM Screener <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-6">
+                    <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                        <span className="text-xs font-semibold text-muted-foreground">DG TAXUD XML SPECIFICATION</span>
+                        <Badge className="bg-emerald-600 text-white font-mono text-[10px]">XSD v1.2 VALID</Badge>
+                      </div>
+                      <div className="p-3.5 rounded-xl border border-border bg-card space-y-2 text-xs">
+                        <div className="flex justify-between font-mono">
+                          <span className="text-muted-foreground">HSN {selectedHsn} → CN {selectedHsn.slice(0, 4)} {selectedHsn.slice(4, 6)} {selectedHsn.slice(6)}</span>
+                          <span className="text-primary font-bold">1.82 tCO₂e / t</span>
                         </div>
-                        <Badge variant="secondary" className="font-mono text-emerald-700">-860 tCO₂e</Badge>
-                      </div>
-                      <div className="p-3 rounded-xl border border-border bg-card flex justify-between items-center">
-                        <div>
-                          <span className="font-semibold text-foreground">Waste Heat Recovery (WHRS)</span>
-                          <span className="text-[11px] text-muted-foreground block">Capex: ₹2.8 Cr • Payback: 2.1 yrs</span>
+                        <div className="flex justify-between text-muted-foreground text-[11px]">
+                          <span>Direct Embedded: 1.42 t</span>
+                          <span>Indirect Embedded: 0.40 t</span>
                         </div>
-                        <Badge variant="secondary" className="font-mono text-emerald-700">-620 tCO₂e</Badge>
+                        <div className="h-2 w-full bg-border rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: "78%" }}
+                            transition={{ duration: 0.8 }}
+                            className="h-full bg-sky-600 rounded-full"
+                          />
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-xl border border-border/80 bg-card/60 text-xs font-mono text-muted-foreground">
+                        &lt;cbam:Declaration xmlns:cbam=&quot;http://ec.europa.eu/taxud/cbam/v1&quot;&gt;
+                        <br />&nbsp;&nbsp;&lt;cbam:GoodsItem CNCode=&quot;{selectedHsn}&quot; NetMassTonnes=&quot;{euExportsTonnes}&quot; /&gt;
+                        <br />&nbsp;&nbsp;&lt;cbam:SpecificEmbeddedEmissions Direct=&quot;1.42&quot; Indirect=&quot;0.40&quot; /&gt;
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
 
-            {activeTab === "audit" && (
-              <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-4">
-                  <Badge variant="outline" className="bg-amber-500/10 text-amber-700 border-amber-500/20 font-mono text-xs">
-                    ASSA 5010 ASSURANCE
-                  </Badge>
-                  <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
-                    Cryptographic SHA-256 Audit Evidence Pack.
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Download an immutable ZIP bundle containing calculation lineage JSON, raw invoice metadata, verifier certificates, and digital hash signatures ready for Big-4 assurance interviews.
-                  </p>
-                  <ul className="space-y-2.5 text-xs text-muted-foreground pt-2">
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Zero manual Excel data chasing during auditor sampling
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> SEBI BRSR Principle 6 Core compliance sign-off
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> SHA-256 checksum stamped on every output
-                    </li>
-                  </ul>
-                  <div className="pt-3">
-                    <Button onClick={handleLaunchDemo} className="gap-2">
-                      Generate Audit Pack <ArrowRight className="h-4 w-4" />
-                    </Button>
+              {activeTab === "water" && (
+                <motion.div
+                  key="water"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35 }}
+                  className="grid lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-4">
+                    <Badge variant="outline" className="bg-cyan-500/10 text-cyan-700 border-cyan-500/20 font-mono text-xs">
+                      GRI 303 &amp; SEBI PRINCIPLE 6
+                    </Badge>
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
+                      Complete Water Circularity &amp; Zero Liquid Discharge.
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Track groundwater withdrawal against Central Ground Water Board (CGWB) aquifer stress categories. Monitor RO recovery, MEE evaporation, and Zero Liquid Discharge (ZLD) ratios.
+                    </p>
+                    <div className="p-3.5 rounded-xl border border-border bg-muted/30 space-y-2">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span>Simulate RO Recycling Efficiency:</span>
+                        <span className="text-cyan-700 font-mono">{waterRecycleRate}%</span>
+                      </div>
+                      <Slider
+                        value={[waterRecycleRate]}
+                        max={98}
+                        min={30}
+                        step={1}
+                        onValueChange={(val) => setWaterRecycleRate(val[0])}
+                      />
+                    </div>
+                    <div className="pt-2">
+                      <Button onClick={handleLaunchDemo} className="gap-2 font-semibold">
+                        View Water Accounting <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="lg:col-span-6">
-                  <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-3 font-mono text-xs">
-                    <div className="flex items-center justify-between pb-2 border-b border-border/80">
-                      <span className="text-muted-foreground">EVIDENCE DOSSIER BUNDLE</span>
-                      <span className="text-amber-700 font-bold">SHA-256 VERIFIED</span>
-                    </div>
-                    <div className="p-3 rounded-xl border border-border bg-card space-y-1.5 text-[11px]">
-                      <div className="flex items-center gap-2 text-foreground">
-                        <FileCheck2 className="h-4 w-4 text-primary" /> 01_Executive_Summary.pdf
+                  <div className="lg:col-span-6">
+                    <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-border/80">
+                        <span className="text-xs font-semibold text-muted-foreground">FACILITY WATER BALANCE (kL/yr)</span>
+                        <Badge variant="outline" className="text-cyan-700 border-cyan-500/30 text-[10px] font-mono">ZLD CERTIFIED</Badge>
                       </div>
-                      <div className="flex items-center gap-2 text-foreground">
-                        <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> 02_Scope1_Scope2_Ledger.xlsx
-                      </div>
-                      <div className="flex items-center gap-2 text-foreground">
-                        <Layers className="h-4 w-4 text-sky-600" /> 03_Methodology_and_Lineage.json
-                      </div>
-                      <div className="text-[10px] text-muted-foreground pt-1 truncate">
-                        Checksum: 634fab86e04d7c1a93e8201...
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="p-4 rounded-xl border border-border bg-card">
+                          <span className="text-muted-foreground text-[11px] block">Freshwater Intake</span>
+                          <span className="font-display text-2xl font-bold text-foreground mt-0.5 block">{waterEstKL.toLocaleString()} kL</span>
+                          <span className="text-[10px] text-muted-foreground">Borewell + Municipal</span>
+                        </div>
+                        <div className="p-4 rounded-xl border border-border bg-card">
+                          <span className="text-muted-foreground text-[11px] block">Recycled &amp; Reused</span>
+                          <span className="font-display text-2xl font-bold text-cyan-700 mt-0.5 block">
+                            {Math.round((waterEstKL * waterRecycleRate) / 100).toLocaleString()} kL
+                          </span>
+                          <span className="text-[10px] text-emerald-700 font-semibold">{waterRecycleRate}% Circularity Index</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+
+              {activeTab === "decarb" && (
+                <motion.div
+                  key="decarb"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35 }}
+                  className="grid lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-4">
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20 font-mono text-xs">
+                      NET ZERO ROADMAP ENGINE
+                    </Badge>
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
+                      Marginal Abatement Cost Curves (MACC) &amp; ROI.
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Prioritize capital allocation across rooftop solar, waste heat recovery systems (WHRS), variable frequency drives (VFD), and biomass boilers with precise IRR and payback timelines.
+                    </p>
+                    <div className="p-3.5 rounded-xl border border-border bg-muted/40 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-semibold block text-foreground">Total Abatement Pipeline:</span>
+                        <span className="text-muted-foreground">4 prioritized capital projects</span>
+                      </div>
+                      <span className="font-mono text-emerald-700 font-bold text-base">-1,840 tCO₂e</span>
+                    </div>
+                    <div className="pt-2">
+                      <Button onClick={handleLaunchDemo} className="gap-2 font-semibold">
+                        Explore Decarbonization Planner <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-6">
+                    <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-border/80">
+                        <span className="text-xs font-semibold text-muted-foreground">ABATEMENT INITIATIVES</span>
+                        <span className="text-xs text-emerald-700 font-bold">Total Potential: -1,840 tCO₂e</span>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        <motion.div whileHover={{ scale: 1.01 }} className="p-3.5 rounded-xl border border-border bg-card flex justify-between items-center shadow-2xs">
+                          <div>
+                            <span className="font-semibold text-foreground">Rooftop Solar 1.2 MW PPA</span>
+                            <span className="text-[11px] text-muted-foreground block">Capex: ₹4.2 Cr • Payback: 3.4 yrs</span>
+                          </div>
+                          <Badge variant="secondary" className="font-mono text-emerald-700">-860 tCO₂e</Badge>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.01 }} className="p-3.5 rounded-xl border border-border bg-card flex justify-between items-center shadow-2xs">
+                          <div>
+                            <span className="font-semibold text-foreground">Waste Heat Recovery (WHRS)</span>
+                            <span className="text-[11px] text-muted-foreground block">Capex: ₹2.8 Cr • Payback: 2.1 yrs</span>
+                          </div>
+                          <Badge variant="secondary" className="font-mono text-emerald-700">-620 tCO₂e</Badge>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === "audit" && (
+                <motion.div
+                  key="audit"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35 }}
+                  className="grid lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-4">
+                    <Badge variant="outline" className="bg-amber-500/10 text-amber-700 border-amber-500/20 font-mono text-xs">
+                      ASSA 5010 ASSURANCE
+                    </Badge>
+                    <h3 className="font-display text-2xl sm:text-3xl font-normal text-foreground">
+                      Cryptographic SHA-256 Audit Evidence Pack.
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Download an immutable ZIP bundle containing calculation lineage JSON, raw invoice metadata, verifier certificates, and digital hash signatures ready for Big-4 assurance interviews.
+                    </p>
+                    <div className="pt-2 flex items-center gap-3">
+                      <Button onClick={handleLaunchDemo} className="gap-2 font-semibold">
+                        Generate Live Pack <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSimulateHash}
+                        disabled={isHashing}
+                        className="text-xs gap-1.5"
+                      >
+                        <RotateCcw className={`h-3.5 w-3.5 ${isHashing ? "animate-spin" : ""}`} />
+                        {isHashing ? "Hashing..." : "Re-Calculate Hash"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-6">
+                    <div className="rounded-2xl border border-border bg-muted/30 p-5 space-y-3 font-mono text-xs">
+                      <div className="flex items-center justify-between pb-2 border-b border-border/80">
+                        <span className="text-muted-foreground">EVIDENCE DOSSIER BUNDLE</span>
+                        <Badge variant="outline" className="text-amber-700 border-amber-500/30 text-[10px]">
+                          {isHashing ? "HASHING..." : "SHA-256 VERIFIED"}
+                        </Badge>
+                      </div>
+                      <div className="p-3.5 rounded-xl border border-border bg-card space-y-2 text-[11px]">
+                        <div className="flex items-center gap-2 text-foreground">
+                          <FileCheck2 className="h-4 w-4 text-primary" /> 01_Executive_Summary.pdf
+                        </div>
+                        <div className="flex items-center gap-2 text-foreground">
+                          <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> 02_Scope1_Scope2_Ledger.xlsx
+                        </div>
+                        <div className="flex items-center gap-2 text-foreground">
+                          <Layers className="h-4 w-4 text-sky-600" /> 03_Methodology_and_Lineage.json
+                        </div>
+                        <div className="text-[10px] text-muted-foreground pt-1.5 border-t border-border/60 truncate font-mono">
+                          Digital Seal: {simulatedHash}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
@@ -804,7 +987,7 @@ export function LandingPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
               The 3-Step Operating Workflow
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-5xl text-foreground mt-1 font-normal">
               The Work is Already Done When You Log In
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -814,10 +997,14 @@ export function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="rounded-3xl border border-border bg-card p-8 relative flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+            <motion.div
+              whileHover={{ y: -6, scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="rounded-3xl border border-border bg-card p-8 relative flex flex-col justify-between shadow-xs hover:shadow-lg transition-all"
+            >
               <div>
                 <div className="text-3xl font-display font-bold text-primary/30 mb-4">01</div>
-                <h3 className="font-display text-xl font-medium text-foreground">Collect &amp; Ingest</h3>
+                <h3 className="font-display text-xl font-semibold text-foreground">Collect &amp; Ingest</h3>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
                   Fuel receipts, electricity meter logs, weighbridge slips, and ERP records flow in automatically. Zero tedious manual spreadsheet entry from factory floor managers.
                 </p>
@@ -826,13 +1013,17 @@ export function LandingPage() {
                   <div className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Invoice OCR &amp; Docket Ingestion</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Step 2 */}
-            <div className="rounded-3xl border border-border bg-card p-8 relative flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+            <motion.div
+              whileHover={{ y: -6, scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="rounded-3xl border border-border bg-card p-8 relative flex flex-col justify-between shadow-xs hover:shadow-lg transition-all"
+            >
               <div>
                 <div className="text-3xl font-display font-bold text-primary/30 mb-4">02</div>
-                <h3 className="font-display text-xl font-medium text-foreground">Verify &amp; Compute</h3>
+                <h3 className="font-display text-xl font-semibold text-foreground">Verify &amp; Compute</h3>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
                   5-tier factor matching matches physical quantities (kWh, litres, tonnes) against CEA v19 and IPCC databases. Automated anomaly checks detect data gaps instantly.
                 </p>
@@ -841,16 +1032,20 @@ export function LandingPage() {
                   <div className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> Outlier &amp; double-counting detector</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Step 3 */}
-            <div className="rounded-3xl border-2 border-primary/60 bg-card p-8 relative flex flex-col justify-between shadow-md">
+            <motion.div
+              whileHover={{ y: -6, scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="rounded-3xl border-2 border-primary/60 bg-card p-8 relative flex flex-col justify-between shadow-md"
+            >
               <div className="absolute -top-3 right-6 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold text-primary-foreground uppercase">
                 Audit Ready
               </div>
               <div>
                 <div className="text-3xl font-display font-bold text-primary mb-4">03</div>
-                <h3 className="font-display text-xl font-medium text-foreground">Assure &amp; Submit</h3>
+                <h3 className="font-display text-xl font-semibold text-foreground">Assure &amp; Submit</h3>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
                   Pre-populated SEBI BRSR Core tables, EU CBAM XML filings, and cryptographic SHA-256 evidence dossiers ready for board sign-off and assurance interviews.
                 </p>
@@ -859,185 +1054,215 @@ export function LandingPage() {
                   <div className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> DG TAXUD XML Validation</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* 6. SOLUTIONS MATRIX: BY ROLE & BY INDUSTRY */}
+      {/* 6. SOLUTIONS MATRIX: BY ROLE & BY INDUSTRY (WITH ANIMATED SWITCHER) */}
       <section id="solutions" className="py-24 border-y border-border bg-muted/20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
               Tailored Enterprise Solutions
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-5xl text-foreground mt-1 font-normal">
               Built for Your Exact Stakeholder Requirements
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Choose the view tailored to your executive role or specific manufacturing sector.
             </p>
 
-            <div className="mt-6 inline-flex rounded-xl border border-border bg-card p-1 shadow-xs">
+            <div className="mt-6 inline-flex rounded-2xl border border-border bg-card p-1 shadow-xs">
               <button
                 onClick={() => setSolutionsView("role")}
-                className={`px-5 py-2 text-xs font-semibold rounded-lg transition-all ${
-                  solutionsView === "role" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                className={`relative px-5 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+                  solutionsView === "role" ? "text-primary-foreground font-bold" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Solutions by Role
+                {solutionsView === "role" && (
+                  <motion.div
+                    layoutId="solutionsTabBg"
+                    className="absolute inset-0 bg-primary rounded-xl shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">Solutions by Role</span>
               </button>
               <button
                 onClick={() => setSolutionsView("industry")}
-                className={`px-5 py-2 text-xs font-semibold rounded-lg transition-all ${
-                  solutionsView === "industry" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                className={`relative px-5 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+                  solutionsView === "industry" ? "text-primary-foreground font-bold" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Solutions by Industry
+                {solutionsView === "industry" && (
+                  <motion.div
+                    layoutId="solutionsTabBg"
+                    className="absolute inset-0 bg-primary rounded-xl shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">Solutions by Industry</span>
               </button>
             </div>
           </div>
 
-          {solutionsView === "role" ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center mb-4">
-                    <Users className="h-5 w-5" />
+          <AnimatePresence mode="wait">
+            {solutionsView === "role" ? (
+              <motion.div
+                key="role-view"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+              >
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center mb-4">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">CFOs &amp; Finance</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      Personal sign-off under Section 180 requires audit-proof numbers that survive limited and reasonable assurance on Day 1.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">CFOs &amp; Finance</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    Personal sign-off under Section 180 requires audit-proof numbers that survive limited and reasonable assurance on Day 1.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-primary font-semibold flex items-center justify-between">
-                  <span>Explore CFO Suite</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-primary font-semibold flex items-center justify-between">
+                    <span>Explore CFO Suite</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
 
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 grid place-items-center mb-4">
-                    <Factory className="h-5 w-5" />
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 grid place-items-center mb-4">
+                      <Factory className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">Sustainability Leads</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      Reclaim 2 days every week spent chasing plant engineers for meter readings, diesel chits, and waste transfer notes.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">Sustainability Leads</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    Reclaim 2 days every week spent chasing plant engineers for meter readings, diesel chits, and waste transfer notes.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-emerald-700 font-semibold flex items-center justify-between">
-                  <span>Explore EHS Suite</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-emerald-700 font-semibold flex items-center justify-between">
+                    <span>Explore EHS Suite</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
 
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-sky-500/10 text-sky-600 grid place-items-center mb-4">
-                    <Briefcase className="h-5 w-5" />
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-sky-500/10 text-sky-600 grid place-items-center mb-4">
+                      <Briefcase className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">ESG Consultants</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      Scale your advisory practice from 3 clients to 30 with dedicated multi-tenant workspaces and white-label client reports.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">ESG Consultants</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    Scale your advisory practice from 3 clients to 30 with dedicated multi-tenant workspaces and white-label client reports.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-sky-700 font-semibold flex items-center justify-between">
-                  <span>Explore Advisor Hub</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-sky-700 font-semibold flex items-center justify-between">
+                    <span>Explore Advisor Hub</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
 
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 grid place-items-center mb-4">
-                    <Shield className="h-5 w-5" />
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 grid place-items-center mb-4">
+                      <Shield className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">Audit Committees</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      Fulfill governance obligations with complete cryptographic SHA-256 data lineage for every Scope 1-3 metric.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">Audit Committees</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    Fulfill governance obligations with complete cryptographic SHA-256 data lineage for every Scope 1-3 metric.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-amber-700 font-semibold flex items-center justify-between">
-                  <span>Explore Governance</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center mb-4">
-                    <Flame className="h-5 w-5" />
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-amber-700 font-semibold flex items-center justify-between">
+                    <span>Explore Governance</span> <ArrowRight className="h-3.5 w-3.5" />
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">Steel &amp; Metallurgy</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    BF-BOF, DRI, and electric arc furnace specific carbon intensity with EU CBAM chapter 72 export declarations.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-primary font-semibold flex items-center justify-between">
-                  <span>View Steel Engine</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
+                </motion.div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="industry-view"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+              >
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center mb-4">
+                      <Flame className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">Steel &amp; Metallurgy</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      BF-BOF, DRI, and electric arc furnace specific carbon intensity with EU CBAM chapter 72 export declarations.
+                    </p>
+                  </div>
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-primary font-semibold flex items-center justify-between">
+                    <span>View Steel Engine</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
 
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 grid place-items-center mb-4">
-                    <Zap className="h-5 w-5" />
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-600 grid place-items-center mb-4">
+                      <Zap className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">Aluminium &amp; Metals</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      Electrolytic smelting, direct emissions, and anode PFC tracking for primary ingots and billets under CBAM chapter 76.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">Aluminium &amp; Metals</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    Electrolytic smelting, direct emissions, and anode PFC tracking for primary ingots and billets under CBAM chapter 76.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-emerald-700 font-semibold flex items-center justify-between">
-                  <span>View Aluminium Engine</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-emerald-700 font-semibold flex items-center justify-between">
+                    <span>View Aluminium Engine</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
 
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-sky-500/10 text-sky-600 grid place-items-center mb-4">
-                    <Droplets className="h-5 w-5" />
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-sky-500/10 text-sky-600 grid place-items-center mb-4">
+                      <Droplets className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">Chemicals &amp; Pharma</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      Process solvents, batch reactor energy, and Zero Liquid Discharge (ZLD) effluent water compliance.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">Chemicals &amp; Pharma</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    Process solvents, batch reactor energy, and Zero Liquid Discharge (ZLD) effluent water compliance.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-sky-700 font-semibold flex items-center justify-between">
-                  <span>View Pharma Engine</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-sky-700 font-semibold flex items-center justify-between">
+                    <span>View Pharma Engine</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
 
-              <Card className="rounded-2xl border-border bg-card p-6 shadow-xs hover:border-primary/50 transition-all flex flex-col justify-between">
-                <div>
-                  <div className="h-10 w-10 rounded-xl bg-cyan-500/10 text-cyan-600 grid place-items-center mb-4">
-                    <Building2 className="h-5 w-5" />
+                <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card p-6 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="h-10 w-10 rounded-xl bg-cyan-500/10 text-cyan-600 grid place-items-center mb-4">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground">Textiles &amp; Infra</h3>
+                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      High water footprint management, CGWB aquifer stress, green tariff Scope 2 PPA, and supply chain Scope 3.
+                    </p>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground">Textiles &amp; Infra</h3>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    High water footprint management, CGWB aquifer stress, green tariff Scope 2 PPA, and supply chain Scope 3.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/70 mt-6 text-xs text-cyan-700 font-semibold flex items-center justify-between">
-                  <span>View Textile Engine</span> <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Card>
-            </div>
-          )}
+                  <div className="pt-6 border-t border-border/70 mt-6 text-xs text-cyan-700 font-semibold flex items-center justify-between">
+                    <span>View Textile Engine</span> <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
-      {/* 7. REAL-TIME REGULATORY & ESG LIABILITY ESTIMATOR */}
-      <section id="estimator" className="py-20 bg-background">
+      {/* 7. REAL-TIME REGULATORY & ESG LIABILITY ESTIMATOR (WITH DYNAMIC CHART) */}
+      <section id="estimator" className="py-24 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
-              Live Estimator
+              Live Interactive Simulation
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-5xl text-foreground mt-1 font-normal">
               Regulatory Exposure &amp; ESG Estimator
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Adjust facility activity parameters to compute immediate liabilities and BRSR Core readiness.
+              Adjust facility operational parameters to watch emissions and potential CBAM risk calculate in real time.
             </p>
           </div>
 
@@ -1047,14 +1272,14 @@ export function LandingPage() {
               <div className="space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-border/80">
                   <span className="text-sm font-semibold flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-primary" /> Facility Operational Inputs
+                    <Sliders className="h-4 w-4 text-primary" /> Facility Operational Sliders
                   </span>
-                  <Badge variant="outline" className="text-[10px] font-mono">STEP 1 OF 2</Badge>
+                  <Badge variant="outline" className="text-[10px] font-mono">LIVE SYNC</Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Industry Sector</Label>
+                    <Label className="text-xs font-semibold">Industry Sector</Label>
                     <Select value={sector} onValueChange={setSector}>
                       <SelectTrigger className="bg-background">
                         <SelectValue />
@@ -1070,97 +1295,128 @@ export function LandingPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Annual Turnover (₹ Crore)</Label>
-                    <Input
-                      type="number"
-                      className="bg-background font-mono"
-                      value={turnover}
-                      onChange={(e) => setTurnover(Number(e.target.value) || 0)}
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Turnover (₹ Cr):</span>
+                      <span className="font-mono text-primary">₹{turnover} Cr</span>
+                    </div>
+                    <Slider
+                      value={[turnover]}
+                      min={10}
+                      max={1000}
+                      step={10}
+                      onValueChange={(val) => setTurnover(val[0])}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3 pt-2">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Grid Electricity (MWh / yr)</Label>
-                    <Input
-                      type="number"
-                      className="bg-background font-mono"
-                      value={powerUnitsMWh}
-                      onChange={(e) => setPowerUnitsMWh(Number(e.target.value) || 0)}
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Grid Electricity:</span>
+                      <span className="font-mono text-foreground">{powerUnitsMWh.toLocaleString()} MWh / yr</span>
+                    </div>
+                    <Slider
+                      value={[powerUnitsMWh]}
+                      min={500}
+                      max={20000}
+                      step={500}
+                      onValueChange={(val) => setPowerUnitsMWh(val[0])}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Diesel / Fuel (Litres / yr)</Label>
-                    <Input
-                      type="number"
-                      className="bg-background font-mono"
-                      value={fuelLitres}
-                      onChange={(e) => setFuelLitres(Number(e.target.value) || 0)}
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Diesel / Fuel Consumption:</span>
+                      <span className="font-mono text-foreground">{fuelLitres.toLocaleString()} Litres / yr</span>
+                    </div>
+                    <Slider
+                      value={[fuelLitres]}
+                      min={5000}
+                      max={250000}
+                      step={5000}
+                      onValueChange={(val) => setFuelLitres(val[0])}
                     />
                   </div>
-                </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-xs">EU Export Volume (Tonnes / yr)</Label>
-                  <Input
-                    type="number"
-                    className="bg-background font-mono"
-                    value={euExportsTonnes}
-                    onChange={(e) => setEuExportsTonnes(Number(e.target.value) || 0)}
-                  />
-                  <p className="text-[11px] text-muted-foreground">Subject to EU Regulation 2023/956 at €69 / tonne default threshold.</p>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>EU Export Volume (Tonnes / yr):</span>
+                      <span className="font-mono text-primary">{euExportsTonnes.toLocaleString()} MT</span>
+                    </div>
+                    <Slider
+                      value={[euExportsTonnes]}
+                      min={0}
+                      max={50000}
+                      step={1000}
+                      onValueChange={(val) => setEuExportsTonnes(val[0])}
+                    />
+                    <p className="text-[11px] text-muted-foreground">EU Regulation 2023/956 default penalty threshold: €69/tonne.</p>
+                  </div>
                 </div>
               </div>
             </Card>
 
-            {/* Calculated Results Card */}
+            {/* Calculated Results Card with Live Recharts Bar Chart */}
             <Card className="lg:col-span-6 rounded-3xl border-border bg-card shadow-sm flex flex-col justify-between p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-border/80">
-                  <span className="text-sm font-semibold text-foreground">Estimated Footprint &amp; Liabilities</span>
+                  <span className="text-sm font-semibold text-foreground">Calculated Liability &amp; Footprint</span>
                   <Badge className="bg-emerald-600 text-white font-mono text-[10px]">REAL-TIME</Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-2xl border border-border/80 bg-muted/20">
+                  <motion.div
+                    key={`ghg-${totalGhg}`}
+                    initial={{ scale: 0.96 }}
+                    animate={{ scale: 1 }}
+                    className="p-3.5 rounded-2xl border border-border/80 bg-muted/20"
+                  >
                     <span className="text-xs text-muted-foreground block">Scope 1 &amp; 2 Footprint</span>
-                    <span className="font-display text-2xl font-bold text-foreground mt-1 block">
+                    <span className="font-display text-2xl font-bold text-foreground mt-0.5 block">
                       {totalGhg.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">tCO₂e</span>
                     </span>
                     <span className="text-[11px] text-muted-foreground">CEA Factor 0.716 t/MWh</span>
-                  </div>
+                  </motion.div>
 
-                  <div className="p-4 rounded-2xl border border-border/80 bg-muted/20">
+                  <motion.div
+                    key={`cbam-${cbamRiskPenaltyEur}`}
+                    initial={{ scale: 0.96 }}
+                    animate={{ scale: 1 }}
+                    className="p-3.5 rounded-2xl border border-border/80 bg-muted/20"
+                  >
                     <span className="text-xs text-muted-foreground block">EU CBAM Penalty Risk</span>
-                    <span className="font-display text-2xl font-bold text-primary mt-1 block">
+                    <span className="font-display text-2xl font-bold text-primary mt-0.5 block">
                       €{cbamRiskPenaltyEur.toLocaleString()}
                     </span>
                     <span className="text-[11px] text-muted-foreground">Without verified XML filing</span>
-                  </div>
+                  </motion.div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 rounded-2xl border border-border/80 bg-muted/20">
-                    <span className="text-xs text-muted-foreground block">Estimated Water Intake</span>
-                    <span className="font-display text-2xl font-bold text-foreground mt-1 block">
-                      {waterEstKL.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">kL/yr</span>
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">GRI 303 / Principle 6</span>
-                  </div>
-
-                  <div className="p-4 rounded-2xl border border-border/80 bg-muted/20">
-                    <span className="text-xs text-muted-foreground block">BRSR Core Readiness</span>
-                    <span className="font-display text-2xl font-bold text-emerald-700 mt-1 block">
-                      {brsrScore}%
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">9 Essential Attributes</span>
-                  </div>
+                {/* Real-time Dynamic Chart */}
+                <div className="h-36 w-full pt-1">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "var(--card)",
+                          borderColor: "var(--border)",
+                          borderRadius: "12px",
+                          fontSize: "11px",
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
 
-              <Button onClick={handleLaunchDemo} className="w-full h-11 font-semibold text-xs mt-4 gap-2">
+              <Button onClick={handleLaunchDemo} className="w-full h-11 font-semibold text-xs mt-3 gap-2">
                 Open Full Audit Dossier in Demo Workspace <ArrowRight className="h-4 w-4" />
               </Button>
             </Card>
@@ -1175,7 +1431,7 @@ export function LandingPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
               Market Benchmark
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1 font-normal">
               Why Indian Leaders Standardize on clisomumbai
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -1196,7 +1452,7 @@ export function LandingPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60 text-xs sm:text-sm">
-                <tr>
+                <tr className="hover:bg-muted/30 transition-colors">
                   <td className="p-4 pl-6 font-medium text-foreground">SEBI BRSR Core (Principle 6)</td>
                   <td className="p-4 font-bold text-primary bg-primary/5">✓ Full 9 Attributes</td>
                   <td className="p-4 text-muted-foreground">✗ (CBAM only)</td>
@@ -1204,7 +1460,7 @@ export function LandingPage() {
                   <td className="p-4 text-foreground">✓ Standard</td>
                   <td className="p-4 text-muted-foreground">Manual Excel</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-muted/30 transition-colors">
                   <td className="p-4 pl-6 font-medium text-foreground">Water Stewardship (GRI 303 &amp; ZLD)</td>
                   <td className="p-4 font-bold text-primary bg-primary/5">✓ Dedicated Module</td>
                   <td className="p-4 text-muted-foreground">✗ None</td>
@@ -1212,7 +1468,7 @@ export function LandingPage() {
                   <td className="p-4 text-muted-foreground">✗ None</td>
                   <td className="p-4 text-muted-foreground">Manual Excel</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-muted/30 transition-colors">
                   <td className="p-4 pl-6 font-medium text-foreground">EU CBAM DG TAXUD XML Export</td>
                   <td className="p-4 font-bold text-primary bg-primary/5">✓ Automated + HSN Map</td>
                   <td className="p-4 text-foreground">✓ Automated</td>
@@ -1220,7 +1476,7 @@ export function LandingPage() {
                   <td className="p-4 text-muted-foreground">✗ None</td>
                   <td className="p-4 text-muted-foreground">₹5,00,000+</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-muted/30 transition-colors">
                   <td className="p-4 pl-6 font-medium text-foreground">Kigali ODP / GWP Refrigerants</td>
                   <td className="p-4 font-bold text-primary bg-primary/5">✓ 50+ Substances</td>
                   <td className="p-4 text-muted-foreground">✗ None</td>
@@ -1228,7 +1484,7 @@ export function LandingPage() {
                   <td className="p-4 text-muted-foreground">Basic</td>
                   <td className="p-4 text-muted-foreground">Separate fee</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-muted/30 transition-colors">
                   <td className="p-4 pl-6 font-medium text-foreground">Cryptographic Audit Pack (ZIP)</td>
                   <td className="p-4 font-bold text-primary bg-primary/5">✓ SHA-256 Verified</td>
                   <td className="p-4 text-muted-foreground">XML only</td>
@@ -1236,7 +1492,7 @@ export function LandingPage() {
                   <td className="p-4 text-muted-foreground">PDF only</td>
                   <td className="p-4 text-muted-foreground">Paper binders</td>
                 </tr>
-                <tr>
+                <tr className="hover:bg-muted/30 transition-colors">
                   <td className="p-4 pl-6 font-medium text-foreground">Pricing Structure</td>
                   <td className="p-4 font-bold text-primary bg-primary/5">Transparent Tiered</td>
                   <td className="p-4 text-foreground">₹1,50,000 / yr</td>
@@ -1257,37 +1513,53 @@ export function LandingPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
               Pricing Plans
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-5xl text-foreground mt-1 font-normal">
               Transparent, Scalable Investment
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Start free on our MSME tier and upgrade seamlessly as your facility compliance scales.
             </p>
 
-            {/* Annual / Monthly Toggle */}
+            {/* Annual / Monthly Toggle with Spring layoutId */}
             <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-border bg-card p-1 shadow-xs">
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`rounded-full px-5 py-1.5 text-xs font-semibold transition-all ${
-                  billingCycle === "monthly" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                className={`relative rounded-full px-5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  billingCycle === "monthly" ? "text-primary-foreground font-bold" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Monthly Billing
+                {billingCycle === "monthly" && (
+                  <motion.div
+                    layoutId="billingPill"
+                    className="absolute inset-0 bg-primary rounded-full shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">Monthly Billing</span>
               </button>
               <button
                 onClick={() => setBillingCycle("annual")}
-                className={`rounded-full px-5 py-1.5 text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  billingCycle === "annual" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                className={`relative rounded-full px-5 py-1.5 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  billingCycle === "annual" ? "text-primary-foreground font-bold" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Annual Billing <span className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-secondary-foreground font-bold">Save 17%</span>
+                {billingCycle === "annual" && (
+                  <motion.div
+                    layoutId="billingPill"
+                    className="absolute inset-0 bg-primary rounded-full shadow-xs"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  Annual Billing <span className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-secondary-foreground font-bold">Save 17%</span>
+                </span>
               </button>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Starter */}
-            <Card className="rounded-3xl border-border bg-card flex flex-col justify-between p-6 shadow-xs">
+            <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card flex flex-col justify-between p-6 shadow-xs">
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Starter / MSME</div>
                 <div className="mt-4 mb-1">
@@ -1311,10 +1583,10 @@ export function LandingPage() {
               <Button onClick={handleLaunchDemo} variant="outline" className="w-full mt-8 text-xs font-semibold">
                 Start Free
               </Button>
-            </Card>
+            </motion.div>
 
             {/* Growth */}
-            <Card className="rounded-3xl border-border bg-card flex flex-col justify-between p-6 shadow-xs">
+            <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card flex flex-col justify-between p-6 shadow-xs">
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Growth</div>
                 <div className="mt-4 mb-1">
@@ -1341,11 +1613,11 @@ export function LandingPage() {
               <Button onClick={handleLaunchDemo} variant="outline" className="w-full mt-8 text-xs font-semibold">
                 Choose Growth
               </Button>
-            </Card>
+            </motion.div>
 
             {/* Pro - Most Popular */}
-            <Card className="rounded-3xl border-2 border-primary bg-card flex flex-col justify-between p-6 relative shadow-lg">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+            <motion.div whileHover={{ y: -8, scale: 1.02 }} className="rounded-3xl border-2 border-primary bg-card flex flex-col justify-between p-6 relative shadow-xl">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow-sm">
                 Most Popular
               </div>
               <div>
@@ -1374,13 +1646,13 @@ export function LandingPage() {
                 </ul>
               </div>
 
-              <Button onClick={handleLaunchDemo} className="w-full mt-8 text-xs font-bold shadow-sm">
+              <Button onClick={handleLaunchDemo} className="w-full mt-8 text-xs font-bold shadow-md bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
                 Choose Pro
               </Button>
-            </Card>
+            </motion.div>
 
             {/* Enterprise / Exporter */}
-            <Card className="rounded-3xl border-border bg-card flex flex-col justify-between p-6 shadow-xs">
+            <motion.div whileHover={{ y: -6 }} className="rounded-3xl border border-border bg-card flex flex-col justify-between p-6 shadow-xs">
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Exporter / Custom</div>
                 <div className="mt-4 mb-1">
@@ -1410,7 +1682,7 @@ export function LandingPage() {
               <Button onClick={handleLaunchDemo} variant="outline" className="w-full mt-8 text-xs font-semibold">
                 Talk to Sales
               </Button>
-            </Card>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1453,8 +1725,8 @@ export function LandingPage() {
                 <h3 className="font-display text-xl font-medium text-foreground">Our Core Guarantees</h3>
                 <div className="space-y-4 text-xs text-muted-foreground">
                   <div className="flex items-start gap-3">
-                    <div className="h-6 w-6 rounded-lg bg-primary/10 text-primary grid place-items-center shrink-0 mt-0.5">
-                      <Shield className="h-3.5 w-3.5" />
+                    <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary grid place-items-center shrink-0 mt-0.5">
+                      <Shield className="h-4 w-4" />
                     </div>
                     <div>
                       <strong className="text-foreground block text-sm font-semibold">Zero Spend-Based Guesswork</strong>
@@ -1462,8 +1734,8 @@ export function LandingPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="h-6 w-6 rounded-lg bg-emerald-500/10 text-emerald-600 grid place-items-center shrink-0 mt-0.5">
-                      <Lock className="h-3.5 w-3.5" />
+                    <div className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 grid place-items-center shrink-0 mt-0.5">
+                      <Lock className="h-4 w-4" />
                     </div>
                     <div>
                       <strong className="text-foreground block text-sm font-semibold">Cryptographic Verification</strong>
@@ -1471,8 +1743,8 @@ export function LandingPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="h-6 w-6 rounded-lg bg-sky-500/10 text-sky-600 grid place-items-center shrink-0 mt-0.5">
-                      <Globe2 className="h-3.5 w-3.5" />
+                    <div className="h-7 w-7 rounded-lg bg-sky-500/10 text-sky-600 grid place-items-center shrink-0 mt-0.5">
+                      <Globe2 className="h-4 w-4" />
                     </div>
                     <div>
                       <strong className="text-foreground block text-sm font-semibold">Global Export Defense</strong>
@@ -1493,7 +1765,7 @@ export function LandingPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
               Got Questions?
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1">
+            <h2 className="font-display text-3xl sm:text-4xl text-foreground mt-1 font-normal">
               Frequently Asked Questions
             </h2>
           </div>
@@ -1539,28 +1811,32 @@ export function LandingPage() {
       </section>
 
       {/* 12. FINAL CALL TO ACTION */}
-      <section className="py-20 bg-gradient-to-br from-primary/10 via-muted/30 to-background border-t border-border">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-normal text-foreground">
+      <section className="py-24 bg-gradient-to-br from-primary/10 via-muted/30 to-background border-t border-border relative overflow-hidden">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+          <h2 className="font-display text-3xl sm:text-5xl font-normal text-foreground">
             Ready to Experience Audit-Grade Carbon Intelligence?
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
             Join hundreds of forward-thinking Indian industrial leaders automating compliance and eliminating carbon tariff penalties today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <Button
-              onClick={handleLaunchDemo}
-              size="lg"
-              className="h-12 px-8 font-semibold text-sm gap-2 shadow-lg"
-            >
-              Open Live Demo Workspace <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Link
-              to="/cbam-checker"
-              className="inline-flex items-center justify-center h-12 px-6 rounded-xl border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground"
-            >
-              Check CBAM Risk
-            </Link>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+              <Button
+                onClick={handleLaunchDemo}
+                size="lg"
+                className="h-12 px-8 font-semibold text-sm gap-2 shadow-xl bg-primary hover:bg-primary/95 text-primary-foreground cursor-pointer"
+              >
+                Open Live Demo Workspace <ArrowRight className="h-4 w-4" />
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                to="/cbam-checker"
+                className="inline-flex items-center justify-center h-12 px-6 rounded-2xl border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground shadow-xs"
+              >
+                Check CBAM Risk
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
