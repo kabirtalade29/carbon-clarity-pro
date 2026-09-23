@@ -47,6 +47,8 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
+  Archive,
+  FileSpreadsheet,
 } from "lucide-react";
 import {
   allProducts,
@@ -59,6 +61,8 @@ import {
 } from "@/lib/emission-calculator";
 import { saveCalculation } from "@/lib/calculations.functions";
 import { downloadConsolidatedReport } from "@/lib/pdf-report";
+import { generateAuditEvidencePack } from "@/lib/evidence-pack";
+import { calculateBrsrMetrics, downloadBrsrCoreCsv } from "@/lib/brsr-export";
 import { parseInvoiceFile } from "@/lib/invoice-parser";
 import { detectAnomalies } from "@/lib/anomaly-detector";
 import { toast } from "sonner";
@@ -361,6 +365,103 @@ function ReportsPage() {
       categoryBreakdown: categoryTotals,
       notes,
     });
+  };
+
+  const exportEvidencePack = async () => {
+    if (items.length === 0) {
+      toast.error("Add items to your report before generating Evidence Pack");
+      return;
+    }
+    try {
+      const uniqueScopes = Array.from(
+        new Set(
+          items.map((it) => {
+            const refScope =
+              it.efDetails?.scope === "Custom" ? it.category : (it.efDetails?.scope as string);
+            const match = SCOPES.find((s) => s.value === refScope);
+            return match ? match.hint : null;
+          }),
+        ),
+      )
+        .filter(Boolean)
+        .sort();
+      const scopeStr = uniqueScopes.length > 0 ? uniqueScopes.join(", ") : scopeGroup;
+
+      const reportData = {
+        id: crypto.randomUUID(),
+        reportName,
+        companyName: company,
+        facility: facility,
+        reportDate: new Date().toLocaleDateString(),
+        scope: scopeStr,
+        totalCo2e,
+        highestCategory: {
+          name: highestCategory.name,
+          value: highestCategory.co2e,
+          pct: highestCategory.pct,
+        },
+        highestProduct: {
+          name: highestProduct.name,
+          value: highestProduct.value,
+        },
+        items: items.map((it) => {
+          const refScope =
+            it.efDetails?.scope === "Custom" ? it.category : (it.efDetails?.scope as string);
+          const match = SCOPES.find((s) => s.value === refScope);
+          const sGroup = match ? (match.hint as "Scope 1" | "Scope 2" | "Scope 3") : "Scope 3";
+          return {
+            category: it.category,
+            productName: it.productName,
+            quantity: it.quantity,
+            unit: it.unit,
+            co2e: it.co2e,
+            scopeGroup: sGroup,
+          };
+        }),
+        categoryBreakdown: categoryTotals,
+        notes,
+      };
+
+      await generateAuditEvidencePack({
+        reportData,
+        companyName: company || "Climate Social Mumbai",
+        facilityName: facility || "Main Operations",
+      });
+      toast.success("Downloaded ASSA 5010 Audit Evidence Pack (.ZIP)");
+    } catch {
+      toast.error("Failed to generate Evidence Pack");
+    }
+  };
+
+  const exportBrsr = () => {
+    if (items.length === 0) {
+      toast.error("Add items to your report before generating SEBI BRSR Core export");
+      return;
+    }
+    const mockRows = items.map((it, idx) => ({
+      id: `calc-${idx + 1}`,
+      user_id: "user",
+      saved_name: it.productName,
+      scope: it.category,
+      category: it.category,
+      product_name: it.productName,
+      quantity: it.quantity,
+      unit: it.unit,
+      co2_kg: it.co2,
+      ch4_kg: it.ch4,
+      n2o_kg: it.n2o,
+      co2e_kg: it.co2e,
+      ef_source: it.source,
+      ef_details: it.efDetails as Record<string, unknown>,
+      company: company || "Climate Social Mumbai",
+      facility: facility || "Main Facility",
+      notes: notes || null,
+      created_at: new Date().toISOString(),
+    }));
+
+    const metrics = calculateBrsrMetrics(mockRows, 150, 6500);
+    downloadBrsrCoreCsv(metrics);
+    toast.success("Exported SEBI BRSR Principle 6 Core Metrics (.CSV)");
   };
 
   function groupProducts(products: Product[]) {
@@ -673,7 +774,7 @@ function ReportsPage() {
           </Card>
 
           {/* Save / Export Section */}
-          <Card className="rounded-2xl p-6 flex flex-col gap-3">
+          <Card className="rounded-2xl p-6 flex flex-col gap-2.5">
             <Button
               onClick={() => saveMut.mutate()}
               disabled={saveMut.isPending || items.length === 0}
@@ -689,6 +790,22 @@ function ReportsPage() {
               className="w-full justify-center border-primary text-primary hover:bg-primary/10"
             >
               <Download className="mr-2 h-4 w-4" /> Download PDF Report
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={exportEvidencePack}
+              disabled={items.length === 0}
+              className="w-full justify-center gap-2 text-xs font-semibold"
+            >
+              <Archive className="h-4 w-4 text-primary" /> Audit Evidence Pack (.ZIP)
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={exportBrsr}
+              disabled={items.length === 0}
+              className="w-full justify-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> SEBI BRSR Core Disclosures (.CSV)
             </Button>
           </Card>
         </div>

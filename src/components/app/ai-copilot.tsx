@@ -20,12 +20,30 @@ type Message = {
   timestamp: string;
 };
 
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { listMyCalculations, getMyProfile } from "@/lib/calculations.functions";
+import { runCopilotQuery } from "@/lib/copilot-engine";
+
 export function AiCopilotSheet() {
+  const listFn = useServerFn(listMyCalculations);
+  const profileFn = useServerFn(getMyProfile);
+
+  const { data: calculations = [] } = useQuery({
+    queryKey: ["me", "calculations"],
+    queryFn: () => listFn(),
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["me", "profile"],
+    queryFn: () => profileFn(),
+  });
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       sender: "copilot",
-      text: "Hello! I am **clisomumbai Co-Pilot**. I can analyze your GHG inventory, run audit traces, identify decarbonization levers, and draft board summaries. How can I help today?",
+      text: "Hello! I am **clisomumbai Co-Pilot**. I am connected to your live corporate carbon ledger. I can analyze Scope 1, 2, and 3 entries, run audit traces, assess Kigali refrigerant compliance, and draft board summaries. How can I help today?",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -37,6 +55,7 @@ export function AiCopilotSheet() {
     "What is our highest Scope 3 emission driver?",
     "Check Montreal Protocol compliance for our refrigerants",
     "Suggest top 3 decarbonization initiatives for 2030",
+    "Breakdown emissions by facility",
   ];
 
   const handleSend = async (textToSend?: string) => {
@@ -54,35 +73,32 @@ export function AiCopilotSheet() {
     if (!textToSend) setInput("");
     setLoading(true);
 
-    // Simulate AI reasoning and live ledger querying
-    await new Promise((res) => setTimeout(res, 1000));
+    try {
+      const reply = await runCopilotQuery(query, {
+        calculations,
+        companyName: profile?.company || "Climate Social Mumbai",
+        facilityName: profile?.facility || "Headquarters",
+      });
 
-    let reply = "";
-    const qLower = query.toLowerCase();
+      const aiMsg: Message = {
+        id: crypto.randomUUID(),
+        sender: "copilot",
+        text: reply,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
 
-    if (qLower.includes("board summary") || qLower.includes("executive")) {
-      reply = `### Executive Climate Audit Summary (Q3 2026)\n\n- **Total Corporate GHG Baseline:** 4,658.2 t CO₂e\n- **Scope 1 (Stationary & Fugitive):** 2,364.8 t CO₂e (50.8%)\n- **Scope 2 (Grid Electricity):** 1,293.4 t CO₂e (27.8%)\n- **Scope 3 (Supply Chain & Freight):** 1,000.0 t CO₂e (21.4%)\n\n**Key Recommendation:** Transitioning facility HVAC systems from high-GWP R-410A to low-GWP R-454B will abate ~420 t CO₂e/yr while satisfying Kigali Amendment phase-down quotas.`;
-    } else if (qLower.includes("scope 3") || qLower.includes("driver")) {
-      reply = `Based on your live Scope 3 ledger, **Category 1: Purchased Goods & Services (Primary Steel & Aluminium)** represents **48% of total Scope 3 emissions**, followed by **Category 4: Upstream Freight Trucking (32%)**.\n\n*Action item:* Engaging top 5 steel suppliers for EAF recycled content certification can yield an immediate 18% reduction.`;
-    } else if (
-      qLower.includes("montreal") ||
-      qLower.includes("refrigerant") ||
-      qLower.includes("gwp")
-    ) {
-      reply = `**Refrigerant Compliance Audit:**\n- **CFCs (R-11, R-12, Halons):** 0% active reliance (Compliant with 2010 Global Phase-out).\n- **HCFCs (R-22):** 1 site remaining under servicing tail (Phased out by 2030 under Montreal Protocol).\n- **HFCs (R-410A, R-134a):** Controlled under Kigali Amendment. Quota reductions of 40% take effect in 2026. Transition to R-32 or R-454B recommended.`;
-    } else {
-      reply = `I have cross-referenced your activity data against the DEFRA & EPA emission factor libraries.\n\n- All physical entries (kWh, Litres, Tonnes) have been verified with complete audit trail links.\n- Zero critical anomalies detected in recent billing entries.\n\nWould you like me to model a specific decarbonization scenario in the Decarbonization Planner?`;
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      const errorMsg: Message = {
+        id: crypto.randomUUID(),
+        sender: "copilot",
+        text: "An error occurred while querying the carbon ledger. Please try again.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      setLoading(false);
     }
-
-    const aiMsg: Message = {
-      id: crypto.randomUUID(),
-      sender: "copilot",
-      text: reply,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-
-    setMessages((prev) => [...prev, aiMsg]);
-    setLoading(false);
   };
 
   return (

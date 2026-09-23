@@ -14,9 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, Search, Trash2 } from "lucide-react";
+import { Download, Search, Trash2, Archive } from "lucide-react";
 import { formatKg, SCOPES } from "@/lib/emission-calculator";
 import { downloadReport } from "@/lib/pdf-report";
+import { generateAuditEvidencePack } from "@/lib/evidence-pack";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -70,6 +71,25 @@ function HistoryPage() {
           <p className="text-xs uppercase tracking-widest text-muted-foreground">History</p>
           <h1 className="mt-1 font-display text-4xl">Saved calculations</h1>
         </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (rows.length === 0) {
+              toast.error("No calculations available to package");
+              return;
+            }
+            generateAuditEvidencePack({
+              calculationRows: rows,
+              companyName: profile?.company || "Climate Social Mumbai",
+              facilityName: profile?.facility || "All Facilities",
+            });
+            toast.success("Downloaded ASSA 5010 Audit Evidence Pack (.ZIP)");
+          }}
+          disabled={rows.length === 0}
+          className="gap-2 border-primary text-primary hover:bg-primary/10"
+        >
+          <Archive className="h-4 w-4" /> Download Evidence Pack (.ZIP)
+        </Button>
       </div>
 
       <Card className="rounded-2xl p-4">

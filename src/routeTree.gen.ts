@@ -9,17 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CbamCheckerRouteImport } from './routes/cbam-checker'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedWaterAccountingRouteImport } from './routes/_authenticated/water-accounting'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedJointVenturesRouteImport } from './routes/_authenticated/joint-ventures'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedGwpOdpRouteImport } from './routes/_authenticated/gwp-odp'
 import { Route as AuthenticatedDecarbonizationRouteImport } from './routes/_authenticated/decarbonization'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCctsRouteImport } from './routes/_authenticated/ccts'
+import { Route as AuthenticatedCbamRouteImport } from './routes/_authenticated/cbam'
 import { Route as AuthenticatedCalculatorRouteImport } from './routes/_authenticated/calculator'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const CbamCheckerRoute = CbamCheckerRouteImport.update({
+  id: '/cbam-checker',
+  path: '/cbam-checker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -34,11 +44,23 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedWaterAccountingRoute =
+  AuthenticatedWaterAccountingRouteImport.update({
+    id: '/water-accounting',
+    path: '/water-accounting',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedJointVenturesRoute =
+  AuthenticatedJointVenturesRouteImport.update({
+    id: '/joint-ventures',
+    path: '/joint-ventures',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -60,6 +82,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCctsRoute = AuthenticatedCctsRouteImport.update({
+  id: '/ccts',
+  path: '/ccts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCbamRoute = AuthenticatedCbamRouteImport.update({
+  id: '/cbam',
+  path: '/cbam',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCalculatorRoute = AuthenticatedCalculatorRouteImport.update({
   id: '/calculator',
   path: '/calculator',
@@ -74,83 +106,121 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cbam-checker': typeof CbamCheckerRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calculator': typeof AuthenticatedCalculatorRoute
+  '/cbam': typeof AuthenticatedCbamRoute
+  '/ccts': typeof AuthenticatedCctsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/decarbonization': typeof AuthenticatedDecarbonizationRoute
   '/gwp-odp': typeof AuthenticatedGwpOdpRoute
   '/history': typeof AuthenticatedHistoryRoute
+  '/joint-ventures': typeof AuthenticatedJointVenturesRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/water-accounting': typeof AuthenticatedWaterAccountingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cbam-checker': typeof CbamCheckerRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/calculator': typeof AuthenticatedCalculatorRoute
+  '/cbam': typeof AuthenticatedCbamRoute
+  '/ccts': typeof AuthenticatedCctsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/decarbonization': typeof AuthenticatedDecarbonizationRoute
   '/gwp-odp': typeof AuthenticatedGwpOdpRoute
   '/history': typeof AuthenticatedHistoryRoute
+  '/joint-ventures': typeof AuthenticatedJointVenturesRoute
   '/reports': typeof AuthenticatedReportsRoute
+  '/water-accounting': typeof AuthenticatedWaterAccountingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cbam-checker': typeof CbamCheckerRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/calculator': typeof AuthenticatedCalculatorRoute
+  '/_authenticated/cbam': typeof AuthenticatedCbamRoute
+  '/_authenticated/ccts': typeof AuthenticatedCctsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/decarbonization': typeof AuthenticatedDecarbonizationRoute
   '/_authenticated/gwp-odp': typeof AuthenticatedGwpOdpRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
+  '/_authenticated/joint-ventures': typeof AuthenticatedJointVenturesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/water-accounting': typeof AuthenticatedWaterAccountingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/cbam-checker'
     | '/admin'
     | '/calculator'
+    | '/cbam'
+    | '/ccts'
     | '/dashboard'
     | '/decarbonization'
     | '/gwp-odp'
     | '/history'
+    | '/joint-ventures'
     | '/reports'
+    | '/water-accounting'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/cbam-checker'
     | '/admin'
     | '/calculator'
+    | '/cbam'
+    | '/ccts'
     | '/dashboard'
     | '/decarbonization'
     | '/gwp-odp'
     | '/history'
+    | '/joint-ventures'
     | '/reports'
+    | '/water-accounting'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cbam-checker'
     | '/_authenticated/admin'
     | '/_authenticated/calculator'
+    | '/_authenticated/cbam'
+    | '/_authenticated/ccts'
     | '/_authenticated/dashboard'
     | '/_authenticated/decarbonization'
     | '/_authenticated/gwp-odp'
     | '/_authenticated/history'
+    | '/_authenticated/joint-ventures'
     | '/_authenticated/reports'
+    | '/_authenticated/water-accounting'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CbamCheckerRoute: typeof CbamCheckerRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/cbam-checker': {
+      id: '/cbam-checker'
+      path: '/cbam-checker'
+      fullPath: '/cbam-checker'
+      preLoaderRoute: typeof CbamCheckerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -172,11 +242,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/water-accounting': {
+      id: '/_authenticated/water-accounting'
+      path: '/water-accounting'
+      fullPath: '/water-accounting'
+      preLoaderRoute: typeof AuthenticatedWaterAccountingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/joint-ventures': {
+      id: '/_authenticated/joint-ventures'
+      path: '/joint-ventures'
+      fullPath: '/joint-ventures'
+      preLoaderRoute: typeof AuthenticatedJointVenturesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/history': {
@@ -207,6 +291,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ccts': {
+      id: '/_authenticated/ccts'
+      path: '/ccts'
+      fullPath: '/ccts'
+      preLoaderRoute: typeof AuthenticatedCctsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cbam': {
+      id: '/_authenticated/cbam'
+      path: '/cbam'
+      fullPath: '/cbam'
+      preLoaderRoute: typeof AuthenticatedCbamRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/calculator': {
       id: '/_authenticated/calculator'
       path: '/calculator'
@@ -227,21 +325,29 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCalculatorRoute: typeof AuthenticatedCalculatorRoute
+  AuthenticatedCbamRoute: typeof AuthenticatedCbamRoute
+  AuthenticatedCctsRoute: typeof AuthenticatedCctsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDecarbonizationRoute: typeof AuthenticatedDecarbonizationRoute
   AuthenticatedGwpOdpRoute: typeof AuthenticatedGwpOdpRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
+  AuthenticatedJointVenturesRoute: typeof AuthenticatedJointVenturesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedWaterAccountingRoute: typeof AuthenticatedWaterAccountingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCalculatorRoute: AuthenticatedCalculatorRoute,
+  AuthenticatedCbamRoute: AuthenticatedCbamRoute,
+  AuthenticatedCctsRoute: AuthenticatedCctsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDecarbonizationRoute: AuthenticatedDecarbonizationRoute,
   AuthenticatedGwpOdpRoute: AuthenticatedGwpOdpRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
+  AuthenticatedJointVenturesRoute: AuthenticatedJointVenturesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedWaterAccountingRoute: AuthenticatedWaterAccountingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -251,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CbamCheckerRoute: CbamCheckerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

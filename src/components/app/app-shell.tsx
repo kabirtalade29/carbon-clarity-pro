@@ -10,6 +10,10 @@ import {
   Menu,
   Gauge,
   TrendingDown,
+  Building2,
+  Droplets,
+  Globe,
+  TrendingUp,
 } from "lucide-react";
 import { type ReactNode } from "react";
 import { logout, clearAuthCache } from "@/lib/auth";
@@ -34,7 +38,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/calculator", label: "Calculator", icon: Calculator },
     { to: "/reports", label: "Report Builder", icon: FileText },
+    { to: "/cbam", label: "EU CBAM Hub", icon: Globe },
+    { to: "/ccts", label: "CCTS Trading", icon: TrendingUp },
+    { to: "/water-accounting", label: "Water Accounting", icon: Droplets },
     { to: "/decarbonization", label: "Decarbonization", icon: TrendingDown },
+    { to: "/joint-ventures", label: "JV Hub", icon: Building2 },
     { to: "/gwp-odp", label: "GWP-ODP Calc", icon: Gauge },
     { to: "/history", label: "History", icon: History },
     ...(adminInfo?.isAdmin ? [{ to: "/admin", label: "Admin", icon: Shield }] : []),

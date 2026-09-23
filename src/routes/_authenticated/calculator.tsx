@@ -74,9 +74,13 @@ function CalculatorPage() {
   const [customMetricType, setCustomMetricType] = useState("Mass");
   // Document AI OCR states
   const [isParsingInvoice, setIsParsingInvoice] = useState(false);
-  const [lastOcrInfo, setLastOcrInfo] = useState<{ vendor: string; confidence: number } | null>(
-    null,
-  );
+  const [lastOcrInfo, setLastOcrInfo] = useState<{
+    vendor: string;
+    confidence: number;
+    tier: string;
+    notes: string;
+    invoiceNumber: string;
+  } | null>(null);
 
   const handleInvoiceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -92,9 +96,15 @@ function CalculatorPage() {
         }
         setQuantity(item.quantity.toString());
         setUnit(item.unit);
-        setLastOcrInfo({ vendor: item.vendorName, confidence: item.confidenceScore });
+        setLastOcrInfo({
+          vendor: item.vendorName,
+          confidence: item.confidenceScore,
+          tier: item.tier,
+          notes: item.notes,
+          invoiceNumber: item.invoiceNumber,
+        });
         toast.success(
-          `AI Document Engine extracted physical activity from ${file.name} (${item.confidenceScore}% confidence)`,
+          `AI Document Engine: ${item.tier} (${item.confidenceScore}% confidence)`,
         );
       }
     } catch {
@@ -234,14 +244,19 @@ function CalculatorPage() {
           </div>
 
           {lastOcrInfo && (
-            <div className="mb-4 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-800">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Physical Data Extracted from
-                Supplier Invoice ({lastOcrInfo.vendor})
-              </span>
-              <span className="font-bold text-emerald-700">
-                {lastOcrInfo.confidence}% Confidence
-              </span>
+            <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30 text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 font-semibold text-primary">
+                  <CheckCircle2 className="h-4 w-4" /> Physical Data Extracted: {lastOcrInfo.vendor} ({lastOcrInfo.invoiceNumber})
+                </span>
+                <span className="font-bold px-2 py-0.5 rounded bg-primary/20 text-primary">
+                  {lastOcrInfo.confidence}% Confidence
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <span className="font-medium text-foreground">{lastOcrInfo.tier}</span>
+                <span>{lastOcrInfo.notes}</span>
+              </div>
             </div>
           )}
 
