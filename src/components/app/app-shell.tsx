@@ -7,6 +7,7 @@ import {
   LogOut,
   Leaf,
   FileText,
+  FileSpreadsheet,
   Menu,
   Gauge,
   TrendingDown,
@@ -37,6 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nav = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/calculator", label: "Calculator", icon: Calculator },
+    { to: "/brsr", label: "SEBI BRSR Suite", icon: FileSpreadsheet },
     { to: "/reports", label: "Report Builder", icon: FileText },
     { to: "/cbam", label: "EU CBAM Hub", icon: Globe },
     { to: "/ccts", label: "CCTS Trading", icon: TrendingUp },

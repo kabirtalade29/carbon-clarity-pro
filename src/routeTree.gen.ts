@@ -23,6 +23,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCctsRouteImport } from './routes/_authenticated/ccts'
 import { Route as AuthenticatedCbamRouteImport } from './routes/_authenticated/cbam'
 import { Route as AuthenticatedCalculatorRouteImport } from './routes/_authenticated/calculator'
+import { Route as AuthenticatedBrsrRouteImport } from './routes/_authenticated/brsr'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
 const CbamCheckerRoute = CbamCheckerRouteImport.update({
@@ -97,6 +98,11 @@ const AuthenticatedCalculatorRoute = AuthenticatedCalculatorRouteImport.update({
   path: '/calculator',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBrsrRoute = AuthenticatedBrsrRouteImport.update({
+  id: '/brsr',
+  path: '/brsr',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cbam-checker': typeof CbamCheckerRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/brsr': typeof AuthenticatedBrsrRoute
   '/calculator': typeof AuthenticatedCalculatorRoute
   '/cbam': typeof AuthenticatedCbamRoute
   '/ccts': typeof AuthenticatedCctsRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cbam-checker': typeof CbamCheckerRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/brsr': typeof AuthenticatedBrsrRoute
   '/calculator': typeof AuthenticatedCalculatorRoute
   '/cbam': typeof AuthenticatedCbamRoute
   '/ccts': typeof AuthenticatedCctsRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cbam-checker': typeof CbamCheckerRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/brsr': typeof AuthenticatedBrsrRoute
   '/_authenticated/calculator': typeof AuthenticatedCalculatorRoute
   '/_authenticated/cbam': typeof AuthenticatedCbamRoute
   '/_authenticated/ccts': typeof AuthenticatedCctsRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cbam-checker'
     | '/admin'
+    | '/brsr'
     | '/calculator'
     | '/cbam'
     | '/ccts'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cbam-checker'
     | '/admin'
+    | '/brsr'
     | '/calculator'
     | '/cbam'
     | '/ccts'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cbam-checker'
     | '/_authenticated/admin'
+    | '/_authenticated/brsr'
     | '/_authenticated/calculator'
     | '/_authenticated/cbam'
     | '/_authenticated/ccts'
@@ -312,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalculatorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/brsr': {
+      id: '/_authenticated/brsr'
+      path: '/brsr'
+      fullPath: '/brsr'
+      preLoaderRoute: typeof AuthenticatedBrsrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -324,6 +343,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedBrsrRoute: typeof AuthenticatedBrsrRoute
   AuthenticatedCalculatorRoute: typeof AuthenticatedCalculatorRoute
   AuthenticatedCbamRoute: typeof AuthenticatedCbamRoute
   AuthenticatedCctsRoute: typeof AuthenticatedCctsRoute
@@ -338,6 +358,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedBrsrRoute: AuthenticatedBrsrRoute,
   AuthenticatedCalculatorRoute: AuthenticatedCalculatorRoute,
   AuthenticatedCbamRoute: AuthenticatedCbamRoute,
   AuthenticatedCctsRoute: AuthenticatedCctsRoute,
