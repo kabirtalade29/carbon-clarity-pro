@@ -31,6 +31,7 @@ import {
   Globe2,
   HeartHandshake,
   CheckCircle2,
+  XCircle,
   RefreshCw,
   Award,
   Layers,
@@ -39,9 +40,14 @@ import {
   Scale,
   Plus,
   Trash2,
+  Check,
+  X,
+  ExternalLink,
+  HelpCircle,
 } from "lucide-react";
 import {
   CompleteBrsrReport,
+  BLANK_BRSR_TEMPLATE,
   TATA_STEEL_BENCHMARK_TEMPLATE,
   autoCalculateBrsrReport,
   generateOfficialBrsrPdf,
@@ -61,6 +67,33 @@ export const Route = createFileRoute("/_authenticated/brsr")({
   component: BrsrSuitePage,
 });
 
+const POPULAR_STANDARDS = [
+  "ISO 14001:2015 (Environment)",
+  "ISO 50001:2018 (Energy)",
+  "ISO 45001:2018 (Safety)",
+  "ISO 9001:2015 (Quality)",
+  "ISO 27001:2022 (InfoSec)",
+  "SA8000:2014 (Social Accountability)",
+  "ResponsibleSteel™",
+  "GRI Standards",
+  "CDP Climate Disclosures",
+  "DJSI Sustainability Index",
+  "IFRS S1 / S2 (ISSB)",
+  "TCFD Recommendations",
+];
+
+const NGRBC_PRINCIPLES = [
+  { key: "p1Ethics", label: "P1: Ethics, Bribery & Transparency", desc: "Anti-corruption, fair business practices & transparent conduct" },
+  { key: "p2Products", label: "P2: Sustainable Product Lifecycle", desc: "Safe, sustainable goods with circularity & eco-design" },
+  { key: "p3Employees", label: "P3: Employee Well-being & Safety", desc: "Occupational safety, health insurance, POSH & fair treatment" },
+  { key: "p4Stakeholders", label: "P4: Stakeholder Grievance & Engagement", desc: "Inclusive dialogue with vulnerable & local communities" },
+  { key: "p5HumanRights", label: "P5: Human Rights & Minimum Wages", desc: "Zero child/forced labor, statutory wages & equal remuneration" },
+  { key: "p6Environment", label: "P6: Climate, Energy & Water Policy", desc: "Decarbonization, pollution control, ZLD & biodiversity" },
+  { key: "p7PolicyAdvocacy", label: "P7: Public Policy & Trade Advocacy", desc: "Responsible representation in industry chambers" },
+  { key: "p8InclusiveGrowth", label: "P8: CSR & Inclusive Development", desc: "Equitable community projects & MSME vendor support" },
+  { key: "p9ConsumerValue", label: "P9: Consumer Data Privacy & Value", desc: "Transparent labeling, data protection & consumer grievance" },
+] as const;
+
 export function BrsrSuitePage() {
   const [report, setReport] = useState<CompleteBrsrReport>(() => {
     if (typeof window !== "undefined") {
@@ -77,6 +110,7 @@ export function BrsrSuitePage() {
   });
 
   const [activeSectionTab, setActiveSectionTab] = useState("overview");
+  const [customCertInput, setCustomCertInput] = useState("");
 
   // Fetch verified calculations to allow instant auto-fill
   const listFn = useServerFn(listMyCalculations);
@@ -92,34 +126,128 @@ export function BrsrSuitePage() {
     }
   }, [report]);
 
-  // Handle Loading Different Templates
+  // Handle loading industry and blank templates
   const handleLoadTemplate = (templateType: string) => {
-    if (templateType === "tata_steel") {
-      setReport(TATA_STEEL_BENCHMARK_TEMPLATE);
+    if (templateType === "blank") {
+      setReport(JSON.parse(JSON.stringify(BLANK_BRSR_TEMPLATE)));
+      toast.success("Loaded Blank Client Report Template", {
+        description: "You can now customize all corporate, governance, and emission disclosures.",
+      });
+    } else if (templateType === "tata_steel") {
+      setReport(JSON.parse(JSON.stringify(TATA_STEEL_BENCHMARK_TEMPLATE)));
       toast.success("Loaded Tata Steel Benchmark Template (FY 2025-26)");
     } else if (templateType === "standard_mfg") {
       const mfg = JSON.parse(JSON.stringify(TATA_STEEL_BENCHMARK_TEMPLATE)) as CompleteBrsrReport;
       mfg.companyName = "Maharashtra Heavy Industries Ltd.";
       mfg.general.entityName = "Maharashtra Heavy Industries Ltd.";
       mfg.general.cin = "L28100MH2012PLC234567";
+      mfg.general.mainActivityDescription = "Heavy Engineering & Auto Ancillaries";
+      mfg.general.businessActivityDescription = "Forging, Machining and Cast Components";
       mfg.general.csrTurnoverCrore = 4500;
       mfg.principle6.scope1EmissionsTonnes = 85000;
       mfg.principle6.scope2EmissionsTonnes = 42000;
       mfg.principle6.totalScope1And2Tonnes = 127000;
       setReport(mfg);
-      toast.success("Loaded Standard Heavy Manufacturing Template");
+      toast.success("Loaded Heavy Manufacturing Template");
+    } else if (templateType === "it_services") {
+      const it = JSON.parse(JSON.stringify(BLANK_BRSR_TEMPLATE)) as CompleteBrsrReport;
+      it.companyName = "Apex InfoTech & Cloud Solutions Ltd.";
+      it.general.entityName = "Apex InfoTech & Cloud Solutions Ltd.";
+      it.general.cin = "L72200KA2015PLC078901";
+      it.general.mainActivityDescription = "Information Technology & Software Services";
+      it.general.businessActivityDescription = "Cloud Infrastructure, SaaS & Consulting";
+      it.general.turnoverPercentage = 100;
+      it.general.csrTurnoverCrore = 6200;
+      it.general.permanentEmployeesMale = 14500;
+      it.general.permanentEmployeesFemale = 9200;
+      it.general.womenBoardDirectorsPct = 33;
+      it.general.womenKmpPct = 30;
+      it.principle6.scope1EmissionsTonnes = 1200;
+      it.principle6.scope2EmissionsTonnes = 18500;
+      it.principle6.totalScope1And2Tonnes = 19700;
+      it.principle6.scope3EmissionsTonnes = 45000;
+      it.principle6.totalWaterConsumedML = 850;
+      it.principlesOther.turnoverWithEnvLabelingPct = 0;
+      it.principlesOther.cybersecurityPolicyExists = true;
+      it.management.certificationsAdopted = [
+        "ISO 27001:2022 (InfoSec)",
+        "ISO 14001:2015 (Environment)",
+        "ISO 9001:2015 (Quality)",
+        "GRI Standards",
+        "CDP Climate Disclosures",
+      ];
+      setReport(it);
+      toast.success("Loaded IT & Tech Services Template");
     } else if (templateType === "pharma") {
       const pharma = JSON.parse(JSON.stringify(TATA_STEEL_BENCHMARK_TEMPLATE)) as CompleteBrsrReport;
       pharma.companyName = "Alkem Lifesciences & API Corp";
       pharma.general.entityName = "Alkem Lifesciences & API Corp";
+      pharma.general.cin = "L24230MH2008PLC185674";
       pharma.general.mainActivityDescription = "Pharmaceuticals & Active Ingredients";
       pharma.general.businessActivityDescription = "API Formulation, Sterile Injectables & Solvents";
       pharma.general.csrTurnoverCrore = 2800;
+      pharma.principle6.scope1EmissionsTonnes = 32000;
+      pharma.principle6.scope2EmissionsTonnes = 24000;
+      pharma.principle6.totalScope1And2Tonnes = 56000;
       pharma.principle6.totalWaterWithdrawalML = 4200;
       pharma.principle6.totalWaterConsumedML = 2800;
-      pharma.principle6.zldDetails = "Zero Liquid Discharge active with multiple effect evaporators & ATFD.";
+      pharma.principle6.zldImplemented = true;
+      pharma.principle6.zldDetails = "Zero Liquid Discharge active with multiple effect evaporators, RO, and ATFD.";
       setReport(pharma);
       toast.success("Loaded Pharmaceuticals & APIs Template");
+    } else if (templateType === "renewable_energy") {
+      const re = JSON.parse(JSON.stringify(BLANK_BRSR_TEMPLATE)) as CompleteBrsrReport;
+      re.companyName = "Adani Green & Clean Grid Ltd.";
+      re.general.entityName = "Adani Green & Clean Grid Ltd.";
+      re.general.cin = "L40100GJ2015PLC082007";
+      re.general.mainActivityDescription = "Electricity Generation from Renewable Sources";
+      re.general.businessActivityDescription = "Solar PV, Wind Farm Operations & Grid Transmission";
+      re.general.csrTurnoverCrore = 3800;
+      re.principle6.totalRenewableEnergyPJ = 18.5;
+      re.principle6.totalEnergyConsumedPJ = 19.1;
+      re.principle6.scope1EmissionsTonnes = 420;
+      re.principle6.scope2EmissionsTonnes = 850;
+      re.principle6.totalScope1And2Tonnes = 1270;
+      re.principle6.scope3EmissionsTonnes = 12500;
+      re.management.certificationsAdopted = [
+        "ISO 14001:2015 (Environment)",
+        "ISO 50001:2018 (Energy)",
+        "ISO 45001:2018 (Safety)",
+        "CDP Climate Disclosures",
+      ];
+      setReport(re);
+      toast.success("Loaded Renewable Energy & Utilities Template");
+    } else if (templateType === "fmcg_retail") {
+      const fmcg = JSON.parse(JSON.stringify(BLANK_BRSR_TEMPLATE)) as CompleteBrsrReport;
+      fmcg.companyName = "Godrej Consumer & Foods Ltd.";
+      fmcg.general.entityName = "Godrej Consumer & Foods Ltd.";
+      fmcg.general.cin = "L15100MH2000PLC128456";
+      fmcg.general.mainActivityDescription = "Manufacturing of Food Products and Personal Care";
+      fmcg.general.businessActivityDescription = "Packaged Foods, Beverages, Soaps and Personal Care";
+      fmcg.general.csrTurnoverCrore = 8200;
+      fmcg.principle6.plasticWasteTonnes = 4200;
+      fmcg.principle6.wasteRecoveryUtilizationPct = 96.4;
+      fmcg.principlesOther.msmeProcurementSharePct = 34;
+      fmcg.principlesOther.domesticProcurementSharePct = 92;
+      setReport(fmcg);
+      toast.success("Loaded FMCG & Retail Template");
+    } else if (templateType === "bfsi") {
+      const bfsi = JSON.parse(JSON.stringify(BLANK_BRSR_TEMPLATE)) as CompleteBrsrReport;
+      bfsi.companyName = "HDFC FinCorp & Banking Ltd.";
+      bfsi.general.entityName = "HDFC FinCorp & Banking Ltd.";
+      bfsi.general.cin = "L65920MH1994PLC080618";
+      bfsi.general.mainActivityDescription = "Financial and Insurance Services";
+      bfsi.general.businessActivityDescription = "Commercial Banking, Retail Lending & Asset Management";
+      bfsi.general.csrTurnoverCrore = 24000;
+      bfsi.general.permanentEmployeesMale = 55000;
+      bfsi.general.permanentEmployeesFemale = 32000;
+      bfsi.principle6.scope1EmissionsTonnes = 3500;
+      bfsi.principle6.scope2EmissionsTonnes = 42000;
+      bfsi.principle6.totalScope1And2Tonnes = 45500;
+      bfsi.principle6.scope3EmissionsTonnes = 850000; // financed emissions
+      bfsi.principlesOther.cybersecurityPolicyExists = true;
+      setReport(bfsi);
+      toast.success("Loaded Banking & Financial Services Template");
     }
   };
 
@@ -145,7 +273,6 @@ export function BrsrSuitePage() {
       }
     }
 
-    // Default turnover & output if none
     const turnoverCr = report.general.csrTurnoverCrore || 1000;
     const outputT = 50000;
     const waterKL = 85000;
@@ -167,6 +294,87 @@ export function BrsrSuitePage() {
     toast.success("Auto-filled from Verified Data Ledgers", {
       description: "Scope 1, 2, 3 emissions, energy intensity, and water metrics synchronized.",
     });
+  };
+
+  // Synchronous company name handler
+  const handleCompanyNameChange = (name: string) => {
+    setReport({
+      ...report,
+      companyName: name,
+      general: {
+        ...report.general,
+        entityName: name,
+      },
+    });
+  };
+
+  // Toggle standard in Section B
+  const toggleStandard = (std: string) => {
+    const current = report.management.certificationsAdopted || [];
+    let next: string[];
+    if (current.includes(std)) {
+      next = current.filter((c) => c !== std);
+    } else {
+      next = [...current, std];
+    }
+    setReport({
+      ...report,
+      management: {
+        ...report.management,
+        certificationsAdopted: next,
+      },
+    });
+  };
+
+  // Add custom certification
+  const handleAddCustomCert = () => {
+    if (!customCertInput.trim()) return;
+    const current = report.management.certificationsAdopted || [];
+    if (!current.includes(customCertInput.trim())) {
+      setReport({
+        ...report,
+        management: {
+          ...report.management,
+          certificationsAdopted: [...current, customCertInput.trim()],
+        },
+      });
+      toast.success(`Added certification: ${customCertInput.trim()}`);
+    }
+    setCustomCertInput("");
+  };
+
+  // Remove certification
+  const handleRemoveCert = (cert: string) => {
+    setReport({
+      ...report,
+      management: {
+        ...report.management,
+        certificationsAdopted: (report.management.certificationsAdopted || []).filter((c) => c !== cert),
+      },
+    });
+  };
+
+  // Toggle all policies
+  const handleSetAllPolicies = (val: boolean) => {
+    setReport({
+      ...report,
+      management: {
+        ...report.management,
+        p1Ethics: val,
+        p2Products: val,
+        p3Employees: val,
+        p4Stakeholders: val,
+        p5HumanRights: val,
+        p6Environment: val,
+        p7PolicyAdvocacy: val,
+        p8InclusiveGrowth: val,
+        p9ConsumerValue: val,
+        boardApproved: val,
+        translatedToProcedures: val,
+        extendedToValueChain: val,
+      },
+    });
+    toast.success(val ? "Enabled all 9 NGRBC policies & board approvals" : "Disabled all policies");
   };
 
   // Completion Progress Metric
@@ -194,22 +402,27 @@ export function BrsrSuitePage() {
                   SEBI BRSR Comprehensive Suite
                 </h1>
                 <p className="text-xs text-muted-foreground">
-                  Full Annexure II Reporting Engine covering General, Governance, and Principles 1–9 Disclosures.
+                  Official Annexure II Reporting Engine covering General, Governance, and Principles 1–9 Disclosures.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Template Selector */}
+            {/* Template Selector with Extensive Presets */}
             <Select onValueChange={handleLoadTemplate} defaultValue="tata_steel">
-              <SelectTrigger className="w-52 h-9 text-xs bg-card border-border">
-                <SelectValue placeholder="Load Industry Template" />
+              <SelectTrigger className="w-56 h-9 text-xs bg-card border-border">
+                <SelectValue placeholder="Select Template / Client Preset" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tata_steel">Tata Steel Benchmark (Steel/Metals)</SelectItem>
-                <SelectItem value="standard_mfg">Heavy Manufacturing Template</SelectItem>
-                <SelectItem value="pharma">Pharmaceuticals &amp; APIs Template</SelectItem>
+                <SelectItem value="blank">➕ Blank / New Custom Client Report</SelectItem>
+                <SelectItem value="tata_steel">🏭 Tata Steel Benchmark (Metals &amp; Mining)</SelectItem>
+                <SelectItem value="standard_mfg">⚙️ Heavy Manufacturing &amp; Engineering</SelectItem>
+                <SelectItem value="it_services">💻 IT Services, SaaS &amp; Tech</SelectItem>
+                <SelectItem value="pharma">💊 Pharmaceuticals &amp; APIs</SelectItem>
+                <SelectItem value="renewable_energy">⚡ Renewable Energy &amp; Utilities</SelectItem>
+                <SelectItem value="fmcg_retail">🛒 FMCG, Consumer Goods &amp; Retail</SelectItem>
+                <SelectItem value="bfsi">🏦 Banking &amp; Financial Services (BFSI)</SelectItem>
               </SelectContent>
             </Select>
 
@@ -227,7 +440,7 @@ export function BrsrSuitePage() {
             <Button
               onClick={() => {
                 generateOfficialBrsrPdf(report);
-                toast.success("SEBI BRSR PDF Download Started");
+                toast.success(`Official SEBI BRSR PDF for ${report.companyName} downloaded!`);
               }}
               size="sm"
               className="h-9 text-xs gap-1.5 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
@@ -263,40 +476,60 @@ export function BrsrSuitePage() {
           </div>
         </div>
 
-        {/* Audit Status & Progress Banner */}
-        <div className="grid md:grid-cols-4 gap-4">
-          <Card className="rounded-2xl border-border bg-card p-4 shadow-xs">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">Assurance Status</span>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge className="bg-emerald-600 text-white font-mono text-xs">
-                {report.general.assuranceType}
-              </Badge>
-              <span className="text-xs text-muted-foreground truncate">ASSA 5010</span>
+        {/* Dynamic Client Profile & Audit Metadata Bar */}
+        <Card className="rounded-2xl border-border bg-card p-4 shadow-xs">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Active Client / Company Name
+              </Label>
+              <Input
+                value={report.companyName}
+                onChange={(e) => handleCompanyNameChange(e.target.value)}
+                placeholder="Enter client company name..."
+                className="h-8 text-xs font-bold bg-background text-foreground"
+              />
             </div>
-          </Card>
 
-          <Card className="rounded-2xl border-border bg-card p-4 shadow-xs">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">Assurance Provider</span>
-            <span className="font-semibold text-xs text-foreground block mt-1 truncate">
-              {report.general.assuranceProvider}
-            </span>
-          </Card>
-
-          <Card className="rounded-2xl border-border bg-card p-4 shadow-xs">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">Reporting Entity</span>
-            <span className="font-semibold text-xs text-foreground block mt-1 truncate">
-              {report.companyName} ({report.general.reportingBoundary})
-            </span>
-          </Card>
-
-          <Card className="rounded-2xl border-border bg-card p-4 shadow-xs">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              <span>Filing Readiness</span>
-              <span className="text-primary font-bold">{completionPercentage}%</span>
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Corporate Identity No. (CIN)
+              </Label>
+              <Input
+                value={report.general.cin}
+                onChange={(e) => setReport({ ...report, general: { ...report.general, cin: e.target.value } })}
+                placeholder="e.g. L27100MH1907PLC000260"
+                className="h-8 text-xs font-mono bg-background"
+              />
             </div>
-            <Progress value={completionPercentage} className="h-2 mt-2 bg-muted" />
-          </Card>
-        </div>
+
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Reporting Financial Year
+              </Label>
+              <Input
+                value={report.financialYear}
+                onChange={(e) =>
+                  setReport({
+                    ...report,
+                    financialYear: e.target.value,
+                    general: { ...report.general, financialYear: e.target.value },
+                  })
+                }
+                placeholder="FY 2025-26"
+                className="h-8 text-xs font-mono bg-background"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                <span>SEBI Filing Readiness</span>
+                <span className="text-primary font-bold">{completionPercentage}%</span>
+              </div>
+              <Progress value={completionPercentage} className="h-2 mt-2 bg-muted" />
+            </div>
+          </div>
+        </Card>
 
         {/* Section Tabs Switcher */}
         <Tabs value={activeSectionTab} onValueChange={setActiveSectionTab} className="space-y-6">
@@ -305,13 +538,13 @@ export function BrsrSuitePage() {
               <Award className="h-3.5 w-3.5 mr-1.5" /> Executive Overview
             </TabsTrigger>
             <TabsTrigger value="sectionA" className="rounded-xl text-xs font-semibold px-4 py-2">
-              <Building2 className="h-3.5 w-3.5 mr-1.5" /> Section A: General
+              <Building2 className="h-3.5 w-3.5 mr-1.5" /> Section A: General Disclosures
             </TabsTrigger>
             <TabsTrigger value="sectionB" className="rounded-xl text-xs font-semibold px-4 py-2">
-              <Shield className="h-3.5 w-3.5 mr-1.5" /> Section B: Governance
+              <Shield className="h-3.5 w-3.5 mr-1.5" /> Section B: Governance &amp; Policies
             </TabsTrigger>
             <TabsTrigger value="principle6" className="rounded-xl text-xs font-semibold px-4 py-2 text-primary font-bold">
-              <Zap className="h-3.5 w-3.5 mr-1.5" /> Principle 6: Environment
+              <Zap className="h-3.5 w-3.5 mr-1.5" /> Principle 6: Environmental
             </TabsTrigger>
             <TabsTrigger value="otherPrinciples" className="rounded-xl text-xs font-semibold px-4 py-2">
               <Users className="h-3.5 w-3.5 mr-1.5" /> Principles 1–5 &amp; 7–9
@@ -325,7 +558,7 @@ export function BrsrSuitePage() {
                 <div>
                   <h2 className="font-display text-xl font-bold text-foreground">SEBI BRSR Core Executive Dashboard</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Summary of the 9 essential environmental, social, and governance indicators mandated for Reasonable Assurance.
+                    Summary of the 9 essential environmental, social, and governance indicators for {report.companyName}.
                   </p>
                 </div>
                 <Badge variant="outline" className="text-primary border-primary/30 font-mono text-xs">
@@ -338,20 +571,23 @@ export function BrsrSuitePage() {
                 <div className="p-4 rounded-2xl border border-border bg-muted/20 space-y-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Scope 1 &amp; 2 GHG Emissions</span>
                   <div className="font-display text-2xl font-bold text-foreground">
-                    {(report.principle6.totalScope1And2Tonnes / 1000000).toFixed(2)} <span className="text-xs font-normal text-muted-foreground">Million tCO₂e</span>
+                    {report.principle6.totalScope1And2Tonnes >= 1000000
+                      ? `${(report.principle6.totalScope1And2Tonnes / 1000000).toFixed(2)} Million`
+                      : report.principle6.totalScope1And2Tonnes.toLocaleString()}{" "}
+                    <span className="text-xs font-normal text-muted-foreground">tCO₂e</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground block">
-                    Intensity: {report.principle6.scope1And2IntensityPerTonneOutput} tCO₂e / tonne output
+                    Intensity: {report.principle6.scope1And2IntensityPerTonneOutput} tCO₂e / unit output
                   </span>
                 </div>
 
                 <div className="p-4 rounded-2xl border border-border bg-muted/20 space-y-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Water Consumption &amp; ZLD</span>
                   <div className="font-display text-2xl font-bold text-foreground">
-                    {(report.principle6.totalWaterConsumedML).toLocaleString()} <span className="text-xs font-normal text-muted-foreground">Million Litres</span>
+                    {report.principle6.totalWaterConsumedML.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">Million Litres</span>
                   </div>
                   <span className="text-[11px] text-emerald-700 font-semibold block">
-                    {report.principle6.zldImplemented ? "✓ Zero Liquid Discharge Implemented" : "Partial Treatment"}
+                    {report.principle6.zldImplemented ? "✓ Zero Liquid Discharge (ZLD) Active" : "Conventional Effluent Treatment"}
                   </span>
                 </div>
 
@@ -361,7 +597,7 @@ export function BrsrSuitePage() {
                     {report.principle6.wasteRecoveryUtilizationPct}% <span className="text-xs font-normal text-muted-foreground">Recycled/Reused</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground block">
-                    {(report.principle6.totalWasteRecycledOrReusedTonnes).toLocaleString()} tonnes recovered
+                    {report.principle6.totalWasteRecycledOrReusedTonnes.toLocaleString()} tonnes recovered
                   </span>
                 </div>
 
@@ -425,20 +661,20 @@ export function BrsrSuitePage() {
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
+                  <Label className="text-xs">Listed Entity Name</Label>
+                  <Input
+                    className="bg-background text-xs font-semibold"
+                    value={report.general.entityName}
+                    onChange={(e) => handleCompanyNameChange(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
                   <Label className="text-xs">Corporate Identity Number (CIN)</Label>
                   <Input
                     className="bg-background font-mono text-xs"
                     value={report.general.cin}
                     onChange={(e) => setReport({ ...report, general: { ...report.general, cin: e.target.value } })}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Listed Entity Name</Label>
-                  <Input
-                    className="bg-background text-xs"
-                    value={report.general.entityName}
-                    onChange={(e) => setReport({ ...report, general: { ...report.general, entityName: e.target.value } })}
                   />
                 </div>
 
@@ -479,6 +715,36 @@ export function BrsrSuitePage() {
                     className="bg-background font-mono text-xs"
                     value={report.general.paidUpCapitalCrore}
                     onChange={(e) => setReport({ ...report, general: { ...report.general, paidUpCapitalCrore: Number(e.target.value) } })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Main Business Activity</Label>
+                  <Input
+                    className="bg-background text-xs"
+                    value={report.general.mainActivityDescription}
+                    onChange={(e) => setReport({ ...report, general: { ...report.general, mainActivityDescription: e.target.value } })}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Detailed Business Description</Label>
+                  <Input
+                    className="bg-background text-xs"
+                    value={report.general.businessActivityDescription}
+                    onChange={(e) => setReport({ ...report, general: { ...report.general, businessActivityDescription: e.target.value } })}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Annual Turnover (₹ Crore)</Label>
+                  <Input
+                    type="number"
+                    className="bg-background font-mono text-xs"
+                    value={report.general.csrTurnoverCrore}
+                    onChange={(e) => setReport({ ...report, general: { ...report.general, csrTurnoverCrore: Number(e.target.value) } })}
                   />
                 </div>
               </div>
@@ -534,7 +800,7 @@ export function BrsrSuitePage() {
                   </div>
 
                   <div className="p-3 rounded-xl border border-border bg-muted/20">
-                    <Label className="text-[11px] text-muted-foreground">Employee Turnover / Attrition (%)</Label>
+                    <Label className="text-[11px] text-muted-foreground">Employee Turnover (%)</Label>
                     <Input
                       type="number"
                       className="h-8 text-xs bg-background font-mono mt-1"
@@ -547,68 +813,263 @@ export function BrsrSuitePage() {
             </Card>
           </TabsContent>
 
-          {/* TAB 3: SECTION B — GOVERNANCE & POLICIES */}
+          {/* TAB 3: SECTION B — FULLY INTERACTIVE GOVERNANCE & POLICIES */}
           <TabsContent value="sectionB" className="space-y-6">
             <Card className="rounded-3xl border-border bg-card p-6 shadow-sm space-y-6">
-              <div className="border-b border-border/80 pb-3">
-                <h2 className="font-display text-lg font-bold text-foreground">Section B: Management and Process Disclosures</h2>
-                <p className="text-xs text-muted-foreground">Structures, policies, certifications, and Board oversight across Principles 1–9.</p>
+              <div className="border-b border-border/80 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                <div>
+                  <h2 className="font-display text-lg font-bold text-foreground">Section B: Management and Process Disclosures</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Configure corporate policies, Board approvals, oversight authority, and ISO certifications for {report.companyName}.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSetAllPolicies(true)}
+                    className="h-7 text-[11px] px-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-300"
+                  >
+                    <Check className="h-3 w-3 mr-1" /> Enable All Policies
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSetAllPolicies(false)}
+                    className="h-7 text-[11px] px-2.5 text-muted-foreground hover:bg-muted"
+                  >
+                    <X className="h-3 w-3 mr-1" /> Clear All
+                  </Button>
+                </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Policy Checklist across NGRBC</h3>
+              <div className="grid md:grid-cols-12 gap-6">
+                {/* Left Column: 9 NGRBC Principle Policy Switches */}
+                <div className="md:col-span-7 space-y-3">
+                  <div className="flex items-center justify-between pb-1">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Policy Checklist across NGRBC Principles (P1–P9)
+                    </h3>
+                    <span className="text-[11px] text-muted-foreground">Click to toggle active status</span>
+                  </div>
+
                   <div className="space-y-2 text-xs">
-                    {[
-                      { label: "P1: Ethics, Bribery & Transparency Policy", key: "p1Ethics" },
-                      { label: "P2: Sustainable Product Sourcing & Lifecycle Policy", key: "p2Products" },
-                      { label: "P3: Employee Well-being, POSH & Safety Policy", key: "p3Employees" },
-                      { label: "P4: Stakeholder Engagement & Grievance Policy", key: "p4Stakeholders" },
-                      { label: "P5: Human Rights & Minimum Wages Policy", key: "p5HumanRights" },
-                      { label: "P6: Climate Change, Energy & Water Policy", key: "p6Environment" },
-                      { label: "P7: Public Policy Advocacy Code of Conduct", key: "p7PolicyAdvocacy" },
-                      { label: "P8: Corporate Social Responsibility Policy", key: "p8InclusiveGrowth" },
-                      { label: "P9: Consumer Data Privacy & Cybersecurity Policy", key: "p9ConsumerValue" },
-                    ].map((item) => (
-                      <div key={item.key} className="p-3 rounded-xl border border-border bg-muted/20 flex items-center justify-between">
-                        <span>{item.label}</span>
-                        <Badge className="bg-emerald-600 text-white font-mono text-[10px]">Active &amp; Board Approved</Badge>
-                      </div>
-                    ))}
+                    {NGRBC_PRINCIPLES.map((item) => {
+                      const isActive = Boolean(report.management[item.key]);
+                      return (
+                        <div
+                          key={item.key}
+                          onClick={() =>
+                            setReport({
+                              ...report,
+                              management: {
+                                ...report.management,
+                                [item.key]: !isActive,
+                              },
+                            })
+                          }
+                          className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                            isActive
+                              ? "border-emerald-500/40 bg-emerald-50/40 dark:bg-emerald-950/20"
+                              : "border-border bg-muted/20 hover:bg-muted/40 opacity-75"
+                          }`}
+                        >
+                          <div className="space-y-0.5">
+                            <span className="font-bold text-foreground block">{item.label}</span>
+                            <span className="text-[11px] text-muted-foreground">{item.desc}</span>
+                          </div>
+                          <Badge
+                            className={`shrink-0 font-mono text-[10px] transition-colors ${
+                              isActive
+                                ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            }`}
+                          >
+                            {isActive ? "✓ Active (Yes)" : "✗ Not Formulated (No)"}
+                          </Badge>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Governance Oversight &amp; Standards</h3>
-                  <div className="space-y-3 text-xs">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Highest Authority for Oversight</Label>
+                {/* Right Column: Governance, Approvals & International Standards */}
+                <div className="md:col-span-5 space-y-5">
+                  {/* Governance Approvals Card */}
+                  <div className="p-4 rounded-2xl border border-border bg-muted/20 space-y-3 text-xs">
+                    <h3 className="font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                      Board Approval &amp; Implementation Processes
+                    </h3>
+
+                    <div className="space-y-2">
+                      <div
+                        onClick={() =>
+                          setReport({
+                            ...report,
+                            management: { ...report.management, boardApproved: !report.management.boardApproved },
+                          })
+                        }
+                        className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-card cursor-pointer hover:bg-muted/30"
+                      >
+                        <span className="text-foreground">Approved by the Board of Directors?</span>
+                        <Badge className={report.management.boardApproved ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}>
+                          {report.management.boardApproved ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+
+                      <div
+                        onClick={() =>
+                          setReport({
+                            ...report,
+                            management: { ...report.management, translatedToProcedures: !report.management.translatedToProcedures },
+                          })
+                        }
+                        className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-card cursor-pointer hover:bg-muted/30"
+                      >
+                        <span className="text-foreground">Translated into Operational Procedures?</span>
+                        <Badge className={report.management.translatedToProcedures ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}>
+                          {report.management.translatedToProcedures ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+
+                      <div
+                        onClick={() =>
+                          setReport({
+                            ...report,
+                            management: { ...report.management, extendedToValueChain: !report.management.extendedToValueChain },
+                          })
+                        }
+                        className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-card cursor-pointer hover:bg-muted/30"
+                      >
+                        <span className="text-foreground">Policies extended to Value Chain Partners?</span>
+                        <Badge className={report.management.extendedToValueChain ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}>
+                          {report.management.extendedToValueChain ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+
+                      <div
+                        onClick={() =>
+                          setReport({
+                            ...report,
+                            management: { ...report.management, sustainabilityCommitteeExists: !report.management.sustainabilityCommitteeExists },
+                          })
+                        }
+                        className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-card cursor-pointer hover:bg-muted/30"
+                      >
+                        <span className="text-foreground">Dedicated Board Sustainability Committee?</span>
+                        <Badge className={report.management.sustainabilityCommitteeExists ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}>
+                          {report.management.sustainabilityCommitteeExists ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <Label className="text-[11px] font-semibold text-foreground">Highest Authority Responsible for Oversight</Label>
                       <Input
                         className="bg-background text-xs"
+                        placeholder="e.g. Managing Director / Chief Sustainability Officer"
                         value={report.management.highestAuthorityResponsible}
-                        onChange={(e) => setReport({ ...report, management: { ...report.management, highestAuthorityResponsible: e.target.value } })}
+                        onChange={(e) =>
+                          setReport({
+                            ...report,
+                            management: { ...report.management, highestAuthorityResponsible: e.target.value },
+                          })
+                        }
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Corporate Policies Web Link</Label>
+                      <Label className="text-[11px] font-semibold text-foreground">Corporate Policies Public Web Link</Label>
                       <Input
                         className="bg-background text-xs font-mono"
+                        placeholder="https://company.com/governance/policies"
                         value={report.management.policiesWeblink}
-                        onChange={(e) => setReport({ ...report, management: { ...report.management, policiesWeblink: e.target.value } })}
+                        onChange={(e) =>
+                          setReport({
+                            ...report,
+                            management: { ...report.management, policiesWeblink: e.target.value },
+                          })
+                        }
                       />
                     </div>
+                  </div>
 
-                    <div className="p-3.5 rounded-2xl border border-border bg-muted/30 space-y-2">
-                      <span className="font-bold text-foreground block">Adopted International Standards:</span>
-                      <ul className="space-y-1 text-muted-foreground">
-                        {report.management.certificationsAdopted.map((c, i) => (
-                          <li key={i} className="flex items-center gap-2 text-[11px]">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> {c}
-                          </li>
-                        ))}
-                      </ul>
+                  {/* International Standards & Certifications Manager */}
+                  <div className="p-4 rounded-2xl border border-border bg-card space-y-3 text-xs shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        Adopted Standards &amp; Certifications
+                      </h3>
+                      <span className="text-[10px] text-primary font-semibold">
+                        {(report.management.certificationsAdopted || []).length} Selected
+                      </span>
                     </div>
+
+                    {/* Interactive Standard Chips */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {POPULAR_STANDARDS.map((std) => {
+                        const isSelected = (report.management.certificationsAdopted || []).includes(std);
+                        return (
+                          <button
+                            key={std}
+                            type="button"
+                            onClick={() => toggleStandard(std)}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1 border ${
+                              isSelected
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-muted/40 text-muted-foreground border-border hover:bg-muted"
+                            }`}
+                          >
+                            {isSelected && <Check className="h-3 w-3" />}
+                            {std}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Custom Certification Adder */}
+                    <div className="flex gap-2 pt-2 border-t border-border/80">
+                      <Input
+                        value={customCertInput}
+                        onChange={(e) => setCustomCertInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleAddCustomCert()}
+                        placeholder="Add custom certificate (e.g. LEED Platinum, ZED Gold)..."
+                        className="h-8 text-xs bg-background"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleAddCustomCert}
+                        className="h-8 text-xs px-3 shrink-0"
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-1" /> Add
+                      </Button>
+                    </div>
+
+                    {/* Active Selected Tags with Removal */}
+                    {(report.management.certificationsAdopted || []).length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[10px] text-muted-foreground uppercase font-semibold block">Currently Active in PDF:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {report.management.certificationsAdopted.map((c, i) => (
+                            <Badge
+                              key={i}
+                              variant="secondary"
+                              className="text-[10px] gap-1 py-0.5 px-2 bg-muted text-foreground border border-border"
+                            >
+                              {c}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveCert(c)}
+                                className="hover:text-destructive text-muted-foreground"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

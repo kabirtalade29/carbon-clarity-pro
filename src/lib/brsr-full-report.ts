@@ -220,6 +220,214 @@ export type CompleteBrsrReport = {
 };
 
 /**
+ * Clean Blank Template for starting a new custom client BRSR report from scratch
+ */
+export const BLANK_BRSR_TEMPLATE: CompleteBrsrReport = {
+  id: "brsr-blank-client-custom",
+  title: "SEBI BRSR Annual Report",
+  companyName: "Your Client Enterprise Ltd.",
+  financialYear: "FY 2025-26",
+  status: "Draft",
+  assuranceProvider: "Not Appointed / Independent ESG Auditor",
+  assuranceStandard: "SEBI ASSA 5010 (Reasonable Assurance on BRSR Core)",
+  lastUpdated: new Date().toISOString().split("T")[0],
+
+  general: {
+    cin: "L00000MH2020PLC000000",
+    entityName: "Your Client Enterprise Ltd.",
+    yearOfIncorporation: 2020,
+    registeredOffice: "Enter registered office address...",
+    corporateAddress: "Enter corporate headquarters address...",
+    email: "sustainability@client.com",
+    telephone: "+91 22 0000 0000",
+    website: "www.client.com",
+    financialYear: "April 1, 2025 – March 31, 2026",
+    stockExchanges: ["BSE Limited", "National Stock Exchange of India Limited"],
+    paidUpCapitalCrore: 100,
+    contactPersonName: "ESG & Compliance Officer",
+    contactPersonDesignation: "Chief Sustainability Officer",
+    contactPersonEmail: "esg@client.com",
+    contactPersonPhone: "+91 22 0000 0001",
+    reportingBoundary: "Standalone",
+    assuranceProvider: "Independent ESG Auditor",
+    assuranceType: "Reasonable Assurance",
+
+    mainActivityDescription: "Manufacturing / Services",
+    businessActivityDescription: "Commercial operations and production",
+    turnoverPercentage: 100,
+    productsSold: [
+      { productName: "Primary Product / Core Line", nicCode: "2010", turnoverSharePct: 80 },
+      { productName: "Secondary Products / Ancillaries", nicCode: "2020", turnoverSharePct: 20 },
+    ],
+
+    plantsNational: 2,
+    plantsInternational: 0,
+    officesNational: 3,
+    officesInternational: 0,
+    exportTurnoverPercentage: 10,
+    customerTypes: "B2B enterprise clients and domestic institutional buyers",
+
+    permanentEmployeesMale: 450,
+    permanentEmployeesFemale: 150,
+    otherEmployeesMale: 50,
+    otherEmployeesFemale: 20,
+    permanentWorkersMale: 300,
+    permanentWorkersFemale: 50,
+    otherWorkersMale: 120,
+    otherWorkersFemale: 30,
+    differentlyAbledEmployees: 5,
+    womenBoardDirectorsPct: 25,
+    womenKmpPct: 20,
+    employeeTurnoverPct: 8.5,
+    workerTurnoverPct: 6.2,
+
+    subsidiariesCount: 1,
+    jointVenturesCount: 0,
+
+    csrApplicable: true,
+    csrTurnoverCrore: 500,
+    csrNetWorthCrore: 250,
+    csrBudgetSpendCrore: 1.5,
+
+    totalComplaintsReceived: 12,
+    totalComplaintsResolved: 12,
+    topMaterialRisks: [
+      {
+        issue: "Decarbonization & Energy Transition",
+        riskOrOpportunity: "Risk",
+        mitigationStrategy: "Rooftop solar installation and high-efficiency drives",
+        financialImplication: "Negative",
+      },
+      {
+        issue: "Resource Efficiency & Waste Circularity",
+        riskOrOpportunity: "Opportunity",
+        mitigationStrategy: "Targeting 90%+ solid waste reuse and zero landfill",
+        financialImplication: "Positive",
+      },
+    ],
+  },
+
+  management: {
+    p1Ethics: true,
+    p2Products: true,
+    p3Employees: true,
+    p4Stakeholders: true,
+    p5HumanRights: true,
+    p6Environment: true,
+    p7PolicyAdvocacy: false,
+    p8InclusiveGrowth: true,
+    p9ConsumerValue: true,
+    boardApproved: true,
+    policiesWeblink: "https://www.client.com/governance/policies",
+    translatedToProcedures: true,
+    extendedToValueChain: true,
+    certificationsAdopted: [
+      "ISO 14001:2015 (Environment)",
+      "ISO 45001:2018 (Safety)",
+      "ISO 9001:2015 (Quality)",
+    ],
+    highestAuthorityResponsible: "Managing Director / Sustainability Committee",
+    sustainabilityCommitteeExists: true,
+  },
+
+  principle6: {
+    renewableElectricityPJ: 0.1,
+    renewableFuelPJ: 0.05,
+    totalRenewableEnergyPJ: 0.15,
+    nonRenewableElectricityPJ: 1.2,
+    nonRenewableFuelPJ: 2.1,
+    totalNonRenewableEnergyPJ: 3.3,
+    totalEnergyConsumedPJ: 3.45,
+    energyIntensityPerCroreTurnover: 0.0069,
+    energyIntensityPerTonneOutput: 0.069,
+    patSchemeApplicable: false,
+    patTargetsAchieved: false,
+
+    surfaceWaterWithdrawalML: 450,
+    groundwaterWithdrawalML: 200,
+    thirdPartyWaterML: 100,
+    seawaterDesalinatedML: 0,
+    totalWaterWithdrawalML: 750,
+    totalWaterConsumedML: 620,
+    waterIntensityPerCroreTurnoverKL: 0.00015,
+    waterIntensityPerTonneOutputKL: 1.5,
+    waterDischargedSurfaceML: 130,
+    waterDischargedThirdPartyML: 0,
+    totalWaterDischargedML: 130,
+    zldImplemented: true,
+    zldDetails: "Effluent Treatment Plant with RO recycling 80% treated process water back to cooling towers.",
+    waterStressedAreaWithdrawalML: 0,
+
+    stackNoxTonnes: 12,
+    stackSoxTonnes: 18,
+    particulateMatterTonnes: 4,
+
+    scope1EmissionsTonnes: 15400,
+    scope2EmissionsTonnes: 8600,
+    totalScope1And2Tonnes: 24000,
+    scope1And2IntensityPerCroreTurnover: 48,
+    scope1And2IntensityPerTonneOutput: 0.48,
+    scope3EmissionsTonnes: 32000,
+    scope3IntensityPerCroreTurnover: 64,
+    ghgReductionProjectsDetails: "Installation of 500 kW captive rooftop solar plant, LED lighting retrofits and variable frequency drives.",
+
+    plasticWasteTonnes: 14,
+    eWasteTonnes: 2.5,
+    hazardousWasteTonnes: 48,
+    nonHazardousWasteTonnes: 350,
+    totalWasteGeneratedTonnes: 414.5,
+    totalWasteRecycledOrReusedTonnes: 380,
+    wasteRecoveryUtilizationPct: 91.7,
+    wasteDisposedLandfillOrIncinerationTonnes: 34.5,
+  },
+
+  principlesOther: {
+    trainingCoveragePct: 100,
+    finesOrPenaltiesAmountINR: 0,
+    antiBriberyPolicyInPlace: true,
+    accountsPayableDays: 45,
+    relatedPartyPurchasesPct: 5,
+    relatedPartySalesPct: 2,
+
+    rdSustainabilitySpendPct: 15,
+    capexSustainabilitySpendPct: 20,
+    sustainableSourcingInputsPct: 65,
+    recycledMaterialUsedPct: 18,
+    eprApplicable: true,
+    lcaConductedPctOfTurnover: 45,
+
+    healthInsuranceCoveragePct: 100,
+    accidentInsuranceCoveragePct: 100,
+    dayCareFacilityCoveragePct: 60,
+    wellbeingSpendPctOfRevenue: 0.35,
+    ltifrEmployees: 0.12,
+    ltifrWorkers: 0.25,
+    fatalitiesCount: 0,
+
+    stakeholderConsultationsConducted: true,
+    vulnerableGroupsIdentified: "Contract workers and local community neighborhood surrounding factory gates",
+
+    humanRightsTrainingPct: 100,
+    minimumWagesCompliancePct: 100,
+    grossWagesPaidToFemalesPct: 22,
+    poshComplaintsFiled: 1,
+    poshComplaintsUpheld: 1,
+
+    tradeAffiliationsCount: 4,
+    tradeChambersList: ["CII", "FICCI", "ASSOCHAM"],
+
+    msmeProcurementSharePct: 28,
+    domesticProcurementSharePct: 82,
+    aspirationalDistrictsSpendCrore: 0.45,
+    totalCsrBeneficiariesCount: 15400,
+
+    turnoverWithEnvLabelingPct: 35,
+    cybersecurityPolicyExists: true,
+    customerSatisfactionScorePct: 91.4,
+  },
+};
+
+/**
  * Pre-configured Enterprise Benchmark Template (Modeled after Tata Steel / Tier-1 Indian Industrial standard)
  */
 export const TATA_STEEL_BENCHMARK_TEMPLATE: CompleteBrsrReport = {
@@ -716,6 +924,20 @@ export function generateOfficialBrsrPdf(report: CompleteBrsrReport) {
   doc.text("SECTION B: MANAGEMENT AND PROCESS DISCLOSURES", leftMargin, currentY);
   currentY += 12;
 
+  const p1 = report.management.p1Ethics ? "Y" : "N";
+  const p2 = report.management.p2Products ? "Y" : "N";
+  const p3 = report.management.p3Employees ? "Y" : "N";
+  const p4 = report.management.p4Stakeholders ? "Y" : "N";
+  const p5 = report.management.p5HumanRights ? "Y" : "N";
+  const p6 = report.management.p6Environment ? "Y" : "N";
+  const p7 = report.management.p7PolicyAdvocacy ? "Y" : "N";
+  const p8 = report.management.p8InclusiveGrowth ? "Y" : "N";
+  const p9 = report.management.p9ConsumerValue ? "Y" : "N";
+
+  const boardApp = report.management.boardApproved ? "Y" : "N";
+  const procApp = report.management.translatedToProcedures ? "Y" : "N";
+  const valApp = report.management.extendedToValueChain ? "Y" : "N";
+
   autoTable(doc, {
     startY: currentY,
     head: [
@@ -723,16 +945,16 @@ export function generateOfficialBrsrPdf(report: CompleteBrsrReport) {
     ],
     body: [
       [{ content: "Policy and management processes", colSpan: 10, styles: { fontStyle: "bold", fillColor: [248, 249, 250] } }],
-      ["1. a. Whether entity's policy/policies cover each principle of NGRBCs (Y/N)", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y"],
-      ["b. Has the policy been approved by the Board? (Y/N)", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y"],
-      ["c. Web Link of the Policies", { content: report.management.policiesWeblink, colSpan: 9 }],
-      ["2. Whether entity has translated policy into procedures (Y/N)", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y"],
-      ["3. Do policies extend to value chain partners? (Y/N)", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y"],
-      ["4. National & international certifications adopted", { content: report.management.certificationsAdopted.join("; "), colSpan: 9 }],
-      ["5. Specific commitments, goals and targets with defined timelines", { content: "Net Zero by 2045, Zero Liquid Discharge (ZED), 100% Sustainable Scrap Utilization", colSpan: 9 }],
+      ["1. a. Whether entity's policy/policies cover each principle of NGRBCs (Y/N)", p1, p2, p3, p4, p5, p6, p7, p8, p9],
+      ["b. Has the policy been approved by the Board? (Y/N)", boardApp, boardApp, boardApp, boardApp, boardApp, boardApp, boardApp, boardApp, boardApp],
+      ["c. Web Link of the Policies", { content: report.management.policiesWeblink || "Available upon internal request", colSpan: 9 }],
+      ["2. Whether entity has translated policy into procedures (Y/N)", procApp, procApp, procApp, procApp, procApp, procApp, procApp, procApp, procApp],
+      ["3. Do policies extend to value chain partners? (Y/N)", valApp, valApp, valApp, valApp, valApp, valApp, valApp, valApp, valApp],
+      ["4. National & international certifications adopted", { content: report.management.certificationsAdopted.length > 0 ? report.management.certificationsAdopted.join("; ") : "None specified", colSpan: 9 }],
+      ["5. Specific commitments, goals and targets with defined timelines", { content: `Decarbonization, Resource Efficiency & Safety Targets for ${report.financialYear}`, colSpan: 9 }],
       [{ content: "Governance, leadership and oversight", colSpan: 10, styles: { fontStyle: "bold", fillColor: [248, 249, 250] } }],
-      ["8. Highest authority responsible for implementation of policies", { content: report.management.highestAuthorityResponsible, colSpan: 9 }],
-      ["9. Specified Board Committee responsible for sustainability (Y/N)", { content: "Yes - Safety, Health & Environment Committee & CSR Sustainability Committee", colSpan: 9 }],
+      ["8. Highest authority responsible for implementation of policies", { content: report.management.highestAuthorityResponsible || "Board of Directors / Sustainability Committee", colSpan: 9 }],
+      ["9. Specified Board Committee responsible for sustainability (Y/N)", { content: report.management.sustainabilityCommitteeExists ? "Yes - Board Level ESG & Sustainability Committee" : "No", colSpan: 9 }],
     ],
     theme: "grid",
     headStyles: { fillColor: [240, 243, 246], textColor: [0, 0, 0], fontStyle: "bold", fontSize: 7.5, lineWidth: 0.5, lineColor: [160, 160, 160], halign: "center" },
