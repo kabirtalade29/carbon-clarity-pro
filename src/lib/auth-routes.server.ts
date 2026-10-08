@@ -7,6 +7,10 @@ import {
   getSessionFromCookies,
   makeSessionCookieHeader,
   clearSessionCookieHeader,
+  makeOAuthStateCookie,
+  clearOAuthStateCookie,
+  getOAuthStateFromCookies,
+  toDeterministicUuid,
 } from "./session.server";
 
 const GOOGLE_CLIENT_ID = () => process.env.GOOGLE_CLIENT_ID || "";
@@ -38,7 +42,7 @@ export async function handleAuthRoute(request: Request): Promise<Response | null
     return handleLogin();
   }
   if (url.pathname === "/api/auth/callback" && request.method === "GET") {
-    return handleCallback(url);
+    return handleCallback(url, request);
   }
   if (url.pathname === "/api/me" && request.method === "GET") {
     return handleMe(request);
@@ -63,6 +67,9 @@ function handleLogin(): Response {
     });
   }
 
+  // Generate cryptographically secure random CSRF state token
+  const state = crypto.randomUUID();
+
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
@@ -70,22 +77,44 @@ function handleLogin(): Response {
     scope: "openid email profile",
     access_type: "offline",
     prompt: "consent",
+    state,
   });
 
   return new Response(null, {
     status: 302,
     headers: {
       Location: `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
+      "Set-Cookie": makeOAuthStateCookie(state),
     },
   });
 }
 
-// ─── GET /api/auth/callback?code=... ────────────────────────────────────────
+// ─── GET /api/auth/callback?code=...&state=... ──────────────────────────────
 
-async function handleCallback(url: URL): Promise<Response> {
+async function handleCallback(url: URL, request: Request): Promise<Response> {
   const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const cookieHeader = request.headers.get("cookie") || "";
+  const storedState = getOAuthStateFromCookies(cookieHeader);
+
+  // Validate state token against CSRF
+  if (!state || !storedState || state !== storedState) {
+    console.error("[auth] OAuth CSRF state verification failed");
+    return new Response("Authentication failed: invalid or expired OAuth state (CSRF detected)", {
+      status: 400,
+      headers: {
+        "Set-Cookie": clearOAuthStateCookie(),
+      },
+    });
+  }
+
   if (!code) {
-    return new Response("Missing authorization code", { status: 400 });
+    return new Response("Missing authorization code", {
+      status: 400,
+      headers: {
+        "Set-Cookie": clearOAuthStateCookie(),
+      },
+    });
   }
 
   const clientId = GOOGLE_CLIENT_ID();
@@ -112,13 +141,17 @@ async function handleCallback(url: URL): Promise<Response> {
       console.error("[auth] Token exchange failed:", body);
       return new Response("Authentication failed during token exchange", {
         status: 500,
+        headers: { "Set-Cookie": clearOAuthStateCookie() },
       });
     }
 
     tokens = (await tokenRes.json()) as GoogleTokenResponse;
   } catch (err) {
     console.error("[auth] Token exchange request error:", err);
-    return new Response("Authentication failed", { status: 500 });
+    return new Response("Authentication failed", {
+      status: 500,
+      headers: { "Set-Cookie": clearOAuthStateCookie() },
+    });
   }
 
   // 2. Fetch user info from Google
@@ -132,30 +165,58 @@ async function handleCallback(url: URL): Promise<Response> {
       console.error("[auth] User info fetch failed:", await userRes.text());
       return new Response("Failed to fetch user info from Google", {
         status: 500,
+        headers: { "Set-Cookie": clearOAuthStateCookie() },
       });
     }
 
     googleUser = (await userRes.json()) as GoogleUserInfo;
   } catch (err) {
     console.error("[auth] User info request error:", err);
-    return new Response("Failed to fetch user info", { status: 500 });
+    return new Response("Failed to fetch user info", {
+      status: 500,
+      headers: { "Set-Cookie": clearOAuthStateCookie() },
+    });
   }
 
-  // 3. Create signed session token
+  // 3. Derive deterministic RFC 4122 compliant UUID from Google Sub ID
+  const userId = await toDeterministicUuid(googleUser.sub);
+
+  // Sync user in Supabase auth.users & profiles if Supabase is active
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existingUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (!existingUser?.user) {
+      await supabaseAdmin.auth.admin.createUser({
+        id: userId,
+        email: googleUser.email,
+        email_confirm: true,
+        user_metadata: {
+          full_name: googleUser.name,
+          avatar_url: googleUser.picture,
+        },
+      });
+    }
+  } catch (err) {
+    console.warn("[auth] Supabase user sync skipped or failed:", err);
+  }
+
+  // 4. Create signed session token
   const sessionToken = await createSessionToken({
-    id: googleUser.sub,
+    id: userId,
     email: googleUser.email,
     name: googleUser.name,
     picture: googleUser.picture,
   });
 
-  // 4. Redirect to dashboard with session cookie
+  // 5. Redirect to dashboard with session cookie and clear state cookie
+  const responseHeaders = new Headers();
+  responseHeaders.set("Location", "/dashboard");
+  responseHeaders.append("Set-Cookie", makeSessionCookieHeader(sessionToken));
+  responseHeaders.append("Set-Cookie", clearOAuthStateCookie());
+
   return new Response(null, {
     status: 302,
-    headers: {
-      Location: "/dashboard",
-      "Set-Cookie": makeSessionCookieHeader(sessionToken),
-    },
+    headers: responseHeaders,
   });
 }
 

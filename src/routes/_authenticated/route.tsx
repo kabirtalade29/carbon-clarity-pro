@@ -11,17 +11,6 @@ export const Route = createFileRoute("/_authenticated")({
     }
     const user = await fetchCurrentUser();
     if (!user) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("demo_user_session", "true");
-        return {
-          user: {
-            id: "demo-user-id",
-            email: "demo@clisomumbai.com",
-            name: "Demo User",
-            picture: "",
-          },
-        };
-      }
       throw redirect({ to: "/auth" });
     }
     return { user };

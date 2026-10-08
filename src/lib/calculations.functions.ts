@@ -42,67 +42,59 @@ export interface CalculationRow {
   created_at: string;
 }
 
-let localCalculations: CalculationRow[] = [
-  {
-    id: "demo-calc-1",
-    user_id: "demo-user-id",
-    saved_name: "Q1 Facility Energy Baseline",
-    scope: "Stationary Combustion",
-    category: "Stationary Combustion",
-    product_name: "Natural gas",
-    quantity: 1250,
-    unit: "m³",
-    co2_kg: 2362.5,
-    ch4_kg: 0.045,
-    n2o_kg: 0.004,
-    co2e_kg: 2364.8,
-    ef_source: "GHG Protocol 2024",
-    ef_details: { ef_co2: 1.89, unit: "kg CO2/m³" },
-    company: "Acme Industrial Corp",
-    facility: "Plant Alpha",
-    notes: "Baseline energy check for Q1 audit",
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: "demo-calc-2",
-    user_id: "demo-user-id",
-    saved_name: "Fleet Diesel Usage - March",
-    scope: "Mobile Combustion",
-    category: "Mobile Combustion",
-    product_name: "Gas/Diesel oil",
-    quantity: 850,
-    unit: "litre",
-    co2_kg: 2278.0,
-    ch4_kg: 0.08,
-    n2o_kg: 0.05,
-    co2e_kg: 2293.4,
-    ef_source: "EPA eGRID 2024",
-    ef_details: { ef_co2: 2.68, unit: "kg CO2/litre" },
-    company: "Acme Industrial Corp",
-    facility: "Logistics Hub B",
-    notes: "Delivery trucks fuel consumption",
-    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
+let localCalculations: CalculationRow[] = [];
 
-const localProfile: {
+type ProfileRecord = {
   id: string;
   full_name: string | null;
   company: string | null;
   facility: string | null;
   created_at: string;
-} = {
-  id: "demo-user-id",
-  full_name: "Demo User",
-  company: "Climate Social Mumbai",
-  facility: "Headquarters",
-  created_at: new Date().toISOString(),
 };
+
+const localProfiles = new Map<string, ProfileRecord>();
 
 // Helper to lazily import the Supabase admin client (for database operations only)
 async function getSupabaseAdmin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
+}
+
+/**
+ * Validates whether the user is an administrator via ADMIN_EMAILS environment
+ * variable or Supabase user_roles table.
+ */
+async function checkUserIsAdmin(userId: string, userEmail?: string): Promise<boolean> {
+  // 1. Check ADMIN_EMAILS environment variable
+  const adminEmailsEnv = process.env.ADMIN_EMAILS;
+  if (adminEmailsEnv && userEmail) {
+    const adminEmails = adminEmailsEnv
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    if (adminEmails.includes(userEmail.toLowerCase())) {
+      return true;
+    }
+  }
+
+  // 2. Check Supabase user_roles table
+  try {
+    const supabase = await getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!error && data?.role === "admin") {
+      return true;
+    }
+  } catch {
+    // Supabase unavailable or not yet configured
+  }
+
+  return false;
 }
 
 export const saveCalculation = createServerFn({ method: "POST" })
@@ -124,7 +116,7 @@ export const saveCalculation = createServerFn({ method: "POST" })
 
     const newRow: CalculationRow = {
       id: crypto.randomUUID(),
-      user_id: userId || "demo-user-id",
+      user_id: userId,
       saved_name: data.saved_name ?? null,
       scope: data.scope,
       category: data.category,
@@ -161,7 +153,8 @@ export const listMyCalculations = createServerFn({ method: "GET" })
     } catch {
       // fallback
     }
-    return localCalculations;
+    // Tenant-isolated in-memory fallback
+    return localCalculations.filter((c) => c.user_id === context.userId);
   });
 
 export const deleteCalculation = createServerFn({ method: "POST" })
@@ -174,7 +167,10 @@ export const deleteCalculation = createServerFn({ method: "POST" })
     } catch {
       // fallback
     }
-    localCalculations = localCalculations.filter((c) => c.id !== data.id);
+    // Tenant-isolated in-memory delete
+    localCalculations = localCalculations.filter(
+      (c) => !(c.id === data.id && c.user_id === context.userId),
+    );
     return { ok: true };
   });
 
@@ -194,7 +190,11 @@ export const getCalculation = createServerFn({ method: "GET" })
     } catch {
       // fallback
     }
-    return localCalculations.find((c) => c.id === data.id) ?? localCalculations[0];
+    const found = localCalculations.find((c) => c.id === data.id && c.user_id === context.userId);
+    if (!found) {
+      throw new Error("Calculation not found or unauthorized access.");
+    }
+    return found;
   });
 
 export const getMyStats = createServerFn({ method: "GET" })
@@ -211,12 +211,12 @@ export const getMyStats = createServerFn({ method: "GET" })
     } catch {
       // fallback
     }
-    return localCalculations;
+    return localCalculations.filter((c) => c.user_id === context.userId);
   });
 
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<ProfileRecord> => {
     try {
       const supabase = await getSupabaseAdmin();
       const { data, error } = await supabase
@@ -224,11 +224,19 @@ export const getMyProfile = createServerFn({ method: "GET" })
         .select("*")
         .eq("id", context.userId)
         .maybeSingle();
-      if (!error && data) return data;
+      if (!error && data) return data as ProfileRecord;
     } catch {
       // fallback
     }
-    return localProfile;
+    return (
+      localProfiles.get(context.userId) ?? {
+        id: context.userId,
+        full_name: context.userName || "Demo User",
+        company: "Climate Social Mumbai",
+        facility: "Headquarters",
+        created_at: new Date().toISOString(),
+      }
+    );
   });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
@@ -249,16 +257,27 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     } catch {
       // fallback
     }
-    if (data.full_name) localProfile.full_name = data.full_name;
-    if (data.company) localProfile.company = data.company;
-    if (data.facility) localProfile.facility = data.facility;
+    const current = localProfiles.get(context.userId) ?? {
+      id: context.userId,
+      full_name: context.userName || "Demo User",
+      company: null,
+      facility: null,
+      created_at: new Date().toISOString(),
+    };
+    localProfiles.set(context.userId, {
+      ...current,
+      ...(data.full_name !== undefined ? { full_name: data.full_name } : {}),
+      ...(data.company !== undefined ? { company: data.company } : {}),
+      ...(data.facility !== undefined ? { facility: data.facility } : {}),
+    });
     return { ok: true };
   });
 
 export const amIAdmin = createServerFn({ method: "GET" })
   .middleware([requireAuth])
-  .handler(async () => {
-    return { isAdmin: true };
+  .handler(async ({ context }) => {
+    const isAdmin = await checkUserIsAdmin(context.userId, context.userEmail);
+    return { isAdmin };
   });
 
 export const adminOverview = createServerFn({ method: "GET" })
@@ -267,9 +286,14 @@ export const adminOverview = createServerFn({ method: "GET" })
     async ({
       context,
     }): Promise<{
-      profiles: (typeof localProfile)[];
+      profiles: ProfileRecord[];
       calculations: CalculationRow[];
     }> => {
+      const isAdmin = await checkUserIsAdmin(context.userId, context.userEmail);
+      if (!isAdmin) {
+        throw new Error("Forbidden: Administrator privileges required.");
+      }
+
       try {
         const supabase = await getSupabaseAdmin();
         const [{ data: profiles }, { data: calcs }] = await Promise.all([
@@ -282,12 +306,15 @@ export const adminOverview = createServerFn({ method: "GET" })
         ]);
         if (profiles && calcs)
           return {
-            profiles: profiles as (typeof localProfile)[],
+            profiles: profiles as ProfileRecord[],
             calculations: calcs as CalculationRow[],
           };
       } catch {
         // fallback
       }
-      return { profiles: [localProfile], calculations: localCalculations };
+      return {
+        profiles: Array.from(localProfiles.values()),
+        calculations: localCalculations,
+      };
     },
   );

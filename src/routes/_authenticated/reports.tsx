@@ -452,7 +452,7 @@ function ReportsPage() {
       n2o_kg: it.n2o,
       co2e_kg: it.co2e,
       ef_source: it.source,
-      ef_details: it.efDetails as Record<string, unknown>,
+      ef_details: (it.efDetails ?? null) as any,
       company: company || "Climate Social Mumbai",
       facility: facility || "Main Facility",
       notes: notes || null,
@@ -805,7 +805,8 @@ function ReportsPage() {
               disabled={items.length === 0}
               className="w-full justify-center gap-2 text-xs text-muted-foreground hover:text-foreground"
             >
-              <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> SEBI BRSR Core Disclosures (.CSV)
+              <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> SEBI BRSR Core Disclosures
+              (.CSV)
             </Button>
           </Card>
         </div>
